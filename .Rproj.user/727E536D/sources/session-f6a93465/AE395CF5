@@ -3,9 +3,9 @@
     "path": "~/Desktop/Regression Book/IntroRegInR/Chapter1.qmd",
     "project_path": "Chapter1.qmd",
     "type": "quarto_markdown",
-    "hash": "4154657417",
+    "hash": "0",
     "contents": "",
-    "dirty": true,
+    "dirty": false,
     "created": 1758424457165.0,
     "source_on_save": false,
     "relative_order": 13,
@@ -22,11 +22,11 @@
         "docOutlineSize": "157"
     },
     "folds": "",
-    "lastKnownWriteTime": 1758845343,
+    "lastKnownWriteTime": 1758848803,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1758845347519,
+    "last_content_update": 1758848803,
     "read_only": false,
     "read_only_alternatives": []
 }

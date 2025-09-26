@@ -4,9 +4,9 @@
     "href": "index.html",
     "title": "Intro Regression In R",
     "section": "",
-    "text": "Preface\nTBD",
+    "text": "Opening Note\nThis material is a book in progress, written with Portland State University’s Stat 364 course for data science majors in mind. Please email kfreier@pdx.edu with any found errors or comments on these materials.",
     "crumbs": [
-      "Preface"
+      "Opening Note"
     ]
   },
   {

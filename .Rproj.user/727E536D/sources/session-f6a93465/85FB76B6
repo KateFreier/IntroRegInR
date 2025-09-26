@@ -3,7 +3,7 @@
     "path": "~/Desktop/Regression Book/IntroRegInR/_quarto.yml",
     "project_path": "_quarto.yml",
     "type": "yaml",
-    "hash": "1313959596",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1757053383764.0,
@@ -16,11 +16,11 @@
         "scrollLine": "10"
     },
     "folds": "",
-    "lastKnownWriteTime": 1758425570,
+    "lastKnownWriteTime": 1758853736,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1758425570143,
+    "last_content_update": 1758853736,
     "read_only": false,
     "read_only_alternatives": []
 }
