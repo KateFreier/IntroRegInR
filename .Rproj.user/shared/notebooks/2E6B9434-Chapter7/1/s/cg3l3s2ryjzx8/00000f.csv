@@ -1,0 +1,12 @@
+"0","#| label: fig-mtcar5"
+"0","#| fig-cap: Motor Trend Car Data"
+"0","#| fig-subcap: "
+"0","#| - Model with Displacement^2 plus HP, Axle Ratio, and Wt"
+"0","#| echo: false"
+"0","#| fig-width: 5"
+"0",""
+"0","par(mar=c(4,3,1,1))"
+"0","mod_mt2<-lm(mpg~I(disp^2)+hp+drat+wt)"
+"2","Error in model.frame.default(formula = mpg ~ I(disp^2) + hp + drat + wt,  : 
+  variable lengths differ (found for 'wt')
+"

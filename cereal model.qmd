@@ -1,0 +1,181 @@
+---
+title: "cereal model"
+---
+
+A good first step is to look at the simple pairwise relationships between each $x$ predictor and the outcome $y$. Let's expand beyond our two-$x$ hill race model and look at the `UScereals` data in the `MASS` data. @fig-cereal1 below shows our four predictors: protein, fat, carbohydrates, and sugars each plotted against the dependent variable: calories per serving.
+
+```{r}
+#| label: fig-cereal1
+#| fig-cap: Calories in Cereal
+#| fig-subcap: 
+#| - Protein vs. Calories
+#| - Fat vs. Calories
+#| - Carbohydrates vs. Calories
+#| - Sugars vs. Calories
+#| echo: false
+#| fig-align: center
+#| fig-height: 2.25
+#| fig-width: 3
+#| layout-ncol: 2
+#| layout-nrow: 2
+#| fig-pos: "H"
+
+par(mar=c(3,3,.75,.75), mgp=c(2,.5,0))
+attach(UScereal)
+plot(protein, calories, xlab="Protein", ylab="Calories")
+plot(fat, calories, xlab="Fat", ylab="Calories")
+plot(carbo, calories, xlab="Carbohydrates", ylab="Calories")
+plot(sugars, calories, xlab="Sugars", ylab="Calories")
+```
+
+Each of our four initial plots look fairly linear and appropriate for inclusion in our model. Protein and sugars might introduce some heterskedasticity, and there is one clear outlier in the fat plot and a few on the sugar plot, but these plots all look like a reasonable place to start. So we fit the multiple regression model and then create the fitted vs. residual plot to get a sense of how closely your model is following the data across all dimensions combined.
+
+Confession: In the case of a single predictor you could have been using an $X$ vs. residual plot this whole time, but with multiple regression you need the fitted value to serve as a combination of all independent terms in the model. Therefore, it's not bad to be in the habit of evaluating *fitted* vs. residual plots from the start.
+
+Just as in the simple one-$x$ case, If the fitted vs. residual model has curvature, you have a curvature problem to address. If the fitted vs. residual plot shows a change in residual variance, you have a heteroskedasticity problem to address. Once a problem is identified, you'll follow up with more plots to uncover which of the X are the root cause. It might be one $X$, but it also might be more than one.
+
+```{r}
+#| label: fig-cereal2
+#| fig-cap: Cereal Calories fitted vs. residuals
+#| echo: false
+#| fig-align: center
+#| fig-height: 3
+#| fig-width: 4
+#| fig-pos: "H"
+par(mar=c(4,4,1,1))
+mod_cereal<-lm(calories~protein+fat+carbo+sugars, data=UScereal)
+plot(mod_cereal$fitted, mod_cereal$resid, xlab="Fitted Calories", ylab="Model Residuals")
+abline(h=0, col=2, lwd=3)
+```
+
+This is where the partial regression plot comes in. To view how each X variable relates to your Y after the impact of the other X's has been considered you can plot $x_i$ vs. the residuals from a model predicting $Y$ using all $x_1....x_p$ except $x_i$. These are the four plots shown in @fig-cereal3.
+
+```{r}
+#| label: fig-cereal3
+#| fig-cap: Cereal Partial Regression Plots
+#| fig-subcap: 
+#| - Protein partial regression plot
+#| - Fat partial regression plot
+#| - Carbo partial regression plot
+#| - Sugars partial regression plot
+#| echo: false
+#| fig-align: center
+#| fig-height: 3
+#| fig-width: 4
+#| layout-ncol: 2
+#| layout-nrow: 2
+
+mod_cereal<-lm(calories~protein+fat+carbo+sugars, data=UScereal)
+par(mar=c(4,4,1,1))
+mpro<-lm(calories~fat+carbo+sugars, data=UScereal)
+mfat<-lm(calories~protein+carbo+sugars, data=UScereal)
+mcarbo<-lm(calories~protein+fat+sugars, data=UScereal)
+msugars<-lm(calories~protein+fat+carbo, data=UScereal)
+
+plot(UScereal$protein, mpro$resid, xlab="Protein", ylab="resid model-protein")
+plot(UScereal$fat, mfat$resid, xlab="Fat", ylab="resid model-fat")
+plot(UScereal$carbo, mcarbo$resid, xlab="Carbohydrates", ylab="resid model-carbo")
+plot(UScereal$sugars, msugars$resid, xlab="Sugars", ylab="resid model-sugars")
+
+```
+
+The encouraging take-away shown in these plots is that every variable is adding something new to our knowledge of calories. This is known by the fact that all plots show a definite relationship between their $x_i$ and the residuals from the model not including $x_i$.
+
+These plots also show us that the only relationship that isn't linear and shows a curve similar to that seen in @fig-cereal2 is the one between protein and the residuals of the model not including protein. So what can be done to make that relationship linear? Transformations. @fig-cereal4 shows the results of the four basic transformations applied to protein and then plotted against the partial residuals from the model without protein. As should have been anticipated given the parabolic shape, the protein-squared model is the most linear.
+
+```{r}
+#| label: fig-cereal4
+#| fig-cap: Transformed Protein Partial Regression Plots
+#| fig-subcap: 
+#| - Inverse Protein partial regression plot
+#| - Protein squared partial regression plot
+#| - SQRT Protein regression plot
+#| - Log Protein partial regression plot
+#| echo: false
+#| fig-align: center
+#| fig-height: 3
+#| fig-width: 4
+#| layout-ncol: 2
+#| layout-nrow: 2
+
+par(mar=c(4,4,1,1))
+mpro<-lm(calories~fat+carbo+sugars, data=UScereal)
+
+plot(1/UScereal$protein, mpro$resid, xlab="Inverse Protein", ylab="resid model-protein")
+plot(UScereal$protein^2, mpro$resid, xlab="Protein-Squared", ylab="resid model-protein")
+plot(sqrt(UScereal$protein), mpro$resid, xlab="Square-root Protein", ylab="resid model-protein")
+plot(log(UScereal$protein), mpro$resid, xlab="Log Protein", ylab="resid model-protein")
+
+```
+
+To picture this a bit better, you can space out the values of protein-squared less than 30 by first adding a constant to protein and then squaring it. This can make the plot more clear, but as demonstrated through the lines below, this doesn't fundamentally change the relationship between Protein and Calories since there's a constant in our model already.
+
+{{< pagebreak >}}
+
+Consider for any constant $c$:
+
+$$
+y=\hat{β_0}+\hat{β_1}(x_1+c)+\hat{β_2}x_2+\hat{β_3}x_3+\hat{β_4}x_4+ε
+$$
+
+$$
+y=\hat{β_0}+\hat{β_1}x_1+\hat{β_1}c+\hat{β_2}x_2+\hat{β_3}x_3+\hat{β_4}x_4+ε
+$$
+
+$$
+\hat{β_{0new}}+\hat{β_0}+\hat{β_1}c$$
+
+$$
+y=\hat{β_{0new}}+\hat{β_1}x_1+\hat{β_2}x_2+\hat{β_3}x_3+\hat{β_4}x_4+ε
+$$
+
+```{r}
+#| label: fig-cereal5
+#| fig-cap: Transformed Protein Partial Regression Plots
+#| fig-subcap: 
+#| - Protein Squared
+#| - (Protein+10) Squared
+#| echo: false
+#| fig-align: center
+#| fig-height: 3
+#| fig-width: 4
+#| layout-ncol: 2
+#| layout-nrow: 1
+
+par(mar=c(4,4,1,1))
+mpro<-lm(calories~fat+carbo+sugars, data=UScereal)
+
+plot(UScereal$protein^2, mpro$resid, xlab="Protein-Squared", ylab="resid model-protein")
+plot((UScereal$protein+10)^2, mpro$resid, xlab="(Protein+10)^2", ylab="resid model-protein")
+```
+
+From here, we know that $protein^2$ is a better linear predictor for calories than $protein$ directly so we change our model from
+
+$$
+calories=β_0+β_1protein+β_2fat+β_3carbo+β_4sugars+ε
+$$
+
+to
+
+$$
+calories=β_0+β_1protein^2+β_2fat+β_3carbo+β_4sugars+ε
+$$
+
+```{r}
+#| label: fig-cereal6
+#| fig-cap: Cereal Calories fitted vs. residuals, protein squared
+#| fig-subcap: 
+#| - Original
+#| - Transformed protein
+#| echo: false
+#| fig-align: center
+#| fig-height: 3
+#| fig-width: 4
+#| layout-ncol: 2
+par(mar=c(4,4,1,1))
+mod_cereal2<-lm(calories~I(protein^2)+fat+carbo+sugars, data=UScereal)
+plot(mod_cereal$fitted, mod_cereal$resid, xlab="Fitted Calories", ylab="Model Residuals")
+abline(h=0, col=2, lwd=3)
+plot(mod_cereal2$fitted, mod_cereal2$resid, xlab="Fitted Calories", ylab="Model Residuals")
+abline(h=0, col=2, lwd=3)
+```

@@ -1,0 +1,2 @@
+"0","plot(log(disp), mdisp$resid, xlab=""Log Displacement"", ylab=""Residuals, no disp"", pch=16)"
+"0",""

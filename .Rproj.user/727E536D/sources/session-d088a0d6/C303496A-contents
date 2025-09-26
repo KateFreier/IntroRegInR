@@ -1,0 +1,113 @@
+# Problem with the Error
+
+In this chapter we will use several ways to deal with the problems in the error.
+
+## Generalized Least Squares (GLS)
+
+Suppose we have $\epsilon = \sigma^2\Sigma$ instead of $\epsilon= \sigma^2I$, where $\Sigma$ is a known matrix. That is we know the correlation and relative variance between the errors. Since we can rewrite $\Sigma = SS\trans$ where $S$ is a triangular matrix. We develop generalized least squares by solving
+\[
+(y-\X\bb)\trans\Sigma^{-1}(y-\X\bb)
+\]
+with respect to $\bb$. Because the following model has constant variance
+\[
+S^{-1}y = S^{-1}\X\bb+S^{-1}\epsilon.
+\]
+The estimator is $\hat\bb = (\X\trans\Sigma^{-1}\X)^{-1}\X\trans\Sigma^{-1}y$ and its variance is $(\X\trans\Sigma^{-1}\X)^{-1}\sigma^2$. In practice we may not know $\Sigma$ but we can estimate it.
+
+```{r}
+data(globwarm,package="faraway")
+lmod <- lm(nhtemp ~ wusa + jasper + westgreen + chesapeake + tornetrask + urals + mongolia + tasman, globwarm)
+summary(lmod)
+cor(residuals(lmod)[-1],residuals(lmod)[-length(residuals(lmod))])
+```
+
+This is a spatial data and we suspect the error has correlation along with time `year`. The result of successive residuals support our guess. We assume an autoregressive model on the error, that is
+\[
+\epsilon_{i+1} = \phi\epsilon_i+\delta_i
+\]
+where $\delta_i\sim N(0,\tau^2)$.
+
+
+```{r}
+require(nlme)
+glmod <- gls(nhtemp ~ wusa + jasper + westgreen + chesapeake + tornetrask + urals + mongolia + tasman, correlation=corAR1(form=~year), data=na.omit(globwarm))
+summary(glmod)
+intervals(glmod,which="var-cov")
+```
+
+Another structure of variance-covariance matrix is block correlation. In the following example, we consider that the errors within the same block are correlated, that is $corr(\epsilon_i,\epsilon_j)=\rho$ if $i,j$ are from the same block while 0 otherwise. 
+```{example}
+An experiment to compare eight varieties of oats. The growing area is heterogeneous and is grouped into five blocks. Each variety is sown once within each block and yield in grams per 16 ft row is recorded. 
+```
+
+```{r}
+head(oatvar)
+glmod <- gls(yield ~ variety, oatvar, correlation = corCompSymm(form = ~1 | block))
+intervals(glmod)
+```
+
+## Weighted Least Squares
+
+This method is used for the case in which the variances are not constant but errors are independent, that is $var(\epsilon) = \sigma^2\Sigma$ where
+\[
+\Sigma = \left(\begin{matrix}
+1/w_1 & 0 & \cdots & 0\\
+0 & 1/w_2 & \cdots & 0\\
+\vdots & \vdots & \ddots & \vdots\\
+0 & 0 & \cdots & 1/w_n
+\end{matrix}\right).
+\]
+This situation usually occurs when 
+1. Errors proportional to a predictor: $\var(\epsilon_i)\porp\x_i$ suggests $w_i = x_i^{-1}$.
+2. When the $Y_i$ are the averages of $n_i$ observations, then $var(Y_i) = var(\epsiln_i) = \sigma^2/n_i$,
+which suggests $w_i = n_i$.
+3. When the observed responses are known to be of varying quality, weights may be
+assigned $w_i = 1/sd(y_i)$.
+
+```{r}
+data(fpe,package="faraway")
+fpe
+lmod <- lm(A2 ~ A+B+C+D+E+F+G+H+J+K+N-1, fpe, weights=1/EI)
+coef(lmod)
+```
+
+## Testing for Lack of Fit
+
+What we want to know is how good our model is to the true model. What we did in F-test only tells us which one is preferable. While it doesn't tell us whether our model fits the data. We expect $\hat\sigma^2$ to be close to $\sigma^2$ if our model is correct. Otherwise $\hat\sigma^2$ either overestimates or underestimates the truth.
+
+If we can collect repeated values, we should compute the "pure error" to quantify how well our fitting is. Let $y_{ij}$ be the $i^{th}$ observation in the group of true replicates $j$. The "pure error" or
+model-free estimate of $\sigma^2$ is given by $SS_{pe}/df_{pe}$ where:
+\[
+SS_{pe} = \sum_j\sum_i(y_{ij}-\bar{y}_j)^2,
+\]
+$df_{pe} = \sum_j(\# replicates_j-1) = n-\#groups$.
+
+```{example}
+Testing for lack of fit
+```
+
+```{r}
+data(corrosion, package="faraway")
+lmod <- lm(loss ~ Fe, corrosion)
+sumary(lmod)
+plot(loss ~ Fe, corrosion,xlab="Iron content", ylab="Weight loss")
+abline(coef(lmod))
+lmoda <- lm(loss ~ factor(Fe), corrosion)
+points(corrosion$Fe,fitted(lmoda),pch=3)
+anova(lmod, lmoda)
+```
+
+The low p-value indicates that we must conclude that there is a lack of fit because our model is very different from the pure variance model. We can see another extreme example.
+
+```{r}
+lmodp <- lm(loss ~ Fe+I(Fe^2)+I(Fe^3)+I(Fe^4)+I(Fe^5)+I(Fe^6),
+corrosion)
+plot(loss ~ Fe, data=corrosion,ylim=c(60,130))
+points(corrosion$Fe,fitted(lmoda),pch=3)
+grid <- seq(0,2,len=50)
+lines(grid,predict(lmodp, data.frame(Fe=grid)))
+summary(lmodp)$r.squared
+```
+
+
+

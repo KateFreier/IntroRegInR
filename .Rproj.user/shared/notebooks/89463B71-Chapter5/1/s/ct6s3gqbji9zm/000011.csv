@@ -1,0 +1,3 @@
+"0",""
+"0","mod_cpu_bc2<-lm(new_perf2~I(cpus$estperf^.5))"
+"0","abline(mod_cpu_bc2, col=""dodgerblue"", lwd=3)"

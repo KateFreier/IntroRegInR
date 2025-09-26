@@ -1,0 +1,9 @@
+makepdf4<-function(nameit, coluse){
+  pdf(paste(paste(nameit[1], nameit[2], "mobile", sep="_"), ".pdf", sep=""), width=3, height=40)
+  par(mar=c(0,0,0,0))
+  plot(c(1,1), c(0, 39), type="n", xaxt="n", yaxt="n")
+  points(rep(1,41), 1:41, pch=15, cex=50, col=c(coluse[c(29:40, 1:28)], "white"))
+  text(1, 39.7, paste(nameit[2], nameit[1], sep=" "), cex=1.4)
+  text(1,-1.25, "\U00A9 Dressed In Color, 2025")
+  dev.off()
+}

@@ -1,0 +1,1 @@
+"0","plot(1/disp, mdisp$resid, xlab=""Inverse Displacement"", ylab=""Residuals, no disp"", pch=16)"

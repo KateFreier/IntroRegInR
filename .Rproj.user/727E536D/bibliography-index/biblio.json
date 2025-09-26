@@ -1,0 +1,140 @@
+{
+    "sources": [
+        {
+            "DOI": "10.1093/comjnl/27.2.97",
+            "ISSN": "0010-4620",
+            "URL": "https://doi.org/10.1093/comjnl/27.2.97",
+            "author": [
+                {
+                    "family": "Knuth",
+                    "given": "Donald E."
+                }
+            ],
+            "container-title": "Comput. J.",
+            "id": "knuth84",
+            "issue": "2",
+            "issued": {
+                "date-parts": [
+                    [
+                        1984,
+                        5
+                    ]
+                ]
+            },
+            "page": "97-111",
+            "publisher": "Oxford University Press, Inc.",
+            "publisher-place": "USA",
+            "title": "Literate programming",
+            "type": "article-journal",
+            "volume": "27"
+        },
+        {
+            "DOI": "10.5061/DRYAD.GQNK98STM",
+            "URL": "https://datadryad.org/dataset/doi:10.5061/dryad.gqnk98stm",
+            "author": [
+                {
+                    "family": "Geiman",
+                    "given": "Claire"
+                },
+                {
+                    "family": "Long",
+                    "given": "Eric"
+                }
+            ],
+            "id": "Geiman2023",
+            "issued": {
+                "date-parts": [
+                    [
+                        2023,
+                        7,
+                        17
+                    ]
+                ]
+            },
+            "language": "en",
+            "publisher": "Dryad",
+            "title": "Data from: Allometric brain reduction in an insular, dwarfed population of black-tailed deer",
+            "title-short": "Data from",
+            "type": ""
+        },
+        {
+            "DOI": "10.32614/CRAN.package.openintro",
+            "URL": "https://CRAN.R-project.org/package=openintro",
+            "author": [
+                {
+                    "family": "Çetinkaya-Rundel",
+                    "given": "Mine"
+                },
+                {
+                    "family": "Diez",
+                    "given": "David"
+                },
+                {
+                    "family": "Bray",
+                    "given": "Andrew"
+                },
+                {
+                    "family": "Kim",
+                    "given": "Albert Y."
+                },
+                {
+                    "family": "Baumer",
+                    "given": "Ben"
+                },
+                {
+                    "family": "Ismay",
+                    "given": "Chester"
+                },
+                {
+                    "family": "Paterno",
+                    "given": "Nick"
+                },
+                {
+                    "family": "Barr",
+                    "given": "Christopher"
+                }
+            ],
+            "id": "openintro",
+            "issued": {
+                "date-parts": [
+                    [
+                        2024
+                    ]
+                ]
+            },
+            "title": "Openintro: Datasets and supplemental functions from ’OpenIntro’ textbooks and labs",
+            "title-short": "Openintro",
+            "type": "article-journal"
+        },
+        {
+            "DOI": "10.1016/0163-6383(93)80029-8",
+            "URL": "http://dx.doi.org/10.1016/0163-6383(93)80029-8",
+            "author": [
+                {
+                    "family": "Benson",
+                    "given": "Janette B."
+                }
+            ],
+            "container-title": "Infant Behavior and Development",
+            "id": "benson1993",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        1993,
+                        1
+                    ]
+                ]
+            },
+            "language": "en",
+            "page": "69-81",
+            "title": "Season of birth and onset of locomotion: Theoretical and methodological implications",
+            "title-short": "Season of birth and onset of locomotion",
+            "type": "article-journal",
+            "volume": "16"
+        }
+    ],
+    "project_biblios": [
+        "references.bib"
+    ]
+}

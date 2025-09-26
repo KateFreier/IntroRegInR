@@ -1,0 +1,30 @@
+project:
+  type: book
+
+book:
+  title: "Intro Regression In R"
+  author: "Kate Freier"
+  date: "Sept 20, 2025"
+  chapters:
+    - index.qmd #{.unnumbered}
+    - Chapter1.qmd #{.unnumbered}
+    - Chapter2.qmd #{.unnumbered}
+    - Chapter3.qmd #{.unnumbered}
+    - Chapter4.qmd #{.unnumbered}
+    - Chapter5.qmd #{.unnumbered}
+    - Chapter6.qmd #{.unnumbered}
+    - Chapter7.qmd #{.unnumbered}
+    - Chapter8.qmd #{.unnumbered}
+    - Chapter9.qmd #{.unnumbered}
+
+bibliography: references.bib
+
+format:
+  html:
+    theme:
+      - Lumen
+
+  pdf:
+    documentclass: scrreprt
+editor: visual
+

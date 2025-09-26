@@ -1,0 +1,2367 @@
+---
+title: "STAT364 Modern Regression Analysis"
+author:
+  - Ge Zhao^[<gzhao@pdx.edu>; Assistant Professor at
+    Math and Stat Department, Portland State University.]
+# author:
+# - name: Ge Zhao
+#   email: gzhao@pdx.edu
+#   affiliation: Assistant Professor at Math and Stat Department, Portland State University.
+# date: "`r format(Sys.time(), '%d %B %Y')`"
+# documentclass: article
+# papersize: letter
+# fontsize: 11pt
+# bibliography: template.bib
+# biblio-style: asa
+# keywords: Template, R Markdown, bookdown, Data Lab
+output: 
+  # bookdown::pdf_document2:
+  # bookdown::html_document2:
+  #     number_sections: TRUE
+  #     theme: lumen
+  # prettydoc::html_pretty:
+  #   theme: cayman
+  #   number_sections: TRUE
+  #   highlight: github
+  rmdformats::downcute:
+  # rmdformats::robobook:
+    use_bookdown: TRUE
+    downcute_theme: "chaos"
+    number_sections: TRUE
+    code_folding: hide
+editor_options: 
+  markdown: 
+    wrap: 72
+header-includes:
+  - \usepackage{algorithm2e}
+---
+
+<!-- <style> -->
+
+<!-- .book .book-body .page-inner section.normal h1 { -->
+
+<!--   font-size: 55px; -->
+
+<!-- } -->
+
+<!-- .book .book-body .page-inner section.normal h2,  -->
+
+<!-- .book .book-body .page-inner section.normal h3,  -->
+
+<!-- .book .book-body .page-inner section.normal h4 { -->
+
+<!--   font-size: 14px; -->
+
+<!-- } -->
+
+<!-- .book .book-body .page-inner section.normal table  td { -->
+
+<!--    font-size: 16px; -->
+
+<!-- } -->
+
+<!-- .book .book-body .page-inner section.normal pre>code.r { -->
+
+<!--   font-size: 6px; -->
+
+<!-- } -->
+
+<!-- .book .book-body .page-inner section.normal pre { -->
+
+<!--   font-size: 10px -->
+
+<!-- } -->
+
+<!-- </style> -->
+
+```{=html}
+<style type="text/css">
+
+h1.title {
+  font-size: 60px;
+  color: DarkBlue;
+  text-align: center;
+}
+h4.author { /* Header 4 - and the author and data headers use this too  */
+    font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+h5.email { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+/* Define a margin before h2 element */
+h1  {
+  margin-top: 4em;
+  margin-bottom: 2em;
+}
+h2  {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  font-size: 60pt;
+}
+h3  {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  font-size: 40pt;
+}
+body{
+  font-size: 20pt;
+}
+code.r{
+  font-size: 24px;
+}
+pre {
+  font-size: 24px
+}
+.main-container {
+  max-width: 2800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+```
+<!-- ```{=tex} -->
+
+```{=tex}
+\def\X{{\bf{X}}}
+\def\x{{\bf{x}}}
+\def\y{{\bf{y}}}
+\def\Y{{\bf{Y}}}
+\def\trans{^{T}}
+\def\bb{{\boldsymbol{\beta}}}
+\def\wh{\widehat}
+```
+<!-- ``` -->
+
+```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
+# install.packages("bookdown")
+# install.packages("lmtest")
+# install.packages("lars")
+# install.packages("MASS")
+# install.packages("olsrr")
+# install.packages("leaps")
+library(bookdown)
+library(dplyr)
+library(broom)
+library(faraway)
+library(ellipse)
+library(rstudioapi) # load it
+library(lmtest)
+library(simex)
+library(ggplot2)
+library(car)
+# current_path = getActiveDocumentContext()$path 
+# setwd(dirname(current_path))
+```
+
+# Introduction {#sec:intro}
+
+## Usage of R
+
+Suppose you have all had experience about R in STAT 363, let's skip it.
+We will come back later when we need.
+
+## Modern Regression Analysis
+
+### What is modern? {.unnumbered}
+
+### What is regression? {.unnumbered}
+
+### What is analysis? {.unnumbered}
+
+Regression: understanding the world (theoretical world or real world)
+via playing with data.
+
+Analysis: our data is a good representative of our world (our problem),
+our understanding of the world (model) is reasonable (including
+reasonable assumptions), our result (after some data playing) is a good
+explanation of our understanding or at least helps us understand the
+world.
+
+Modern: we use new technologies to achieve what we want. Computer, new
+methods, new algorithm, new problems (big data), new challenges (AI)
+
+Example: Find a stock (Apple), record the close price on each Thursday.
+Record your quiz on each Friday. Model the connection between these two
+records. Predict your next quiz score based on the close price on the
+day before. What can you tell me? A more extreme sample: record the
+bitcoin price, (if possible, record and quantify the twitter of Elon
+Mask), record your quiz score. Model them. Is this a reasonable model?
+Can we do it? Can we analyze it? What if you put a lot of money in the
+bitcoin market, and you are trading it everyday. Is this a reasonable
+model? Can we do it? Can we analyze it?
+
+This is how we use statistics in real world.
+
+This is a fundamental course in statistics and also in data science. I
+will use statistics often but you should know most of them are also true
+in data science. The difference, maybe, is that statistics also focuses
+on the theory behind it (we may not see any of them in this course), but
+data science focuses on the result more.
+
+```{r,echo = FALSE, results='hide', message=FALSE}
+# install.packages("segmented")
+# install.packages("ggplot2")
+library(ggplot2)
+library(segmented)
+set.seed(10)
+
+# Attach Packages
+library(tidyverse)    # data manipulation and visualization
+library(kernlab)      # SVM methodology
+library(e1071)        # SVM methodology
+library(ISLR)         # contains example data set "Khan"
+library(RColorBrewer) # customized coloring of plots
+```
+
+```{r, echo=FALSE, fig.align = 'center'}
+df = data.frame(x=c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),
+                 y=c(2, 4, 5, 6, 8, 10, 12, 13, 15, 19, 24, 28, 31, 34, 39, 44))
+plot(df$x, df$y, pch=16, col='steelblue', xlab = "",ylab = "")
+fit = lm(y ~ x, data=df)
+abline(lm(y ~ x, data=df))
+segmented.fit = segmented(fit, seg.Z = ~x, psi=9)
+plot(df$x, df$y, pch=16, col='steelblue', xlab = "",ylab = "")
+plot(segmented.fit, add=T)
+
+# generate data
+x = matrix(rnorm(20*2), ncol = 2)
+y = c(rep(-1,10), rep(1,10))
+x[y==1,] = x[y==1,] + 3/2
+dat = data.frame(x=x, y=as.factor(y))
+# simple plot
+ggplot(data = dat, aes(x = x.2, y = x.1, color = y, shape = y)) + 
+  geom_point(size = 4) +
+  scale_color_manual(values=c("#000000", "#FF0000")) +
+  theme(legend.position = "none",
+        axis.text.x=element_blank(), #remove x axis labels
+        axis.ticks.x=element_blank(), #remove x axis ticks
+        axis.text.y=element_blank(),  #remove y axis labels
+        axis.ticks.y=element_blank()  #remove y axis ticks
+        )
+
+# fit model
+svmfit = svm(y~., data = dat, kernel = "radial", cost = 10, gamma = 1)
+# plot results
+plot(svmfit, dat, xlab = "",ylab = "",main = "")
+```
+
+We will see. :)
+
+# Estimation
+
+First we define a proper model for estimation. Let $Y$ be the
+**response** variable and ${\bf{X}}$ be the **predictors**. We are
+interested in finding the relationship between $Y$ and ${\bf{X}}$. Then
+we assume they satisfy the following formula $$
+Y=f({\bf{X}})
+$$ where $f(\cdot)$ is some functions. If we know $f$, we know the truth
+if $f$ is correct. If $f$ is not correct, we need to find the correct
+$f$. If we don't know $f$, we need to estimate it. If $f$ is not
+deterministic, i.e. we have randomness, we have a statistical model and
+we write it as $$
+Y = f({\bf{X}})+\varepsilon
+$$ where $\varepsilon$ is some random variable named **error**,
+${\bf{X}}=(X_1,X_2,...,X_p)$ is a vector with length $p$. In estimation,
+our goal is to find $f$.
+
+## Linear Model
+
+We start from the simplest model first --- linaer model. Let's assume
+the following model $$
+Y = \beta_0+\beta_1 X_1+\beta_2 X_2+ \cdots+\beta_p X_p+\varepsilon
+$$ that $Y$ is a linear function of ${\bf{X}}$, which is also a linear
+function of parameter
+${\bf\beta}=(\beta_0,\beta_1,\beta_2,...,\beta_p)$. We have other models
+look like not a linear model but we can transfer it to linear model
+discussed in later chapters.
+
+Linear model is simple, but useful and powerful. 1. Physical model tells
+us to use a linear model. (Hooke's law) 2. Experience tells us to use a
+linear model. (Similar data from an old linear model) 3. Linear model is
+a good starting point when we know nothing about the data. (Because we
+will analyze its result that will help us find the problem of our model
+and data later.)
+
+We need data to estimate the parameters. Suppose we observe $n$ data
+points. Each data point include
+$(y_i,x_{i1},x_{i2},...,x_{ip}),i=1,2,...,n$. Then our model will be $$
+y_i = \beta_0+\beta_1x_{i1}+\beta_2x_{i2}+\cdots+\beta_px_{ip}+\varepsilon_i,i = 1,2,...,n.
+$$ Let's use matrix form. $$
+{\bf y}={\bf x}{\boldsymbol{\beta}}+{\bf\varepsilon}
+$$ where ${\boldsymbol{\beta}}=(\beta_0,\beta_1,...,\beta_p)^{T}$,
+${\bf y} = (y_1,y_2,...,y_n)^{T}$,
+${\bf \varepsilon} = (\varepsilon_1,\varepsilon_2,...,\varepsilon_n)^{T}$,
+and $$
+{\bf x}=\begin{pmatrix}
+1 & x_{11} & x_{12} & \cdots & x_{1p}\\
+1 & x_{21} & x_{22} & \cdots & x_{2p}\\
+\vdots & \vdots & \vdots & \ddots & \vdots\\
+1 & x_{n1} & x_{n2} & \cdots & x_{np}\\
+\end{pmatrix}.
+$$ A very natural assumption is that $E(\varepsilon)=0$.
+
+```{exercise}
+<span style="color: green;">
+Why we can assume $E(\varepsilon)=0$ without any information about the data and the model?
+</span>
+```
+
+Next question, what is ${\boldsymbol{\beta}}$? How to estimate it?
+
+## Estimating ${\boldsymbol{\beta}}$
+
+Let's look at the meaning of $Y$, ${\bf{X}}{\boldsymbol{\beta}}$, and
+$\varepsilon$.
+
+<center>
+
+![Geometrical representation of the estimation
+${\boldsymbol{\beta}}$](figure1.png)
+
+</center>
+
+We want to represent a $n$ dimensional data $Y$ by a combination of
+lower dimensional model and some random variations. The lower
+dimensional model is $p$ dimension, i.e. ${\boldsymbol{\beta}}$. The
+random variation is $\varepsilon$. The best or ideal case is that there
+is no randomness. However we don't have this situation in the real
+world. Our goal is to estimate ${\boldsymbol{\beta}}$ and make
+$\varepsilon$ small as possible.
+
+```{r, fig.height = 10}
+x = runif(50)
+y = x+rnorm(50,0,0.1)
+par(mfrow=c(3,2))
+plot(x,y,type = 'p',pch = 20)
+abline(h = 0.5)
+plot(x,y,type = 'p',pch = 20)
+abline(a = 0.5,b = 0)
+plot(x,y,type = 'p',pch = 20)
+abline(a = 1.8,b = -2)
+plot(x,y,type = 'p',pch = 20)
+abline(a = 0.1,b = 0.8)
+plot(x,y,type = 'p',pch = 20)
+abline(a = -0.2,b = 1.5)
+plot(x,y,type = 'p',pch = 20)
+abline(a = 0,b = 1)
+```
+
+## Least Squares Estimation (LSE/LS)
+
+We minimize the following terms $$
+\sum_i^n\varepsilon_i^2 = {\bf\varepsilon}^{T}{\bf\varepsilon} = ({\bf{y}}-{\bf{x}}{\boldsymbol{\beta}})^{T}({\bf{y}}-{\bf{x}}{\boldsymbol{\beta}})
+$$ with respect to ${\boldsymbol{\beta}}$. The procedure is typical.
+
+1.  Differentiating $\sum_i^n\varepsilon_i^2$ with respect to
+    ${\boldsymbol{\beta}}$.
+
+2.  Set the derivative above to zero.
+
+3.  Solve for $\widehat{{\boldsymbol{\beta}}}$.
+
+We denote the estimator of $\widehat{{\boldsymbol{\beta}}}$ as
+$\widehat{{\boldsymbol{\beta}}}_{LS}$. Then we have $$
+\begin{aligned}
+\widehat{\boldsymbol{\beta}}&= ({\bf{X}}^{T}{\bf{X}})^{-1}{\bf{X}}^{T}{\bf{y}}\\
+{\bf{X}}\widehat{\boldsymbol{\beta}}& = {\bf{X}}({\bf{X}}^{T}{\bf{X}})^{-1}{\bf{X}}^{T}{\bf{y}}\\
+\widehat{\bf{y}}&= {\bf{X}}({\bf{X}}^{T}{\bf{X}})^{-1}{\bf{X}}^{T}{\bf{y}}=H{\bf{y}}\\
+\end{aligned}
+$$ where $H = {\bf{X}}({\bf{X}}^{T}{\bf{X}})^{-1}{\bf{X}}^{T}$ is called
+**hat matrix**. $H$ is a projection that project $y$ onto the space
+spanned by ${\bf{X}}$.
+
+Some further results. $$
+\begin{aligned}
+\widehat\varepsilon &= {\bf e} = {\bf{y}}-\widehat{\bf{y}}= {\bf{y}}-H{\bf{y}}= (I-H){\bf{y}}\\
+\widehat\varepsilon^{T}\widehat\varepsilon = {\bf e}^{T}{\bf e} &= {\bf{y}}^{T}(I-H)^{T}(I-H){\bf{y}}=  {\bf{y}}^{T}(I-H){\bf{y}}
+\end{aligned}
+$$ The last piece usually called the residual sum of squares (RSS). It
+plays a very important role in futrue study.
+
+We need more property of our random model because we only have
+$E(\varepsilon)=0$ right now. Let's assum the variance of $\varepsilon$
+is $\sigma^2I$, where $I$ is an identity matrix. This assumption means
+that observations are independent with each other, and they have the
+same expectation and variance. In further theoretical analysis, we will
+assume $\varepsilon_i$ are identical independent normal distributions
+(i.i.d.). Of course, in a more complex study, these assumptions are
+violated and we need to find new assumptions to fit the real world
+problem more. Further we have
+$var(\widehat{\boldsymbol{\beta}}) = ({\bf{X}}^{T}{\bf{X}})^{-1}\sigma^2$.
+
+Note that $\sigma^2$ is also unknown to us, we need to estimate it. We
+use the property that
+$E(\widehat\varepsilon^{T}\widehat\varepsilon) = \sigma^2(n-p)$, which
+suggests the following estimator: $$
+\widehat\sigma^2 = \frac{\widehat\varepsilon^{T}\widehat\varepsilon}{n-p}=\frac{RSS}{n-p}
+$$ The standard error of $\widehat{\boldsymbol{\beta}}_i$ is
+$\sqrt{({\bf{X}}^{T}{\bf{X}})^{-1}_{ii}}\widehat\sigma$.
+
+```{remark}
+This is a very useful method even in current era.
+```
+
+```{example}
+We are interested in the number of species on each island on the Galapagos Islands and the possible factors that may affect the species.
+```
+
+First we estimate the parameter ${\boldsymbol{\beta}}$.
+
+```{r}
+library(faraway)
+data(gala, package="faraway")
+head(gala[,-2])
+lmod = lm(Species ~ Area + Elevation + Nearest + Scruz  + Adjacent, data=gala)
+summary(lmod)
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+gala %>% do(lmod = lm(Species ~ Area + Elevation + Nearest + Scruz  + Adjacent, data = .))
+```
+
+```{exercise}
+<span style="color: green;">
+Compute $\widehat{\beta}$ by using matrix form.
+</span>
+```
+
+Second we estimate the parameter $\sigma^2$, using
+$\widehat\sigma^2=({\bf{x}}^{T}{\bf{x}})^{-1}$
+
+```{r}
+sqrt(deviance(lmod)/df.residual(lmod))
+summary(lmod)$sigma
+x = model.matrix( ~ Area + Elevation + Nearest + Scruz + Adjacent,gala)
+sqrt(diag(summary(lmod)$cov.unscaled))*60.975
+summary(lmod)$coef[,2]
+```
+
+## Theoretical preparation
+
+```{theorem, GM}
+**Gauss-Markov Theorem**\
+if\
+1. $E(\varepsilon_i)=0,i=1,2,...,n$\
+2. $Var(\varepsilon_{i})=\sigma ^{2}<\infty,i=1,2,...,n$\
+3. $Cov(\varepsilon_i,\varepsilon_j) = 0, i\ne j,i,j=1,2,...,n.$\
+Then $\widehat{\beta}$ we derived above is the best linear unbiased estimator (BLUE) if model is correct.
+```
+
+We will skip the prove of this theorem. (you can find it in the text if
+you are interested in.) The theorem tell us that LS estimator is a good
+solution as long as the assumptions are satisfied. Usually, even we
+don't know the true (ideal) situation of our data, we can assume the
+conditions are satisfied as long as our approximate is not far. If
+violated, we need new methods.
+
+## Goodness of Fit
+
+In this section, we will quantify how good our model fits the data.
+Let's define $$
+R^2 = 1-\frac{\sum_i(\widehat y_i-y_i)^2}{\sum_i(y_i-\bar{y})^2}=\frac{\sum_i(\widehat y_i-\bar{y})^2}{\sum_i(y_i-\bar{y})^2},
+$$ so-called **coefficient of determination or percentage of variance
+explained**. Note that $0\le R^2 \le 1$. Closing to 1 indicates a better
+fits. Closing to 0 indicates a worse fits. The ideal case is that
+$R^2=1$.
+
+```{r}
+x = runif(50)
+y = x+rnorm(50,0,0.1)
+par(mfrow=c(1,2))
+plot(rep(0.5,50),y,type = 'p',pch = 20,xlab = "",xaxt='n')
+plot(x,y,type = 'p',pch = 20)
+abline(a = 0,b = 1)
+par(mfrow=c(1,2))
+plot(rep(0.5,50),y,type = 'p',pch = 20,xlab = "",xaxt='n')
+arrows(x0 = 0.4,x1 = 0.4,y0 = 0,y1 = 1,col = "blue") 
+arrows(x0 = 0.4,x1 = 0.4,y0 = 1,y1 = 0,col = "blue") 
+plot(x,y,type = 'p',pch = 20)
+abline(a = 0,b = 1)
+arrows(x0 = 0.4,x1 = 0.4,y0 = 0.2,y1 = 0.6,col = "blue") 
+arrows(x0 = 0.4,x1 = 0.4,y0 = 0.6,y1 = 0.2,col = "blue") 
+```
+
+[CAUTION:]{style="color: red;"}
+
+-   If you have no intercept in your model, use $cor^2(\widehat y,y)$
+    instead of $R^2$ because $R^2$ will give you midleadingly high
+    value. This is true because in linear model, $$
+    R^2 = r^2 = cor^2(\widehat y,y),
+    $$ where $r$ is the correlation between ${\bf{x}}$ and $y$.
+-   Large $R^2$ doesn't always mean a better performance, because we
+    need linear model.
+
+```{r, echo = FALSE}
+par(mar=c(2,2,1,1),mfrow=c(2,2))
+x1 = runif(50)
+y = x1+rnorm(50,0,0.21)
+plot(x1,y,type = 'p',pch = 20,xlim = c(0,1),ylim = c(0,1))
+x2 = runif(50,0.3,0.8)
+y = x2+rnorm(50,0,0.15)
+plot(x2,y,type = 'p',pch = 20,xlim = c(0,1),ylim = c(0,1))
+x3 = runif(50)
+y = x3+rnorm(50,0,0.1)
+y[25:26] = c(0,1)
+plot(x3,y,type = 'p',pch = 20,xlim = c(0,1),ylim = c(0,1))
+x4 = runif(50)
+y = (x4-0.33)^2+rnorm(50,0,0.03)
+plot(x4,y,type = 'p',pch = 20,xlim = c(0,1),ylim = c(0,0.5))
+```
+
+-   The matrix $({\bf{X}}^{T}{\bf{X}})^{-1}$ may not be invertable. The
+    possible reasons include but not limit to linearly correlated
+    predictors, e.g. $x_1 = 2x_2+3x_3$ or more predictors than
+    observations, i.e. $p>n$.
+
+The first one can be solved in some packages.
+
+```{r}
+gala$Adiff = gala$Area -gala$Adjacent
+lmod = lm(Species ~ Area+Elevation+Nearest+Scruz+Adjacent +Adiff,gala)
+sumary(lmod)
+Adiffe = gala$Adiff+0.001*(runif(30)-0.5)
+lmod = lm(Species ~ Area+Elevation+Nearest+Scruz +Adjacent+Adiffe,gala)
+sumary(lmod)
+```
+
+# Inference
+
+
+A natural question: how much strong do you believe that our estimation
+$\widehat{\boldsymbol{\beta}}$ is the true value of
+${\boldsymbol{\beta}}$? If not sure, how far do you think our estimation
+$\widehat{\boldsymbol{\beta}}$ is from the true value of
+${\boldsymbol{\beta}}$?
+
+First we need a very important assumption $$
+\epsilon\sim N(0,\sigma^2).$$
+
+Collect what we have until now.
+
+1.  Linear model:
+
+$$Y=X\beta+\epsilon$$
+$\epsilon$ is random, so does $Y$. $X$ are fixed not random.
+
+2. $\beta$ is unknown. The estimator $\hat\beta$ is $(X^TX)^{-1}X^TY$. $\beta$ is a linear function of $Y$.  
+
+3. $Y_1,Y_2,...,Y_n$ are independent because of the independence of $\epsilon_1,\epsilon_2,...,\epsilon_n$.
+
+4. $\beta$ is normal distributed if $\epsilon_1,\epsilon_2,...,\epsilon_n$ are normal distributed.
+
+
+
+
+
+
+Let's look at several plots first. Those are histograms of
+$\widehat{\boldsymbol{\beta}}_1$ from model
+$y = 2+3 x +\epsilon$ for different sample sizes and
+variances of $\varepsilon$. Every time I generate $y$ from same $x$ but random $\epsilon$. The procedure repeat 1000 times. 
+
+
+```{r,fig.height=8} 
+simulations = 1000 
+betaResult = matrix(0,1000,4) 
+x1 = runif(50) 
+x2 = runif(500) 
+for (i in seq(1000)){
+  y = 2+3*x1+rnorm(50,0,0.2)
+  model1 = lm(y ~ x1)
+  y = 2+3*x1+rnorm(50,0,1) 
+  model2 = lm(y ~ x1)
+  y = 2+3*x2+rnorm(500,0,0.2)
+  model3 = lm(y ~ x2)
+  y = 2+3*x2+rnorm(500,0,1)
+  model4 = lm(y ~ x2)
+  betaResult[i,] = c(model1$coefficients[2],model2$coefficients[2],               model3$coefficients[2],model4$coefficients[2]) 
+} 
+par(mfrow=c(2,2)) 
+hist(betaResult[,1],main = "50 samples, variance 0.2") 
+hist(betaResult[,2],main = "50 samples, variance 1") 
+hist(betaResult[,3],main = "500 samples, variance 0.2") 
+hist(betaResult[,4],main = "500 samples, variance 1")
+```
+
+All of the following derivations are based on the normality assumption.
+
+## Hypothesis Testing
+
+A common hypothesis testing question is
+
+$$ H_0: \text{Statement H (what we are interested in)}$$ $$\text{v.s.}$$
+$$H_1: \text{not }H$$
+
+### Hypothesis Tests to Compare Models
+
+The first test is an overall test. We want to know whether this model is
+proper or not.
+
+We call the larger model is the **FULL** model, the smaller model is
+**REDUCED** model. In text, they are called $\Omega$ and $\omega$. In
+hypothesis testing, The full model is called the alternative model and
+the reduced model is called the null model.
+
+If $\textrm{RSS}_{reduced}-\textrm{RSS}_{full}$ is small, it means that
+fitting data by the smaller model is almost as good as the full model,
+hence we would use smaller one. On the other hand, if the difference is
+large, the larger model is preferred. Let's compute $$
+\frac{\textrm{RSS}_{reduced}-\textrm{RSS}_{full}}{\textrm{RSS}_{full}}
+$$ If it is larger than some constant, we will use full model. Otherwise
+we will use reduced model. The thorough proof is shown by likelihood
+ratio test. The basic idea is that $$
+F=\frac{(\textrm{RSS}_{full}-\textrm{RSS}_{reduced})/(df_{full}-df_{reduced})}{\textrm{RSS}_{full}/df_{full}}\sim F_{(df_{full}-df_{reduced}),df_{full}}
+$$ is $F$ distributed with degree of freedom $df_{full}-df_{reduced}$
+and $df_{full}$. Then we can compute the p-value to decide the
+significance of model comparison based on given significant level
+$\alpha$.
+
+```{example}
+Suppose we want to test the full model $y=x\beta+\epsilon$ with ${\beta}$ has $p$ parameters and the reduced model $y = \mu+\epsilon$. Then $\textrm{RSS}_{full}$ is given by $(y-x\widehat{\beta})^T(y-x\widehat{\beta})$, and $\textrm{RSS}_{reduced} = (y-\bar{y})^T(y-\bar{y})$. The corresponding d.f. are $n-p$ and $n-1$.
+```
+
+```{r}
+data(gala, package="faraway")
+lmod = lm(Species ~ Area + Elevation + Nearest + Scruz + Adjacent,gala)
+nullmod = lm(Species ~ 1, gala)
+anova(nullmod, lmod)
+```
+
+Or we can compute each term and compute the $F$ test statistics.
+
+```{r}
+rss0 = deviance(nullmod)
+rss = deviance(lmod)
+df0 = df.residual(nullmod)
+df = df.residual(lmod)
+fstat = ((rss0-rss)/(df0-df))/(rss/df)
+1-pf(fstat, df0-df, df)
+```
+
+Or
+
+```{r}
+summary(lmod)
+```
+
+```{exercise}
+<span style="color: green;">
+What's the difference?
+</span>
+```
+
+We can use this idea to test each individual predictor. For example
+
+```{r}
+lmods = lm(Species ~ Elevation + Nearest + Scruz + Adjacent, gala)
+anova(lmods, lmod)
+```
+
+It tells us (with $p$-value 0.2963) `Area` is not significant and we may
+no need to include it in our model when studying the species number.
+There is an equivalent way to test the single predictor. Because
+$F_{1,p}=t_p^2$ where $t_p$ is a $t$-student distribution with d.f. $p$.
+And further $t$ is the ratio of a standard normal distribution and a
+$\chi^2_p$ distribution with d.f. $p$. And $\chi^2_p$ is the sum of $p$
+standard normal squares. In this case,
+$t = \widehat{\boldsymbol{\beta}}_i/se(\widehat{\boldsymbol{\beta}}_i)$.
+(look at `summary(lmod)`)
+
+[CAUTION: You need to specify the full model when you do hypothesis
+testing.]{style="color: red;"}
+
+We can also test some special cases for F-test.
+
+-   Test a pair of predictors (or more).
+
+For example, we want to test
+${\boldsymbol{\beta}}_1={\boldsymbol{\beta}}_2=0$. You just need to run
+a new reduced model and compare the RSS.
+
+-   Test a subspace.
+
+For example, we want to test
+${\boldsymbol{\beta}}_1={\boldsymbol{\beta}}_2$. The the reduced model
+will have one parameter fewer and combine the predictors $x_1$ and $x_2$
+together by addition.
+
+```{r}
+lmods = lm(Species ~ I(Area+Adjacent) + Elevation + Nearest + Scruz, gala)
+anova(lmods, lmod)
+```
+
+-   Test at a specified point
+
+For example, we want to test ${\boldsymbol{\beta}}_1=0.5$. In this case,
+$t$ test is easier. The $t$ test statistic is $$
+t = \frac{\widehat{\boldsymbol{\beta}}_1-0.5}{se(\widehat{\boldsymbol{\beta}})},
+$$ and compare $t$ with quantile $t_{0.05,n-p}$.
+
+```{r}
+ttest = (0.319465-0.5)/0.053663
+ttest^2
+ttest = (summary(lmod)$coefficients[3,1]-0.5)/summary(lmod)$coefficients[3,2]
+ttest^2
+```
+
+In R, there is another way
+
+```{r}
+lmods = lm(Species ~ Area+ offset(0.5*Elevation) + Nearest + Scruz + Adjacent, gala)
+anova(lmods, lmod)
+```
+
+-   We can only test the linear hypothesis, not non-linear hypothesis.
+    We cannot test non-nested model in this F-test.
+
+## Confidence Intervals for ${\boldsymbol{\beta}}$
+
+We use Confidence Intervals (CIs) to quantify or express the uncertainty
+in the estimates of ${\boldsymbol{\beta}}$. It tells us how far our
+estimation is from the truth. Note the fact that $$
+t = \frac{\widehat{\boldsymbol{\beta}}-{\boldsymbol{\beta}}}{se(\widehat{\boldsymbol{\beta}})}\sim t_{n-p}.
+$$ The CIs is constructed as $$
+\widehat{\boldsymbol{\beta}}\pm t_{\alpha/2,n-p} se(\widehat{\boldsymbol{\beta}})
+$$
+
+```{r}
+summary(lmod)$coefficients[2,1]+c(-1,1)*qt(0.975, 30-6)*summary(lmod)$coefficients[2,2]
+```
+
+This pair of numbers means at the 5% level, this interval will cover the
+true value of ${\boldsymbol{\beta}}_1$. Actually, it not only includes
+0, but many other values.
+
+In other words, if we repeat the process many times, 95% of the
+intervals will cover the true value of $\beta$.
+
+A simple way
+
+```{r}
+confint(lmod)
+```
+
+Compare with hypothesis testing, CIs tell us a range rather than a
+yes/no answer. We also need to be very careful when using p-value.
+
+If we want the CIs for more than one parameters, we have a confidence
+region defined by $$
+(\widehat{\boldsymbol{\beta}}-{\boldsymbol{\beta}})^{T}{\bf{X}}^{T}{\bf{X}}(\widehat{\boldsymbol{\beta}}-{\boldsymbol{\beta}})\le p\widehat\sigma^2 F_{\alpha,p,n-p}.
+$$
+
+```{r}
+repeatNum = 100
+repeatResults = array(0,c(repeatNum,3,3))
+trueBeta = c(5,-3,6.5)
+x1 = runif(50)
+x2 = runif(50)
+trueY = cbind(matrix(1,50,1),x1,x2)%*%trueBeta
+fitData = data.frame(y = trueY,x1 = x1, x2 = x2, repeatY = trueY)
+for (i in seq(repeatNum)){
+  fitData$repeatY = fitData$y + runif(50,-1,1)
+  lmodrepeat = lm(repeatY ~ . - y, fitData)
+  cbind((lmodrepeat$coefficients),confint(lmodrepeat))
+  repeatResults[i,,] = cbind((lmodrepeat$coefficients),confint(lmodrepeat))
+}
+apply(repeatResults,c(2,3),mean)
+plotdata = data.frame(1:repeatNum,repeatResults[,2,])
+colnames(plotdata) = c("rep","beta","lower","upper")
+ggplot(plotdata, aes(rep, beta)) +        
+  geom_point() +
+  geom_errorbar(aes(ymin = lower, ymax = upper)) +
+  geom_hline(yintercept=-3, linetype="solid", color = "red")
+sum(plotdata$lower>-3 | -3>plotdata$upper)
+```
+
+```{r}
+# install.packages("ellipse")
+require(ellipse)
+plot(ellipse::ellipse(lmod,c(2,6)),type="l",ylim=c(-0.13,0))
+points(coef(lmod)[2], coef(lmod)[6], pch=19)
+abline(v=confint(lmod)[2,],lty=2)
+abline(h=confint(lmod)[6,],lty=2)
+points(-0.063,-0.045, pch=17)
+points(0.024,-0.036, pch=17)
+```
+
+## Boostrap CIs
+
+A very power tool when we don't have normality assumptions.
+
+The basic idea of bootstrap is sampling the data from one empirical set
+or theoretical distribution repeatedly with replacement. Then use
+multiple results from repeated sampling to compute what we want.
+
+In our regression case, the big problem is the distribution of
+$\epsilon$. If we don't have normality assumption, we should start the
+bootstrap process from this distribution.
+
+1.  Generate a random sample $\epsilon$ from distribution $f$.
+2.  Compute $y={\bf{x}}{\boldsymbol{\beta}}+\epsilon$ where
+    ${\boldsymbol{\beta}}$ is the true parameter.
+3.  Compute $\widehat{\boldsymbol{\beta}}$ using $y$ and ${\bf{x}}$
+
+Repeat step 1-3 until we have many (hundreds or thousands)
+$\widehat{\boldsymbol{\beta}}$'s. Then the empirical distribution of
+$\widehat{\boldsymbol{\beta}}$'s will approximate the true distribution
+of ${\boldsymbol{\beta}}$ as good as possible.
+
+In real life, we don't know the true parameter and true distribution of
+$\epsilon$, we can sampling the data from existed data. Suppose we have
+a data set including $\{y,{\bf{x}},\epsilon\}$ and it satisfies
+$y={\bf{x}}{\boldsymbol{\beta}}+\epsilon$. Then we
+
+1.  Sampling $\tilde\epsilon$ from $\epsilon$ with replacement.
+2.  Compute
+    $\tilde y ={\bf{x}}\widehat{\boldsymbol{\beta}}+\tilde\epsilon$
+    where $\widehat{\boldsymbol{\beta}}$ is the estimation from the only
+    one data set.
+3.  Compute $\tilde{\boldsymbol{\beta}}$ using $\tilde y$ and ${\bf{x}}$
+
+Repeat 1, 2, 3 many times and use the gather of
+$\tilde{\boldsymbol{\beta}}$ to estimate what we want, like the CIs of
+the empirical $\tilde{\boldsymbol{\beta}}$ to compute the CIs of
+$\widehat{\boldsymbol{\beta}}$, the variance of
+$\tilde{\boldsymbol{\beta}}$ to compute the standard error of
+$\widehat{\boldsymbol{\beta}}$.
+
+```{r}
+set.seed(123)
+nb = 4000
+coefmat = matrix(NA,nb,6)
+resids = residuals(lmod)
+preds = fitted(lmod)
+for(i in 1:nb){
+  booty = preds + sample(resids , rep=TRUE)
+  bmod = update(lmod, booty ~ .) 
+  coefmat[i,] = coef(bmod)
+}
+colnames(coefmat) = c("Intercept",colnames(gala[,3:7]))
+coefmat = data.frame(coefmat)
+apply(coefmat,2,function(x) quantile(x,c(0.025,0.975)))
+```
+
+If we don't know the distribution, we can directly re-sampling
+${\bf{x}}$ or even $y$.
+
+```{exercise}
+<span style="color: green;">
+What's the bootstrap standard error of $\widehat{\beta}$? Compare it with your `lm()` result.
+</span>
+```
+
+# Prediction
+
+One of the most important application of regression model is prediction.
+We want to know the value of $Y$ at a new point of $X$. We call
+$\hat{y} = {\bf{X}}_{new}\hat{{\boldsymbol{\beta}}}$ the prediction of
+$y$ at ${\bf{X}}_{new}$. We are not only reporting the value $\hat{y}$,
+which is the simplest part, but assessing this prediction in several
+aspects.
+
+## Confidence Interval of prediction
+
+We predict the response by
+$$\hat{y} = {\bf{x}}_{new}\hat{{\boldsymbol{\beta}}}.$$
+
+It is obvious that $\hat{y}$ is random because of
+$\hat{{\boldsymbol{\beta}}}$. Since we can compute the expectation and
+variance of $\hat{{\boldsymbol{\beta}}}$, we can also compute the
+expectation and variance of $\hat{y}$ and further the corresponding
+confidence interval.
+
+$$var(\hat{y}) = var({\bf{x}}_{new}\hat{{\boldsymbol{\beta}}}) = x_{new}^{T}var(\hat{{\boldsymbol{\beta}}}) x_{new}$$
+
+-   The variance of the prediction at a single value ${\bf{x}}_{new}$ is
+    $$
+    \begin{aligned}
+    &var({\bf{x}}_{new}\hat{{\boldsymbol{\beta}}}+\epsilon)\\
+    =& {{\bf{x}}_{new}}^{T}var(\hat{{\boldsymbol{\beta}}}) {\bf{x}}_{new}\sigma^2+\sigma^2\\
+    =& \{1+{{\bf{x}}_{new}}^{T}({\bf{X}}^{T}{\bf{X}})^{-1} {\bf{x}}_{new}\} \sigma^2
+    \end{aligned}
+    $$ and the $100(1-\alpha)\%$ C.I. is
+    $\hat{y} \pm t_{n-p}^{\alpha/2} \hat{\sigma}\sqrt{1+{{\bf{x}}_{new}}^{T}({\bf{X}}^{T}{\bf{X}})^{-1} {\bf{x}}_{new}}$
+
+-   The $100(1-\alpha)\%$ C.I. of mean of the prediction at m values
+    ${\bf{x}}_{new}$ is $$
+    var({\bf{x}}_{new}\hat{{\boldsymbol{\beta}}}+\bar\epsilon)= \{1/m+{{\bf{x}}_{new}}^{T}({\bf{X}}^{T}{\bf{X}})^{-1} {\bf{x}}_{new}\} \sigma^2
+    $$ and the $100(1-\alpha)\%$ C.I. is
+    $\hat{y} \pm t_{n-p}^{\alpha/2} \hat{\sigma}\sqrt{1/m+{{\bf{x}}_{new}}^{T}({\bf{X}}^{T}{\bf{X}})^{-1} {\bf{x}}_{new}}$
+
+-   The $100(1-\alpha)\%$ C.I. of the expectation of prediction at
+    ${\bf{x}}_{new}$ is $$
+    var({\bf{x}}_{new}\hat{{\boldsymbol{\beta}}})=\{{{\bf{x}}_{new}}^{T}({\bf{X}}^{T}{\bf{X}})^{-1} {\bf{x}}_{new}\} \sigma^2
+    $$ and the $100(1-\alpha)\%$ C.I. is
+    $\hat{y} \pm t_{n-p}^{\alpha/2} \hat{\sigma}\sqrt{{{\bf{x}}_{new}}^{T}({\bf{X}}^{T}{\bf{X}})^{-1} {\bf{x}}_{new}}$.
+
+```{example}
+Measuring body fat. We want to predict the body fat of everyone because we can not measuring everyone by submerging them under the water. We consider the following data.
+```
+
+```{r}
+data(fat,package="faraway")
+lmod = lm(brozek ~ age + weight + height + neck + chest + abdom +
+hip + thigh + knee + ankle + biceps + forearm + wrist, data=fat)
+summary(lmod)
+x = model.matrix(lmod)
+x0 = apply(x,2,median)
+predict(lmod,new=data.frame(t(x0)))
+predict(lmod,new=data.frame(t(x0)),interval="prediction",level = 0.95)
+predict(lmod,new=data.frame(t(x0)),interval="confidence")
+x1 = apply(x,2,quantile,prob = 0.95)
+predict(lmod, new=data.frame(t(x1)), interval="prediction")
+predict(lmod, new=data.frame(t(x1)), interval="confidence")
+```
+
+## Can we believe in the prediction and prediction interval?
+
+-   If model is wrong, prediction is not trustable.
+
+-   Quantitative extrapolation. Look at the following example.
+
+```{r,echo = FALSE, message = FALSE, warning = FALSE}
+x = c(runif(30,0,1),runif(10,0,1)+1)
+y = c(2+1.5*x[1:30],-2.5*x[31:40]+6)+c(rnorm(40,0,0.1))
+plot(x,y)
+badData = data.frame(x = x[x<1.2],y = y[x<1.2])
+```
+
+```{r}
+plot(badData$x,badData$y)
+lmod = lm(y ~ x, data=badData)
+predict(lmod,new=data.frame(x = 1.5))
+plot(badData$x,badData$y,xlim = c(0,1.8),ylim = c(2,6))
+points(x[x>1.2],y[x>1.2],col = "blue",pch = 15)
+points(1.5,predict(lmod,new=data.frame(x = 1.5)),col = "red",pch = 15)
+```
+
+-   We can't predict ${\bf{x}}$ which from an elephant.
+
+-   Overfitting.
+
+-   Extreme situations.
+
+# Explanation
+
+## Simple meaning
+
+Let's look at the result from linear model.
+
+```{r}
+data(gala, package="faraway")
+lmod = lm(Species ~ Area + Elevation + Nearest + Scruz + Adjacent,
+gala)
+summary(lmod)
+```
+
+The meaning of parameter ${\boldsymbol{\beta}}_i$ is: **a unit increase
+in** $x_i$ with the other (named) predictors held constant will produce
+a change of $\hat{{\boldsymbol{\beta}}}_i$ in the response $y$.
+
+```{example}
+In the gala example, we fix other predictors at their average and plot the changing of our estimation about `Elevation`, comparing with `Elevation` as the only predictor.
+```
+
+```{r}
+plot(Species ~ Elevation, gala)
+abline(11.3,0.201)
+colMeans(gala)
+p = predict(lmod, data.frame(Area=261.7, Elevation=gala$Elevation,
+Nearest=10.06, Scruz = 56.98, Adjacent=261.1))
+i = order(gala$Elevation)
+lines(gala$Elevation[i], p[i], lty=2)
+```
+
+## Causality
+
+Modeling $y$ v.s. ${\bf{X}}$ doesn't mean ${\bf{X}}$ leads to $y$, even
+if p-value is very small. A very simple example is the relationship of
+$y=$price of ice cream and $x$=electricity bill. There are factors hiden
+behind. (confounding variables)
+
+Go back to the `gala` example, \`\`although it seems natural to think
+about how physical geography might affect species diversity, we cannot
+actually change the physical geography.''
+
+## Designed Experiments
+
+In designed experiments, we want to study the effect of $X$ on $Y$. We
+try to control the other potential predictors such that the changing in
+$Y$ only because of the difference in $X$.
+
+## Observational Data
+
+Sometimes it is not practical or ethical to collect data from a designed
+experiment. We cannot control the assignment of T and so we can only
+obtain observational data.
+
+## Fancy plot of linear model
+
+```{r}
+library(plotly)
+example31 = read.table("Table3_2.txt",header = T) 
+attach(example31)
+model31 = lm(Delivery_Time ~  Distance + Number_Of_Cases, data = example31)
+axx = seq(from = 1, to = 32, length.out = 10)
+axy = seq(from = 40, to = 1500,length.out = 10)
+newDataMesh = data.frame(Number_Of_Cases = rep(axx,10),Distance = rep(axy,each = 10)) 
+confMesh = predict(model31,newdata = newDataMesh,interval = "confidence",level = 0.99)
+predMesh = predict(model31,newdata = newDataMesh,interval = "prediction",level = 0.99)
+meshData = cbind(newDataMesh,confMesh,predMesh)
+meshPlotData = as.matrix(meshData[,c(3:5,7,8)])
+dim(meshPlotData) = c(10,10,5)
+fig = plot_ly(showscale = F)
+fig = fig %>% add_surface(x = ~axx, y = ~axy,z = ~meshPlotData[,,1],colorscale = list(c(0, 1), c("blue", "blue")),opacity = 0.8)
+fig = fig %>% add_surface(x = ~axx, y = ~axy,z = ~meshPlotData[,,2],colorscale = list(c(0, 1), c("green", "green")),opacity = 0.7)
+fig = fig %>% add_surface(x = ~axx, y = ~axy,z = ~meshPlotData[,,3],colorscale = list(c(0, 1), c("green", "green")),opacity = 0.7)
+fig = fig %>% add_surface(x = ~axx, y = ~axy,z = ~meshPlotData[,,4],colorscale = list(c(0, 1), c("yellow", "yellow")),opacity = 0.7)
+fig = fig %>% add_surface(x = ~axx, y = ~axy,z = ~meshPlotData[,,5],colorscale = list(c(0, 1), c("yellow", "yellow")),opacity = 0.7)
+fig = fig %>% add_markers(x = ~example31$Number_Of_Cases, y = ~example31$Distance, z = ~example31$Delivery_Time,showlegend = F)
+fig = fig %>% layout(scene = list(xaxis = list(title = 'Number of Cases'),
+                      yaxis = list(title = 'Distance (ft)'),
+                      zaxis = list(title = 'Delivery Time (min)')))
+fig
+```
+
+# Diagnostics
+
+Why we need diagnostics?
+
+Recall our model $Y = {\bf{X}}{\boldsymbol{\beta}}+\epsilon$ and our
+observation $\{y_i,{\bf{x}}_i\}_{i=1}^n$, we assume that
+
+1.  $\epsilon$ is normal distributed when we do inference.
+2.  $var(\epsilon)=\sigma^2$ is a constant.
+3.  $\epsilon_i$ and $\epsilon_j$ are independent.
+4.  $Y$ is linearly related to ${\bf{X}}{\boldsymbol{\beta}}$.
+
+What if these assumptions failed? What if we have other strange issues?
+We need to first identify the possible mistakes and then try to find a
+way to solve them.
+
+## Checking Error Assumptions
+
+What is residual? We use residual to approximate the error $\epsilon$.
+
+### Constant Variance
+
+We first check the assumption that variance of $\epsilon$ is a constant.
+We use plot of $\hat\epsilon$ v.s. $\hat{\bf{y}}$, and sometimes we also
+use the plot of $\hat\epsilon$ v.s. $x$ which may or may not be used in
+the model. What we expect is no pattern existing in the plot. Otherwise
+it violates the constant variance assumption.
+
+```{r, echo=F, fig.height=5}
+par(mar=c(3,2,2,2),mfrow=c(1,3))
+x = runif(50)
+y1 = runif(50)-0.5
+plot(x,y1,main = "No problem", ylab = "Residual", xlab = "Fitted")
+abline(a = 0,b = 0)
+y2 = (runif(50)-0.5)*x
+plot(x,y2,main = "Heteroscedasticity", ylab = "Residual", xlab = "Fitted")
+abline(a = 0,b = 0)
+y3 = runif(50,-0.3,0.3)-2*(x-0.4)^2
+y3 = y3-mean(y3)
+plot(x,y3,main = "Nonlinear", ylab = "Residual", xlab = "Fitted")
+abline(a = 0,b = 0)
+```
+
+For example `savings`
+
+```{example}
+We want to study the relationship between `savings rate`, personal saving divided by disposable income, and other factors among 50 countries. We have `pop15` percent population under age of 15
+`pop75` percent population over age of 75, `dpi` per-capita disposable income in dollars, `ddpi` percent growth rate of dpi. Let's run a linear model.
+```
+
+```{r}
+data(savings,package="faraway")
+lmod = lm(sr ~ pop15+pop75+dpi+ddpi,savings)
+plot(fitted(lmod),residuals(lmod),xlab="Fitted",ylab="Residuals")
+abline(h=0)
+plot(fitted(lmod),sqrt(abs(residuals(lmod))), xlab="Fitted",ylab=
+expression(sqrt(hat(epsilon))))
+summary(lm(sqrt(abs(residuals(lmod))) ~ fitted(lmod)))
+```
+
+Here are some example of good and bad variances
+
+```{r, fig.align='center', fig.height=8}
+par(mar = c(2,2,2,2),mfrow=c(4,3))
+n = 50
+plot.new();plot.new();text(0.5,0.5,"Constant",cex=2,font=2);plot.new()
+for(i in 1:9) {x = runif(n) ; plot(x,rnorm(n))}
+plot.new();plot.new();text(0.5,0.5,"Megaphone",cex=2,font=2);plot.new()
+for(i in 1:9) {x = runif(n) ; plot(x,x*rnorm(n))}
+plot.new();plot.new();text(0.5,0.5,"Slightly",cex=2,font=2);plot.new()
+for(i in 1:9) {x = runif(n) ; plot(x,sqrt((x))*rnorm(n))}
+plot.new();plot.new();text(0.5,0.5,"Nonlinear",cex=2,font=2);plot.new()
+for(i in 1:9) {x = runif(n) ; plot(x,cos(x*pi/25)+rnorm(n,sd=1))}
+```
+
+If we look at the plot of residual v.s. $x$,
+
+```{r, fig.align='center'}
+par(mfrow=c(1,2))
+plot(savings$pop15,residuals(lmod), xlab="Population under 15",ylab ="Residuals")
+abline(h=0)
+plot(savings$pop75,residuals(lmod), xlab="Population over 75",ylab ="Residuals")
+abline(h=0)
+```
+
+The textbook test the difference of variances between two groups of
+`pop15`.
+
+What can we do to deal with non-constant varaince situation?
+
+We transform $y$ to a new $y'=h(y)$ such that the new model
+$y'={\bf{X}}{\boldsymbol{\beta}}+\epsilon$ has constant variance. For
+instance $y' = log(y)$, $y' = \sqrt{y}$, and so on.
+
+```{r}
+par(mfrow=c(1,2))
+data(gala, package="faraway")
+lmod = lm(Species ~ Area + Elevation + Scruz + Nearest + Adjacent, gala)
+plot(fitted(lmod),residuals(lmod),xlab="Fitted",ylab="Residuals",main = "Original")
+abline(h=0)
+lmod = lm(sqrt(Species) ~ Area + Elevation + Scruz + Nearest +
+Adjacent, gala)
+plot(fitted(lmod),residuals(lmod),xlab="Fitted",ylab="Residuals",main = "Transformed")
+abline(h=0)
+```
+
+I would like to introduce another method, Box-Cox transformation.
+
+```{r}
+library(MASS)
+bc = boxcox(Species ~ Area + Elevation + Scruz + Nearest + Adjacent, data = gala)
+lambda = bc$x[which.max(bc$y)]
+gala$ystar = (gala$Species^lambda-1)/lambda
+lmod = lm(ystar ~ Area + Elevation + Scruz + Nearest + Adjacent, gala)
+plot(fitted(lmod),residuals(lmod),xlab="Fitted",ylab="Residuals",main = "Transformed")
+abline(h=0)
+```
+
+### Normality
+
+We are now testing the normality of $\epsilon$, i.e. whether $\epsilon$
+is normal distributed or not.
+
+```{r}
+lmod = lm(sr ~ pop15+pop75+dpi+ddpi,savings)
+par(mfrow = c(1,2))
+qqnorm(residuals(lmod),ylab="Residuals",main="")
+qqline(residuals(lmod))
+hist(residuals(lmod))
+```
+
+We also look at some good and bad examples of normality test.
+
+```{r, fig.align='center', fig.height=8}
+par(mar=c(2,2,2,2),mfrow=c(4,3))
+n = 50
+plot.new();plot.new();text(0.5,0.5,"Normal",cex=2,font=2);plot.new()
+for(i in 1:9) {x = rnorm(n); qqnorm(x); qqline(x)}
+plot.new();plot.new();text(0.5,0.5,"Right skewed",cex=2,font=2);plot.new()
+for(i in 1:9) {x = exp(rnorm(n)); qqnorm(x); qqline(x)}
+plot.new();plot.new();text(0.5,0.5,"Heavy Tail",cex=2,font=2);plot.new()
+for(i in 1:9) {x = rcauchy(n); qqnorm(x); qqline(x)}
+plot.new();plot.new();text(0.5,0.5,"Light Tail",cex=2,font=2);plot.new()
+for(i in 1:9) {x = runif(n); qqnorm(x); qqline(x)}
+```
+
+Textbook introduces Shapiro-Wilk test for normality. We will skip it in
+this course.
+
+### Correlated Errors
+
+In this part, we are going to test the independence between
+observations. The possible dependence are too many to figure out one by
+one. We will focus on several typical patterns. **temporal data** might
+be related in successive records, **spatial data** mgiht be related in
+neighbors, **block data** might be related within each block.
+
+```{example}
+We want to study the global warming. The response is temperature `nhtemp` and predictors include 8 proxies.
+```
+
+```{r}
+data(globwarm,package="faraway")
+lmod = lm(nhtemp ~ wusa + jasper + westgreen + chesapeake + tornetrask + urals + mongolia + tasman, globwarm)
+plot(residuals(lmod) ~ year, na.omit(globwarm), ylab="Residuals")
+abline(h=0)
+n = length(residuals(lmod))
+plot(tail(residuals(lmod),n-1) ~ head(residuals(lmod),n-1), xlab=expression(hat(epsilon)[i]),ylab=expression(hat(epsilon)[i+1]))
+abline(h=0,v=0,col=grey(0.75))
+```
+
+We can see a obvious positive relationship between successive residuals.
+It implies the errors are related with each other, hence violates the
+independent assumption. We can conduct a Durbin-Watson test. The test
+statistic given by $$
+DW = \frac{\sum_{i=2}^n(e_i-e_{i-1})^2}{\sum_{i=1}^n e_i^2}
+$$ is related to a Chi-square distribution under null hypothesis.
+
+```{r}
+# install.packages("lmtest")
+dwtest(nhtemp ~ wusa + jasper + westgreen + chesapeake + tornetrask + urals + mongolia + tasman, data=globwarm)
+```
+
+## Finding Unusual Observations
+
+### Leverage
+
+Leverage is a way to quantify the extremity of each observation. The
+**extreme** observation changes the fitted model substantively. We
+define $h_i=H_{ii}$ as the leverage of the $i^{th}$ observation. We
+would expect a smaller variance of $e_i$ when leverage is large because
+$var(e_i)=\sigma^2(1-h_i)$. Hence the fit should be attracted toward
+$y_i$. We use $2p/n$ as our threshold of determining extreme
+observations. Or we can use halfnorm distribution to figure out the
+leverage and potential extreme observations.
+
+```{r}
+lmod = lm(sr ~ pop15 + pop75 + dpi + ddpi, savings)
+hatv = hatvalues(lmod)
+head(hatv)
+2*5/50
+countries = row.names(savings)
+halfnorm(hatv,labs=countries,ylab="Leverages")
+```
+
+Another important usage of leverage is scaling the residual. Let $$
+r_i = \frac{e_i}{\hat\sigma\sqrt{1-h_i}},
+$$ which is called **standardized residuals**. If model assumptions are
+correct, $var(r_i)=1$ and $corr(r_i,r_j)$ should be small. This type of
+residual takes the variance of predictors into account. But we must do
+this under the constant variance assumption. Otherwise it is less
+informative. Note that this plot is for testing the extreme of the
+observations, not normality or constant variance of errors.
+
+```{r}
+qqnorm(rstandard(lmod))
+abline(0,1)
+```
+
+### Outliers
+
+Outliers are unusual observations that shouldn't be in the model.
+Outliers may or may not change our model too much. For example,
+
+```{r,fig.align="center"}
+set.seed(123)
+par(mfrow = c(1,3))
+testdata = data.frame(x=1:10,y=1:10+rnorm(10))
+lmod = lm(y ~ x, testdata)
+p1 = c(5.5,12)
+lmod1 = lm(y ~ x, rbind(testdata, p1))
+plot(y ~ x, rbind(testdata, p1))
+points(5.5,12,pch=4,cex=2)
+abline(lmod)
+abline(lmod1, lty=2)
+p2 = c(15,15.1)
+lmod2 = lm(y ~ x, rbind(testdata, p2))
+plot(y ~ x, rbind(testdata, p2))
+points(15,15.1,pch=4,cex=2)
+abline(lmod)
+abline(lmod2,lty=2)
+p3 = c(15,5.1)
+lmod3 = lm(y ~ x, rbind(testdata, p3))
+plot(y ~ x, rbind(testdata, p3))
+points(15,5.1,pch=4,cex=2)
+abline(lmod)
+abline(lmod3,lty=2)
+```
+
+We have outliers but not large leverage and influential in the first
+panel, large leverage but not outliers either influential in the second
+panel, large leverage, ourliers and influential in the third panel. In
+order to detect outliers, we think that non-outliers will have little
+effect on our model if we remove it. On the other hand, removing one
+observation causing a substantial changing in our model implies the
+outliers thereof.
+
+We define a studentized (jackknife, crossvalidated) residual $$
+t_i = \frac{y_i-\hat y_{(i)}}{\hat\sigma_{(i)}\{1+x_i^{T}({{\bf{X}}_{(i)}}^{T}{\bf{X}}_{(i)})^{-1}x_i\}^{1/2}}\equiv\frac{e_{(i)}}{\hat\sigma_{(i)}\sqrt{1-h_{(i)}}}\equiv r_i\left(\frac{n-p-1}{n-p-r_i^2}\right)^{1/2},
+$$ where $\hat y_{(i)}$ is the predicted $y$ at $x_i$ from the model
+without the $i^{th}$ observation. So does $\sigma^2_{(i)}$.
+${\bf{X}}_{(i)}$ is the design matrix (predictor matrix) without the
+$i^{th}$
+
+```{r}
+stud = rstudent(lmod)
+stud
+stud[which.max(abs(stud))]
+```
+
+Considerations of outliers:
+
+1.  Two of more outliers next to each other can hide each other.
+2.  Outliers are depend on models. You need to redo the analysis if you
+    transformed or changed your model.
+3.  In real problem, error may be not normaly distributed. Some large
+    values exist which might not be outliers.
+4.  If your sample is very large, individual point may not affect too
+    much. Usually, identifying single outliers from a huge dataset helps
+    you understand what's going on there. We care about a cluster of
+    outliers more.
+
+Solution to the outliers:
+
+1.  Check your data recording. If it is truly a mistake you can remove
+    it.
+2.  Examine the physical context. Sometimes it means you find something
+    important or huge.
+3.  Exclude the point from the analysis but try reincluding it later if
+    you build a new model. This is challenge because deciding what to
+    exclude is hard. Report honestly that your data has outliers
+    together with your other analysis.
+4.  Using robust estimator instead. Linear model or parametric model
+    usually is not robust to outliers.
+5.  You need to check outliers by hand. (NASA example)
+
+```{example}
+Dealing with outliers.
+```
+
+```{r}
+data(star, package="faraway")
+plot(star$temp,star$light,xlab="log(Temperature)", ylab="log(Light Intensity)")
+lmod = lm(light ~ temp, star)
+abline(lmod)
+range(rstudent(lmod))
+lmodi = lm(light ~ temp, data=star, subset=(temp>3.6))
+abline(lmodi,lty=2)
+```
+
+### Influential Observations
+
+An influential point is one whose removal from the dataset would cause a
+large change in the fit. An influential point may or may not be an
+outliers and may or may not have large leverage but it will tend to have
+at least one of these two properties. We use Cook's distance to identify
+the influential points $$
+D_i = \frac{(\hat y_i-\hat y_{(i)})^{T}(\hat y_i-\hat y_{(i)})}{p\hat\sigma^2}=\frac{1}{p}r_i^2\frac{h_i}{1-h_i}.
+$$ Cook's distance combines the outliers measurement and leverage
+measurement.
+
+```{r, fig.align='center'}
+lmod = lm(sr ~ pop15+pop75+dpi+ddpi,savings)
+cook = cooks.distance(lmod)
+halfnorm(cook,3,labs=countries,ylab="Cook’s distances")
+lmodi = lm(sr ~ pop15+pop75+dpi+ddpi,savings,subset=(cook < max(cook)))
+sumary(lmodi)
+plot(dfbeta(lmod)[,2],ylab="Change in pop15 coef")
+abline(h=0)
+lmodj = lm(sr ~ pop15+pop75+dpi+ddpi,savings,subset=(countries != "Japan"))
+sumary(lmodj)
+```
+
+Or we can do most of these things in R by `plot(lmod)`.
+
+## Checking the Structure of the Model
+
+We have already seen one type of structure checking, plot $y$ v.s. $x$.
+We now use **partial regression** or **added variable** plots to isolate
+the effect of $x_i$.
+
+1.  **partial regression plot** We fit $y$ on ${\bf{x}}$ except $x_i$,
+    record the residual as $\hat\delta$. Fit $x_i$ on ${\bf{x}}$ except
+    $x_i$ and the residual is $\hat\gamma$. That is $$
+    \hat\delta = \text{residual from } y\sim x \text{ except } x_i\\
+    \hat\gamma = \text{residual from } x_i\sim x \text{ except } x_i.
+    $$ Now draw $\hat\delta$ v.s. $\hat\gamma$ and we inspect
+    nonlinearity and outliers or influential observations. (better for
+    outliers and influential points)
+
+```{r, fig.align='center'}
+d = residuals(lm(sr ~ pop75 + dpi + ddpi,savings))
+m = residuals(lm(pop15 ~ pop75 + dpi + ddpi,savings))
+plot(m,d,xlab="pop15 residuals",ylab="Savings residuals")
+coef(lm(d ~ m))
+lmod = lm(sr ~ pop15+pop75+dpi+ddpi,savings)
+coef(lmod)
+abline(0,coef(lmod)['pop15'])
+avPlot(lmod,'pop15')
+```
+
+**Notice the coefficient!**
+
+2.  **Partial residual plot** We plot
+    $e+\hat{\boldsymbol{\beta}}_i{\bf{x}}_i$ v.s. $x_i$. Actually
+    $e+\hat{\boldsymbol{\beta}}_i{\bf{x}}_i=y-\sum_{j\ne i}\hat{\boldsymbol{\beta}}_j{\bf{x}}_j$
+    is the regression excluding other ${\bf{X}}$. (better for
+    nonlinearity)
+
+```{r}
+termplot(lmod, partial.resid=TRUE, terms=1)
+crPlot(lmod,'pop15')
+mod1 = lm(sr ~ pop15+pop75+dpi+ddpi,savings,subset=(pop15 > 35))
+mod2 = lm(sr ~ pop15+pop75+dpi+ddpi,savings,subset=(pop15 < 35))
+sumary(mod1)
+sumary(mod2)
+```
+
+There is a obvious grouping pattern in the plot. We can analyse data by
+groups.
+
+If you want, you can play with ggplot or other fancy packages for better
+illustration.
+
+```{r, fig.align='center'}
+savings$status = ifelse(savings$pop15 > 35, "young", "old")
+require(ggplot2)
+ggplot(savings,aes(x=ddpi,y=sr,shape=status))+geom_point()
+ggplot(savings,aes(x=ddpi,y=sr))+geom_point()+facet_wrap(~ status)+
+stat_smooth(method="lm")
+```
+
+## Discussion
+
+The importance of assumptions
+
+0.  **Data relationship**. The data you studied should be related.
+1.  **The systematic form of the model**. If your model is wrong,
+    prediction will be inaccurate and your interpretation may be biased
+    in misleading ways.
+2.  **Dependence of errors**. Dependent error means less information
+    than sample size suggests. However it is very difficult to detect
+    dependence in the errors. We can usually test spatial and temporal
+    data.
+3.  **Nonconstant variance**. Violation of this assumption may lead to
+    inaccurate inferences.
+4.  **Normality**. Central limit theorem (CLT) helps.
+
+```{r}
+plot(lmod)
+```
+
+# Problems with the Predictors
+
+## Errors in the Predictors
+
+We allow the existence of error in $y$ denoted by $\epsilon$. What if we
+have errors in ${\bf{x}}$? In this course, error in ${\bf{x}}$ implies
+that ${\bf{x}}$ is a random variable (random vector) but we didn't
+consider a random ${\bf{x}}$ in our model.
+
+Suppose we observe response and predictors
+$\{y_i^O,{\bf{x}}_i^O\}, i = 1,...,n$ which are related to the true
+values $\{y_i^A,{\bf{x}}_i^A\}, i = 1,...,n$ through
+
+$$
+\begin{aligned}
+y_i^O &= y_i^A+\epsilon_i\\
+{\bf{x}}_i^O &= {\bf{x}}_i^A+\delta_i.
+\end{aligned}
+$$
+
+The true relationship between $y$ and ${\bf{x}}$ is
+$$y_i^A = \beta_0+\beta_1 x_i^A$$ but we only observe
+$\{y_i^O,{\bf{x}}_i^O\}$. Hence the model should be $$
+\begin{aligned}
+&y_i^O-\epsilon_i = \beta_0+\beta_1 ({\bf{x}}_i^O-\delta_i)\\
+\Leftrightarrow\quad &y_i^O = \beta_0+\beta_1 ({\bf{x}}_i^O-\delta_i) + \epsilon_i\\
+\Leftrightarrow\quad &y_i^O = \beta_0+\beta_1 {\bf{x}}_i^O (\epsilon_i-\beta_1\delta_i) + 
+\end{aligned}
+$$ Under the regular assumption that $E\epsilon = 0$ and $E\delta=0$,
+$var(\epsilon)=\sigma^2_{\epsilon}$ and
+$var(\sigma) = \sigma^2_{\delta}$,
+$\sigma_x^2 = \sum (x_i^A-\bar{x^A})^2/n$, and
+$cov(x,\delta) = \sigma_{x\delta}$. Then $$
+E(\hat\beta_1) = \beta_1\frac{\sigma^2_x+\sigma_{x\delta}}{\sigma^2_x+\sigma^2_{\delta}+2\sigma_{x\delta}}$$
+
+The point is that $\hat\beta_1$ is not unbiased anymore. We will not
+show theorem but example.
+
+```{r, fig.align='center'}
+data(cars)
+plot(dist ~ speed, cars,ylab="distance")
+lmod = lm(dist ~ speed, cars)
+sumary(lmod)
+abline(lmod)
+lmod1 = lm(dist ~ I(speed+rnorm(50)), cars)
+coef(lmod1)
+abline(lmod1,lty=2)
+lmod2 = lm(dist ~ I(speed+2*rnorm(50)), cars)
+coef(lmod2)
+abline(lmod2,lty=3)
+lmod5 = lm(dist ~ I(speed+5*rnorm(50)), cars)
+coef(lmod5)
+abline(lmod5,lty=4)
+vv = rep(1:5/10,each=1000)
+slopes = numeric(5000)
+for(i in 1:5000) slopes[i] = lm(dist ~ I(speed+sqrt(vv[i])*rnorm(50)), cars)$coef[2]
+betas = c(coef(lmod)[2],colMeans(matrix(slopes,nrow=1000)))
+variances = c(0,1:5/10)+0.5
+plot(variances,betas,xlim=c(0,1),ylim=c(3.86,4))
+gv = lm(betas ~ variances)
+coef(gv)
+points(0,gv$coef[1],pch=3)
+set.seed(123)
+lmod = lm(dist ~ speed, cars, x=TRUE)
+simout = simex(lmod,"speed",0.5, B=1000)
+simout
+```
+
+## Changes of Scale
+
+I want to study the number of campuses and how big the corporation is.
+For example, Intel has revenue 77,870,000,000\$ in 2020 and several
+campuses around the world. My model is
+$\text{number of campuses} = \beta_0 +\beta_1 \text{corporation revenue} +\epsilon$.
+What's the problem?
+
+We can change the scale of $x$ and doesn't change the relationship
+between $y$ and $x$. If you have many different predictors with huge
+different scales, you may encounter singular issue like
+${\bf{X}}^{T}{\bf{X}}$ is not invertible. We can reexpress
+$x_i^*= (x_i+a)/b$ and it doesn't change the t- and F-tests and R$^2$.
+But $\hat{\boldsymbol{\beta}}$ changed.
+
+```{r}
+data(savings, package="faraway")
+lmod = lm(sr ~ pop15+pop75+dpi+ddpi,savings)
+sumary(lmod)
+lmod = lm(sr ~ pop15+pop75+I(dpi/1000)+ddpi,savings)
+sumary(lmod)
+```
+
+Another scaling is to convert all the predictors to standard units, i.e.
+mean 0 and variance 1. In this case, the intercept will be 0 because we
+scaled everything.
+
+```{r}
+scsav = data.frame(scale(savings))
+lmod = lm(sr ~ ., scsav)
+sumary(lmod)
+```
+
+Remember the explanation of coefficients are changed accordingly. It is
+now meaning the increase in the predictor by one standard unit.
+
+```{r, fig.align='center'}
+edf = data.frame(coef(lmod),confint(lmod))[-1,]
+names(edf) = c('Estimate','lb','ub')
+p = ggplot(aes(y=Estimate,ymin=lb,ymax=ub,x=row.names(edf)),data=edf) + geom_pointrange()
+p+coord_flip()+xlab("Predictor")+geom_hline(yintercept=0,col="gray")
+```
+
+If your predictor is binary, like gender, we usually scale it to 1/0.
+
+```{r}
+savings$age = ifelse(savings$pop15 > 35, 0, 1)
+savings$dpis = (savings$dpi-mean(savings$dpi))/(2*sd(savings$dpi))
+savings$ddpis = (savings$ddpi - mean(savings$ddpi))/(2*sd(savings$ddpi))
+sumary(lm(sr ~ age + dpis + ddpis, savings))
+```
+
+## Collinearity
+
+Collinearity causes the singularity of ${\bf{X}}^{T}{\bf{X}}$.
+Especially when ${\bf{X}}^{T}{\bf{X}}$ is almost singular but not
+exactly so, the problem is challenging. It leads to imprecise
+$\hat{\boldsymbol{\beta}}$ because $$
+var(\hat{\boldsymbol{\beta}}_i) = \sigma^2\left(\frac{1}{1-R_i^2}\right)\frac{1}{\sum_j(x_{ji}-\bar{x}_i)^2}.
+$$ We call $1/(1-R_i^2)$ **variance inflation factor** (VIF) and use it
+to help us determine collinearity.
+
+Collinearity comes from the relationship between predictors, ${\bf{X}}$.
+If several of predictors are highly linearly related, we will have
+collinearity.
+
+We first detect the collinearity. 1. We can test the correlation matrix
+of the predictors. Values close to 1 or -1 indicating large pairwise
+collinearities. 2. Regress $x_i$ on all other predictors and check
+corresponding $R_i^2$. Large $R^2_i$ indicates strong collinearity. 3.
+Check the eigenvalue of matrix ${\bf{X}}^{T}{\bf{X}}$. Eigenvalue close
+to 0 implies strong collinearity. Usually we compute
+$\sqrt{\lambda_1/\lambda_i},i=1,2,...,p$ where
+$\lambda_1\ge\lambda_2\ge\cdots\lambda_p\ge 0$.
+$\sqrt{\lambda_1/\lambda_i}>30$ implies strong collinearity.
+
+```{example}
+Car drivers like to adjust the seat position for their own comfort. Car designers
+would find it helpful to know where different drivers will position the seat depending
+on their size and age.
+```
+
+```{r}
+data(seatpos, package="faraway")
+lmod = lm(hipcenter ~ ., seatpos)
+sumary(lmod)
+round(cor(seatpos[,-9]),2)
+x = model.matrix(lmod)[,-1]
+e = eigen(t(x) %*% x)
+e$val
+sqrt(e$val[1]/e$val)
+summary(lm(x[,1] ~ x[,-1]))$r.squared
+1/(1-0.49948)
+vif(lmod)
+```
+
+The estimation is very sensitive and many of the predictors are doing
+similar work.
+
+```{r}
+lmod = lm(hipcenter+10*rnorm(38) ~ ., seatpos)
+sumary(lmod)
+round(cor(x[,3:8]),2)
+lmod2 = lm(hipcenter ~ Age + Weight + Ht, seatpos)
+sumary(lmod2)
+```
+
+Lastly, the effect of collinearity on prediction is less serious.
+
+# Problem with the Error
+
+In this chapter we will use several ways to deal with the problems in
+the error.
+
+## Generalized Least Squares (GLS)
+
+Suppose we have $var(\epsilon) = \sigma^2\Sigma$ instead of
+$var(\epsilon)= \sigma^2I$, where $\Sigma$ is a known matrix. That is we know
+the correlation and relative variance between the errors. Since we can
+rewrite $\Sigma = SS^{T}$ where $S$ is a triangular matrix. We develop
+generalized least squares by solving $$
+(y-{\bf{X}}{\boldsymbol{\beta}})^{T}\Sigma^{-1}(y-{\bf{X}}{\boldsymbol{\beta}})
+$$ with respect to ${\boldsymbol{\beta}}$. Because the following model
+has constant variance $$
+S^{-1}y = S^{-1}{\bf{X}}{\boldsymbol{\beta}}+S^{-1}\epsilon.
+$$ The estimator is
+$\hat{\boldsymbol{\beta}}= ({\bf{X}}^{T}\Sigma^{-1}{\bf{X}})^{-1}{\bf{X}}^{T}\Sigma^{-1}y$
+and its variance is $({\bf{X}}^{T}\Sigma^{-1}{\bf{X}})^{-1}\sigma^2$. In
+practice we may not know $\Sigma$ but we can estimate it.
+
+```{r}
+data(globwarm,package="faraway")
+lmod = lm(nhtemp ~ wusa + jasper + westgreen + chesapeake + tornetrask + urals + mongolia + tasman, globwarm)
+sumary(lmod)
+cor(residuals(lmod)[-1],residuals(lmod)[-length(residuals(lmod))])
+```
+
+This is a spatial data and we suspect the error has correlation along
+with time `year`. The result of successive residuals support our guess.
+We assume an autoregressive model on the error, that is $$
+\epsilon_{i+1} = \phi\epsilon_i+\delta_i
+$$ where $\delta_i\sim N(0,\tau^2)$.
+
+```{r}
+require(nlme)
+glmod = gls(nhtemp ~ wusa + jasper + westgreen + chesapeake + tornetrask + urals + mongolia + tasman, correlation=corAR1(form=~year), data=na.omit(globwarm))
+summary(glmod)
+intervals(glmod,which="var-cov")
+```
+
+Another structure of variance-covariance matrix is block correlation. In
+the following example, we consider that the errors within the same block
+are correlated, that is $corr(\epsilon_i,\epsilon_j)=\rho$ if $i,j$ are
+from the same block while 0 otherwise.
+
+```{example}
+An experiment to compare eight varieties of oats. The growing area is heterogeneous and is grouped into five blocks. Each variety is sown once within each block and yield in grams per 16 ft row is recorded. 
+```
+
+```{r}
+head(oatvar)
+glmod = gls(yield ~ variety, oatvar, correlation = corCompSymm(form = ~1 | block))
+intervals(glmod)
+```
+
+Details of `correlation` options:
+
+-   `corAR1`, autoregressive process of order 1.
+
+$$X_t = \phi X_{t-1} + \delta_t$$
+
+-   `corARMA`, autoregressive moving average process, with arbitrary
+    orders for the autoregressive and moving average components.
+
+$$X_t = \sum_{i=1}^p\phi_i X_{t-i}+\sum_{j=1}^q\theta_j\epsilon_{t-j}+\epsilon_t$$
+
+-   `corCAR1`, continuous autoregressive process (AR(1) process for a
+    continuous time covariate).
+
+$$X^{(p)}(t) = \phi X^{(p-1)}(t) + \delta(t)$$
+
+-   `corCompSymm`, compound symmetry structure corresponding to a
+    constant correlation.
+
+$${\bf \Sigma}=\begin{pmatrix}
+1 & \rho & \rho & \cdots & \rho\\
+\rho & 1 & \rho & \cdots & \rho\\
+\vdots & \vdots & \vdots & \ddots & \vdots\\
+\rho & \rho & \rho & \cdots & 1\\
+\end{pmatrix}$$
+
+-   `corExp`, exponential spatial correlation.
+
+$$\rho(v) = e^{-v/\phi}$$, where $v$ is the distance.
+
+-   `corGaus`, Gaussian spatial correlation.
+
+$$\rho(v) = e^{-(v/\phi)^2}$$
+
+-   `corLin`, linear spatial correlation.
+
+$$\rho(v) = 1-r/\phi$$
+
+-   `corRatio`, Rational quadratics spatial correlation.
+
+$$\rho(v) = \frac{1}{1+(v/\phi)^2}$$
+
+-   `corSpher`, spherical spatial correlation.
+
+$$\rho(v) = 1-1.5v+0.5(v/\phi)^3$$
+
+-   `corSymm`, general correlation matrix, with no additional structure.
+
+$${\bf \Sigma}=\begin{pmatrix}
+\sigma^2_{11} & \sigma^2_{12} & \sigma^2_{13} & \cdots & \sigma^2_{1n}\\
+\sigma^2_{12} & \sigma^2_{22} & \sigma^2_{23} & \cdots & \sigma^2_{2n}\\
+\sigma^2_{13} & \sigma^2_{23} & \sigma^2_{33} & \cdots & \sigma^2_{3n}\\
+\vdots & \vdots & \vdots & \ddots & \vdots\\
+\sigma^2_{1n} & \sigma^2_{2n} & \sigma^2_{3n} & \cdots & \sigma^2_{nn}\\
+\end{pmatrix}$$
+
+## Weighted Least Squares
+
+This method is used for the case in which the variances are not constant
+but errors are independent, that is $var(\epsilon) = \sigma^2\Sigma$
+where $$
+\Sigma = \left(\begin{matrix}
+1/w_1 & 0 & \cdots & 0\\
+0 & 1/w_2 & \cdots & 0\\
+\vdots & \vdots & \ddots & \vdots\\
+0 & 0 & \cdots & 1/w_n
+\end{matrix}\right).
+$$ This situation usually occurs when
+
+1.  Errors proportional to a predictor:
+    $var(\epsilon_i)\propto {\bf{x}}_i$ suggests $w_i = x_i^{-1}$.
+
+2.  When the $Y_i$ are the averages of $n_i$ observations, then
+    $var(Y_i) = var(\epsilon_i) = \sigma^2/n_i$, which suggests
+    $w_i = n_i$.
+
+3.  When the observed responses are known to be of varying quality,
+    weights may be assigned $w_i = 1/sd(y_i)$.
+
+```{r}
+data(fpe,package="faraway")
+fpe
+lmod = lm(A2 ~ A+B+C+D+E+F+G+H+J+K+N-1, fpe, weights=1/EI)
+coef(lmod)
+```
+
+## Testing for Lack of Fit
+
+What we want to know is how good our model is to the true model. What we
+did in F-test only tells us which one is preferable. While it doesn't
+tell us whether our model fits the data. We expect $\hat\sigma^2$ to be
+close to $\sigma^2$ if our model is correct. Otherwise $\hat\sigma^2$
+either overestimates or underestimates the truth.
+
+If we can collect repeated values, we should compute the "pure error" to
+quantify how well our fitting is. Let $y_{ij}$ be the $i^{th}$
+observation in the group of true replicates $j$. The "pure error" or
+model-free estimate of $\sigma^2$ is given by $SS_{pe}/df_{pe}$ where:
+$$
+SS_{pe} = \sum_j\sum_i(y_{ij}-\bar{y}_j)^2,
+$$ $df_{pe} = \sum_j(\# replicates_j-1) = n-\#groups$.
+
+```{example}
+Testing for lack of fit
+```
+
+```{r, fig.align='center'}
+data(corrosion, package="faraway")
+lmod = lm(loss ~ Fe, corrosion)
+sumary(lmod)
+plot(loss ~ Fe, corrosion,xlab="Iron content", ylab="Weight loss")
+abline(coef(lmod))
+lmoda = lm(loss ~ factor(Fe), corrosion)
+points(corrosion$Fe,fitted(lmoda),pch=3)
+anova(lmod, lmoda)
+```
+
+The low p-value indicates that we must conclude that there is a lack of
+fit because our model is very different from the pure variance model. We
+can see another extreme example.
+
+```{r, fig.align='center'}
+lmodp = lm(loss ~ Fe+I(Fe^2)+I(Fe^3)+I(Fe^4)+I(Fe^5)+I(Fe^6),
+corrosion)
+plot(loss ~ Fe, data=corrosion,ylim=c(60,130))
+points(corrosion$Fe,fitted(lmoda),pch=3)
+grid = seq(0,2,len=50)
+lines(grid,predict(lmodp, data.frame(Fe=grid)))
+summary(lmodp)$r.squared
+```
+
+# Transformation
+
+We can transform the response or predictor to improve the fit and
+correct violations of model assumptions.
+
+## Transforming the Response (Generalized Linear Model)
+
+$$
+\begin{matrix}
+\text{Variance pattern} & \text{Transformation}\\
+\sigma^2\propto constant & Y^*=Y\\
+\sigma^2\propto Y & Y^*=\sqrt{Y}\\
+\sigma^2\propto Y(1-Y) & Y^*=\sin^{-1}(\sqrt{Y}),0\le Y\le 1\\
+\sigma^2\propto Y^2 & Y^*=\log{Y}\\
+\sigma^2\propto Y^3 & Y^*=Y^{-1/2}\\
+\sigma^2\propto Y^4 & Y^*=Y^{-1}\\
+\end{matrix}
+$$
+
+## Transforming the Predictors
+
+Of course we can run Box-Cox for predictors, but we can simply look at
+the plot of $Y$ v.s. $X_i$ to determine the transformation on $X_i$.
+
+## Polynomial regression
+
+Polynomial regression model is $$
+y={\boldsymbol{\beta}}_0+{\boldsymbol{\beta}}_1{\bf{x}}+{\boldsymbol{\beta}}_2{\bf{x}}^2+\cdots+{\boldsymbol{\beta}}_d{\bf{x}}^d+\epsilon.
+$$ It can also include many predictors.
+
+We shouldn't increase order $d$ to arbitrarily high, 2 or 3 usually.
+Otherwise we have overfitting issue.
+
+# Model Selection
+
+We are going to select the "best" model among candidates.
+
+## Hierarchical Models
+
+Hierarchy means models are sub-models from the full model. For example:
+$$
+\begin{aligned}
+y &= \beta_0+\beta_1 x_1+\beta_2 x_2+\beta_3 x_3+\cdots+\beta_p x_p+\epsilon\\
+y &= \beta_0+\beta_1 x_1+\beta_3 x_3+\cdots+\beta_p x_p+\epsilon\\
+&\cdots\\
+y &= \beta_0+\beta_1 x_1+\epsilon,
+\end{aligned}
+$$
+
+or we have higher orders $$
+\begin{aligned}
+y &= \beta_0+\beta_1 x+\beta_2 x^2+\beta_3 x^3+\cdots+\beta_p x^p+\epsilon\\
+y &= \beta_0+\beta_1 x+\beta_3 x^3+\cdots+\beta_p x^p+\epsilon\\
+&\cdots\\
+y &= \beta_0+\beta_1 x+\beta_2 x^2+\epsilon,
+\end{aligned}
+$$ or combinations $$
+\begin{aligned}
+y =& \beta_0+\beta_1 x_1+\beta_2 x_2+\beta_3 x_3+\cdots+\beta_p x_p\\
+&\beta_{12}x_1x_2+\beta_{23}x_2x_3+\cdots+\epsilon\\
+\cdots\\
+y = & \beta_0+\beta_{12}x_1x_2+\epsilon
+\end{aligned}$$
+
+## Testing-Based Procedures
+
+### Backward Elimination
+
+We start from the full model. Each step we remove one predictor whose
+p-value is the largest and larger than our critical level
+$\alpha_{crit}$. After several steps, we stop at where no more
+predictors can be removed based on our $\alpha_{crit}$.
+
+### Forward Selection
+
+Start from the null model (no predictors). Each step we add one
+predictor whose p-value is the smallest and smaller than $\alpha_{crit}$
+after adding it to the model from the previous step. We stop until we
+can't add more.
+
+### Stepwise Regression
+
+Combination of Backward and Forward. Each step we add the significant in
+and move the non-significant out (if possible) until we can't do it
+anymore.
+
+```{example}
+The data were collected from U.S. Bureau of the Census. We will take life expectancy
+as the response and the remaining variables as predictors. Let $\alpha_{crit}=0.05$
+```
+
+```{r}
+data(state)
+statedata = data.frame(state.x77,row.names=state.abb)
+lmod = lm(Life.Exp ~ ., statedata)
+sumary(lmod)
+lmod = update(lmod, . ~ . - Area)
+sumary(lmod)
+lmod = update(lmod, . ~ . - Illiteracy)
+sumary(lmod)
+lmod = update(lmod, . ~ . - Income)
+sumary(lmod)
+lmod = update(lmod, . ~ . - Population)
+sumary(lmod)
+```
+
+## Criterion-Based Procedures
+
+We can use criterion to quantify how good our model is. $R^2$ is one
+criterion. We have **Kullback-Leibler Information**, **Akaike
+Information Criterion (AIC)**, **Bayesian Information Criterion (BIC)**,
+**Mallow's Cp statistic** and others. $$
+\begin{aligned}
+AIC = & -2\ln(Likelihood)+2(p+1)\\
+BIC = & -2\ln(Likelihood)+(p+1)\ln(n)\\
+Cp = & \frac{SSE_p}{MES_{full}}-n+2(p+1)\\
+KL = & \sum_x P(x)log\left\{\frac{P(x)}{Q(x)}\right\}
+\end{aligned}$$
+
+```{r}
+library(leaps)
+b = regsubsets(Life.Exp~.,data=statedata)
+rs = summary(b)
+rs$which
+rs
+library(MASS)
+step = stepAIC(lm(Life.Exp ~ 1, data = statedata), direction = "forward", trace = T)
+summary(step(lm(Life.Exp ~ ., data = statedata), direction="backward"))
+library(olsrr)
+model = lm(Life.Exp ~ ., data = statedata)
+ols_step_forward_p(model,details = T)
+ols_step_backward_aic(model,details = T)
+```
+
+# Shrinkage Method
+
+If your predictors are many more than observations...
+
+## Principle Component Analysis (PCA)
+
+We will find a low-dimensional linear structure from a high-dimensional
+data by PCA. Suppose our original data set is $X$, a $n$-by-$p$ matrix.
+Let $Z = XU$ where $U$ is a $p$-by-$d$ matrix and $d<p$. If $Z$ includes
+almost all information as in $X$, then using $Z$ instead of $X$ means we
+reduce the dimension and simplify the predictors.
+
+```{example}
+PCA
+```
+
+```{r}
+data(fat,package="faraway")
+plot(neck ~ knee, fat)
+plot(chest ~ thigh, fat)
+plot(hip ~ wrist, fat)
+```
+
+Let's look at the following two cases.
+
+```{r fig.asp = 1}
+x = runif(20,0,1)
+y = 1/2*x
+plot(x,y,xlim = c(-0.5,1.5),ylim = c(-0.5,1.5),pch = 20, cex = 1.5)
+arrows(x0 = -0.5, x1 = 1.5, y0 = 0, y1 = 0,length = 0.2, angle = 20, lwd = 2) 
+arrows(x0 = 0, x1 = 0, y0 = -0.5, y1 = 1.5,length = 0.2, angle = 20, lwd = 2) 
+
+plot(x,y,xlim = c(-0.5,1.5),ylim = c(-0.5,1.5),pch = 20, cex = 1.5)
+arrows(x0 = -0.5, x1 = 1.5, y0 = 0, y1 = 0,length = 0.1, angle = 20, lwd = 2) 
+arrows(x0 = 0, x1 = 0, y0 = -0.5, y1 = 1.5,length = 0.1, angle = 20, lwd = 2) 
+arrows(x0 = -0.5, x1 = 1.5, y0 = -0.25, y1 = 0.75,length = 0.1, angle = 20, lwd = 2, col = 4) 
+arrows(x0 = 0.25, x1 = -0.5, y0 = -0.5, y1 = 1,length = 0.1, angle = 20, lwd = 2, col = 4)
+```
+
+$y = x/2$, the points are $(x,y)$. New $z = \sqrt{5}x/2$, the points (in
+the new coordinate) is $(0,z) = (0,\sqrt{5}x/2)$.
+
+```{r fig.asp = 1}
+y = fat$neck-mean(fat$neck)
+x = fat$knee-mean(fat$knee)
+summary(lm(y ~ x))
+plot(x, y, pch = 20, cex = 1,xlim = c(-6,15),ylim = c(-6,15))
+arrows(x0 = min(x), x1 = max(x), y0 = 0, y1 = 0,length = 0.2, angle = 20, lwd = 2)
+arrows(x0 = 0, x1 = 0, y0 = min(y), y1 = max(y),length = 0.2, angle = 20, lwd = 2)
+arrows(x0 = min(x), x1 = 13, y0 = min(x)*0.6777, y1 = 13*0.6777,length = 0.2, angle = 20, lwd = 2, col = 4)
+arrows(x0 = 4, x1 = -5, y0 = 4/-0.6777, y1 = -5/-0.6777,length = 0.2, angle = 20, lwd = 2, col = 4)
+```
+
+```{r}
+cfat = fat[,9:18]
+prfat = prcomp(cfat)
+dim(prfat$rot)
+dim(prfat$x)
+summary(prfat)
+prfat$rot
+```
+
+We may also scale the data to eliminate the possible mistake from large
+measures.
+
+```{r}
+prfatc = prcomp(cfat, scale=TRUE)
+summary(prfatc)
+prfatc$rot
+biplot(prfatc, scale = 0)
+```
+
+The directions are computed as follows.
+
+1.  Scale each of the variables to have a mean of 0 and a standard
+    deviation of 1.
+
+2.  Calculate the covariance matrix for the scaled variables.
+
+3.  Calculate the eigenvalues of the covariance matrix.
+
+4.  The eigenvector that corresponds to the largest eigenvalue is the
+    first principal component. The eigenvector corresponding to the
+    second largest eigenvalue is the second principal component, and so
+    on.
+
+<!-- A nicer picture -->
+
+<!-- ```{r} -->
+
+<!-- library(devtools) -->
+
+<!-- # install_github("vqv/ggbiplot") -->
+
+<!-- library(ggbiplot) -->
+
+<!-- g = ggbiplot(prfatc,obs.scale = 1, -->
+
+<!--               var.scale = 1, -->
+
+<!--               # groups = training$Species, -->
+
+<!--               ellipse = TRUE, -->
+
+<!--               circle = TRUE, -->
+
+<!--               ellipse.prob = 0.68) -->
+
+<!-- g = g + scale_color_discrete(name = '') -->
+
+<!-- g = g + theme(legend.direction = 'horizontal', -->
+
+<!--                legend.position = 'top') -->
+
+<!-- g -->
+
+<!-- ``` -->
+
+Determine the number of components
+
+We split the data into `training` and `testing` groups.
+
+```{r}
+data(meatspec, package="faraway")
+trainmeat = meatspec[1:172,]
+testmeat = meatspec[173:215,]
+modlm = lm(fat ~ ., trainmeat)
+```
+
+```{r}
+library(pls)
+pcrmod = pcr(fat ~ ., data=trainmeat, ncomp=50)
+plot(modlm$coef[-1],xlab="Frequency",ylab="Coefficient",type="l")
+coefplot(pcrmod, ncomp=4, xlab="Frequency",main="")
+meatpca = prcomp(trainmeat[,-101])
+matplot(1:100, meatpca$rot[,1:3], type="l", xlab="Frequency", ylab
+="", col=1)
+plot(meatpca$sdev[1:10],type="l",ylab="SD of PC", xlab="PC number")
+pcrmse = RMSEP(pcrmod, newdata=testmeat)
+plot(pcrmse,main="")
+which.min(pcrmse$val)
+pcrmse$val[28]
+set.seed(123) # Fix random generation
+pcrmod = pcr(fat ~ ., data=trainmeat, validation="CV", ncomp=50)# using cross-validation
+pcrCV = RMSEP(pcrmod, estimate="CV")
+plot(pcrCV,main="")
+which.min(pcrCV$val)
+ypred = predict(pcrmod, testmeat, ncomp=18)
+```
+
+Another function
+
+```{r}
+validationplot(pcrmod)
+```
+
+## Partial Least Square
+
+We only consider the information of $X$ in PCA but not $Y$. We consider
+information from both $X$ and $Y$ in PLS.
+
+```{r}
+set.seed(123)
+plsmod = plsr(fat ~ ., data=meatspec[1:172,], ncomp=50, validation
+="CV")
+coefplot(plsmod, ncomp=4, xlab="Frequency")
+plsCV = RMSEP(plsmod, estimate="CV")
+plot(plsCV,main="")
+```
+
+This time the prediction is better than PCA.
+
+The idea of PLS is decomposing $X$ and $Y$ at the same time meanwhile taking the other one into account during their decomposition.
+
+$$X=TP^T, Y = UQ^T$$
+where $P$ and $Q$ are eigen vectors from
+$$T = XP, U=YQ.$$
+
+Regular updating of finding $P$ and $Q$ are
+
+  1. $\textbf t=x_j$ for some $j$
+  2. Loop
+    i) $\textbf p=X^T\textbf t/\|X^T\textbf t\|$
+    ii) $\textbf t=X\textbf p$
+  3. Until $\textbf t$ stop changing
+
+and
+
+  1. $\textbf u=y_j$ for some $j$
+  2. Loop
+    i) $\textbf q=Y^T\textbf u/\|Y^T\textbf u\|$
+    ii) $\textbf u=Y\textbf q$
+  3. Until $\textbf u$ stop changing.
+  
+Now combine both
+
+  1. $\textbf u=y_j$ for some $j$
+  2. Loop
+  
+    i) $\textbf p=X^T\textbf u/\|X^T\textbf u\|$
+    ii) $\textbf t=X\textbf p$
+    iii) $\textbf q=Y^T\textbf t/\|Y^T\textbf t\|$
+    iv) $\textbf u=Y\textbf q$
+  3. Until $\textbf t$ stop changing.
+  
+The steps iii) and iv) can be omitted if $Y$ has only one column.
+
+For next component, let $X=X-\textbf t\textbf p^T$ and $Y=Y-\textbf u\textbf q^T$ and repeat. In the end, we fit linear model $U=T\beta$. 
+  
+## Ridge Regression
+
+Different from Ordinary Least Square, we are minimizing the following
+
+$$
+(Y-{\bf{X}}{\boldsymbol{\beta}})^{T}(Y-{\bf{X}}{\boldsymbol{\beta}})+\lambda\sum_j\beta_j^2.
+$$
+
+This is equivalent to minimize
+$(Y-{\bf{X}}{\boldsymbol{\beta}})^{T}(Y-{\bf{X}}{\boldsymbol{\beta}})$
+subject to $\sum_j\beta_j^2<c$ ($c$ is related to $\lambda$). The idea
+is to limit the value of ${\boldsymbol{\beta}}$. The estimation is
+$\hat{\boldsymbol{\beta}}= ({\bf{X}}^{T}{\bf{X}}+\lambda I)^{-1}{\bf{X}}^{T}Y$.
+
+```{r}
+require(MASS)
+rgmod = lm.ridge(fat ~ ., trainmeat, lambda = seq(0, 5e-8, len=21))
+matplot(rgmod$lambda, coef(rgmod), type="l", xlab=expression(lambda),ylab=expression(hat(beta)),col=1)
+which.min(rgmod$GCV)
+```
+
+I need to point it out that ridge regression is biases. It is not
+desirable but we gain another advantage that the variance of
+${\boldsymbol{\beta}}$ is reduced.
+
+## LASSO
+
+Note that, different from model selection section, there is no predictor
+removed from our model.
+
+Let's minimize $$
+(Y-{\bf{X}}{\boldsymbol{\beta}})^{T}(Y-{\bf{X}}{\boldsymbol{\beta}})+\lambda\sum_j|\beta_j|.$$
+
+```{r}
+library(lars)
+data(state)
+statedata = data.frame(state.x77,row.names=state.abb)
+lmod = lars(as.matrix(statedata[,-4]),statedata$Life)
+plot(lmod)
+```
+
+## Elastic net
+
+$$(Y-{\bf{X}}{\boldsymbol{\beta}})^{T}(Y-{\bf{X}}{\boldsymbol{\beta}})+\lambda\left\{\alpha\sum_j|\beta_j|+(1-\alpha)\sum_j\beta^2_j\right\}.$$
+
+
+```{r}
+library(glmnet)
+lambda = 0.01
+lassoMod = glmnet(x = as.matrix(statedata[,-4]),y = statedata$Life, lambda=lambda,family="gaussian",alpha=1) 
+lassoMod$beta
+lassoModAll = glmnet(x = as.matrix(statedata[,-4]),y = statedata$Life, family="gaussian",alpha=1)
+matplot((lassoModAll$lambda), t(lassoModAll$beta), type="l", main="Lasso", lwd=2)
+matplot(log(lassoModAll$lambda), t(lassoModAll$beta), type="l", main="Lasso", lwd=2)
+```
+
+Compare with ridge regression
+
+```{r}
+ridgeModAll = glmnet(x = as.matrix(statedata[,-4]),y = statedata$Life, family="gaussian",alpha=0)
+matplot((ridgeModAll$lambda), t(ridgeModAll$beta), type="l", main="Ridge", lwd=2)
+matplot(log(ridgeModAll$lambda), t(ridgeModAll$beta), type="l", main="Ridge", lwd=2)
+```
+
+Cross-Validation of LASSO
+
+```{r}
+lassoCV = cv.glmnet(x = as.matrix(statedata[,-4]),y = statedata$Life, family="gaussian",alpha=1)
+plot(lassoCV)
+coef(lassoCV, c(lassoCV$lambda.min))
+```
+
+# Generalized Linear Model (GLM)
+
+## Binary Response
+
+Suppose our response $Y$ is binary, that is $Y=0,1$. For example,
+treatment indicator, diseased indicator, success/failure indicator, and
+so on. Our interest is the probability of getting $0$ or $1$. The probability function of binary random variable is $$p^{y}(1-p)^{1-y}, 0\le p<1,y = 0,1$$. 
+In math form, we want to study $p=P(Y=1)$ is a function of $X\beta$. The ideal or
+straight forward way of modeling this is let $$ Y = \begin{cases}
+0, & X\beta > a\\
+1, & X\beta \le a.
+\end{cases}$$
+
+This ideal case is too good to be true in real world (we use other
+method to compute this problem, clustering or nonparametric). We can
+create a link function between $X\beta$ and $P(Y=1)$, i.e.
+$P(Y=1) = E(Y) = g^{-1}(X\beta)$. For example, expit function $e^x/(1+e^x)$, cdf of normal, and so
+on. Therefore we are modelling ${\displaystyle \operatorname {E} (\mathbf {Y} \mid \mathbf {X} )={\boldsymbol {\mu }}=g^{-1}(\mathbf {X} {\boldsymbol {\beta }})}$.
+
+```{r}
+linkPlot = data.frame(x = seq(-5,5,by = 0.1))
+linkPlot$linear = linkPlot$x/8+0.5
+linkPlot$expit = exp(linkPlot$x)/(1+exp(linkPlot$x))
+linkPlot$cdfNormal = pnorm(linkPlot$x)
+ggplot(linkPlot) +
+  geom_hline(yintercept=c(0,1), linetype="dashed", color = "black") +
+  geom_line(aes(y = linear, x = x), color = 2,size = 1) +
+  geom_line(aes(y = expit, x = x), color = 3,size = 1) +
+  geom_line(aes(y = cdfNormal, x = x), color = 4,size = 1) +
+  scale_color_manual(name = "Group",values = c( "linear" = "blue", "expit" =
+                                                  "red", "cdfNormal" = "orange"),
+                     labels = c("deathpercentage", "tamponadepercentage", "protaminepercentage"))
+```
+
+```{r}
+# Pneumoconiosis Data
+example131 = data.frame(read.table("Table13_1.txt",header = T))
+example131$No_Other_Cases = round(example131$No_Severe_Cases/example131$Proportion_of_Severe_Cases-example131$No_Severe_Cases)
+example131$No_Other_Cases[1] = 98
+ggplot(example131) +
+  geom_line(aes(y = Proportion_of_Severe_Cases, x = No_Years_of_Exposure),size = 1) +
+  geom_point(aes(y = Proportion_of_Severe_Cases, x = No_Years_of_Exposure),size = 2) +
+  stat_smooth(aes(y = Proportion_of_Severe_Cases, x = No_Years_of_Exposure), 
+              method = "loess",formula = y ~ x, se = FALSE, color = 2) +
+  stat_smooth(aes(y = Proportion_of_Severe_Cases, x = No_Years_of_Exposure), 
+              method = "lm",formula = y ~ poly(x,3), se = FALSE, color = 4) 
+model13.1 = glm(cbind(No_Severe_Cases,No_Other_Cases) ~ No_Years_of_Exposure, 
+                family=binomial, data = example131)
+summary(model13.1)
+exp(coef(model13.1))# odds
+exp(confint(model13.1))# C.I. of Odds ratio
+vcov(model13.1)# variance-covariance matrix
+residuals(model13.1, type="deviance")# pearson, working, response
+```
+
+```{r}
+example132 = data.frame(read.table("breastCancer.txt",header = T))
+model13.2.two = glm(case.control ~ weight + age, 
+                family=binomial, data = example132)
+model13.2.one = glm(case.control ~ age, 
+                family=binomial, data = example132)
+anova(model13.2.one,model13.2.two,test = "Chisq")#"LRT,Cp,F,Rao"
+example132$fitted2 = model13.2.two$fitted.values
+example132$fitted1 = model13.2.one$fitted.values
+ggplot(example132) +
+  geom_point(aes(y = case.control, x = fitted2),size = 2) +
+  stat_smooth(aes(y = case.control, x = fitted2), 
+              method = "loess",formula = y ~ x, se = FALSE, color = 2) +
+  stat_smooth(aes(y = case.control, x = fitted2), 
+              method = "lm",formula = y ~ poly(x,3), se = FALSE, color = 4) +
+  stat_smooth(aes(y = case.control, x = fitted2), 
+              method = "glm",formula = y ~ exp(x)/(1+exp(x)), se = FALSE, color = 7) 
+```
+
+## Count Response
+
+The response $Y$ is non-negative integer. The most popular distribution of which is Poisson whose probability function is given by $$\frac{\lambda^ke^{-\lambda}}{k!},k=0,1,2,...$$
+We also use link function to
+link the response $Y$ and the linear relationship $X\beta$ via
+$E(Y) = g^{-1}(X\beta)$. A commonly used link is $g = exp()$. Therefore we are also modelling ${\displaystyle \operatorname {E} (\mathbf {Y} \mid \mathbf {X} )={\boldsymbol {\mu }}=g^{-1}(\mathbf {X} {\boldsymbol {\beta }})}$.
+
+```{r}
+example133 = data.frame(read.table("patent.txt",header = T))
+ggplot(example133) +
+  geom_point(aes(y = patent, x = x3),size = 2) +
+  stat_smooth(aes(y = patent, x = x3), 
+              method = "loess",formula = y ~ x, se = FALSE, color = 2) +
+  stat_smooth(aes(y = patent, x = x3), 
+              method = "lm",formula = y ~ poly(x,3), se = FALSE, color = 4)
+model13.3 = glm(patent ~ x1 + x2 + x3, 
+                family=poisson, data = example133)
+summary(model13.3)
+```
+
+# Indicator variable
+
+The predictor $X$ is an indicator variable, that $X=I(X=x_k),k=1,2,...,K$ is discrete. The model is
+$$Y=\beta_0+\beta_1X_1+\beta_2X_2$$ where $X_1$ is an indicator variable having two output
+$$ X_1 = \begin{cases}
+0\\
+1.
+\end{cases}$$
+
+$X_2$ is continuous as usual.
+
+We may also have interaction term such as
+$$Y=\beta_0+\beta_1X_1+\beta_2X_2+\beta_{12}X_1X_2$$
+Then the coefficient/parameter $\beta_1$ or $\beta_{12}$ describes the grouping difference.
+
+
+```{r}
+library(ggplot2)
+example81 = as.data.frame(read.table("Table8_1.txt",header = T))
+ggplot(example81) +
+  geom_point(aes(y = hours, x = rpm, group = as.factor(tool), color = tool),size = 6)
+model8.1.nogroup = lm(hours ~ rpm, data = example81)
+summary(model8.1.nogroup)
+model8.1.linear = lm(hours ~ rpm + factor(tool), data = example81)
+summary(model8.1.linear)
+model8.1.interaction = lm(hours ~ rpm * factor(tool), data = example81) # you can try a:b
+summary(model8.1.interaction)
+# test the difference between groups
+anova(model8.1.nogroup,model8.1.interaction)
+anova(model8.1.linear,model8.1.interaction)
+ggplot(example81) +
+  geom_point(aes(y = hours, x = rpm, group = as.factor(tool), color = tool),size = 6) +
+  geom_smooth(aes(y = hours, x = rpm, group = as.factor(tool), color = tool),method = "lm", fill = NA)
+```
+
+
+
+```{r}
+# multi level indicators
+head(iris)
+ggplot(iris) +
+  geom_point(aes(y = Sepal.Length, x = Petal.Length, group = Species, color = Species),size = 6)
+model8.2 = lm(Sepal.Length ~ Petal.Length * Species, data = iris)
+summary(model8.2)
+```

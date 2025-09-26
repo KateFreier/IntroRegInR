@@ -1,0 +1,1 @@
+"0","plot(mtcars$wt, mtcars$mpg, xlab=""Weight (1,000 lbs)"", ylab=""MPG"", pch=c(""A"", ""M"")[mtcars$am+1])"

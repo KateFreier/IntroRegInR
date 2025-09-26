@@ -1,0 +1,33 @@
+{
+    "id": "13037982",
+    "path": "~/Desktop/Regression Book/IntroRegInR/Chapter8.qmd",
+    "project_path": "Chapter8.qmd",
+    "type": "quarto_markdown",
+    "hash": "3836612728",
+    "contents": "",
+    "dirty": true,
+    "created": 1758082316924.0,
+    "source_on_save": true,
+    "relative_order": 13,
+    "properties": {
+        "rmdVisualMode": "true",
+        "rmdVisualWrapConfigured": "true",
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "docOutlineVisible": "1",
+        "rmdVisualCollapsedChunks": "",
+        "cursorPosition": "89,0",
+        "scrollLine": "0",
+        "rmdVisualModeLocation": "4867:2357.60009765625",
+        "disableDependencyDiscovery": "1"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1758322546,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1758587116060,
+    "read_only": false,
+    "read_only_alternatives": []
+}

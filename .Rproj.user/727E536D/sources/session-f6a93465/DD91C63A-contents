@@ -1,0 +1,29 @@
+mydffit<-function(ind){
+  mod_cereal<-lm(calories~fat+sugars+carbo, data=UScereal)
+  fit1<-mod_cereal$fitted.values[ind]
+  
+  mod_noind<-lm(calories~fat+sugars+carbo, data=UScereal[-ind,])
+  fit2<-predict(mod_noind, UScereal[ind,]) 
+  
+  ind_hat<-hatvalues(mod_cereal)[ind]
+  ind_sig<-sqrt(summary(mod_noind)$sigma^2 * ind_hat)
+  
+  c((fit1-fit2)/ind_sig, dffits(mod_cereal)[ind])
+}
+
+
+mydfbeta<-function(ind){
+  mod_cereal<-lm(calories~fat+sugars+carbo, data=UScereal)
+  fit1<-mod_cereal$coef[3]
+  
+  mod_noind<-lm(calories~fat+sugars+carbo, data=UScereal[-ind,])
+  fit2<-mod_noind$coef[3]
+  
+  sig1<-summary(mod_noind)$sigma^2
+  
+  xmat<-as.matrix(cbind(rep(1, 65), UScereal$fat,UScereal$sugars,UScereal$carbo))
+  inv<-solve(t(xmat)%*%xmat)
+  siguse<-sqrt(sig1*inv[3,3])
+  
+  c((fit1-fit2)/siguse, dfbetas(mod_cereal)[ind,3])
+}

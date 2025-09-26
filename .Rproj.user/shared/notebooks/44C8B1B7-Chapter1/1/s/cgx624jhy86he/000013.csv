@@ -1,0 +1,3 @@
+"0",""
+"0","HP<-mtcars$hp"
+"0","plt(mtcars$wt, mtcars$mpg, by=HP, xlab=""Vehicle Weight (1,000 lbs)"", ylab=""MPG"", main=""By Horsepower"", pch=16, cex=1.5)"

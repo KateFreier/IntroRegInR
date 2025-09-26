@@ -1,0 +1,665 @@
+#
+# This is a Shiny web application. You can run the application by clicking
+# the 'Run App' button above.
+#
+# Find out more about building applications with Shiny here:
+#
+#    https://shiny.posit.co/
+#
+
+library(shiny)
+library(bslib)
+library(shinythemes)
+library(jpeg)
+library(png)
+library(spacesRGB)
+library(munsellinterpol)
+library(imgpalr)
+library(magick)
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+  
+  #### Basics ###################################
+    titlePanel("Dressed In Color Self-Analyzer", img(src='logo color.png', align="left")),
+    id="col_analysis",
+    #bg="#0f6266", 
+    inverse=TRUE,
+    fillable=TRUE,
+    fillable_mobile=TRUE,
+    collapsible=TRUE,
+    fluid=TRUE,
+    theme=bs_theme(version=5, bootswatch="sandstone"),
+    
+  ##### Photo Upload tab ###########################  
+    navlistPanel(widths=c(2,10),
+      tabPanel(title="Upload Photos",
+      wellPanel(style = "background-color:#C3DDDE;",
+                titlePanel("Please upload each of the following in JPG or PNG format")),
+      fluidRow(column(4, offset=1,
+      fileInput("upcheek", NULL, buttonLabel = "Skin picture 1:", multiple = FALSE),
+      fileInput("upforehead", NULL, buttonLabel = "Skin picture 2:", multiple = FALSE),
+      fileInput("upear", NULL, buttonLabel = "Skin picture 3:", multiple = FALSE),
+      fileInput("upeyeL", NULL, buttonLabel = "Photo of left eye:", multiple = FALSE),
+      fileInput("upeyeR", NULL, buttonLabel = "Photo of right eye:", multiple = FALSE),
+      fileInput("upface", NULL, buttonLabel = "Full face picture:", multiple = FALSE)),
+      column(6,offset=1, fluidRow(tableOutput("files")), 
+                          fluidRow(actionButton("checkem", label="Check uploaded images", width="30%")))),
+  
+    fluidRow(column(3,imageOutput("skin")),
+             column(3,imageOutput("eyes")),
+             column(3,imageOutput("face")),
+             column(3, actionButton('goP2', 'Continue with these photos')))),
+##
+
+
+
+##### Skin eval tab ###########################    
+
+ tabPanel(title= "Skin", value="P2",
+  wellPanel(style = "background-color:#C3DDDE;",
+            titlePanel("Skin Evaluation")),
+    fluidRow(
+    column(width=3,
+          checkboxGroupInput("skin9use", "Please uncheck any captured colors that should NOT be considered because they do not accurately reflect skin coloring:",
+                              c("1" = "skin1", "2" = "skin2", "3" = "skin3", "4" = "skin4", "5" = "skin5",
+                                "6" = "skin6", "7" = "skin7", "8" = "skin8", "9"="skin9"),
+                              selected=c("skin1", "skin2", "skin3", "skin4", "skin5", "skin6", "skin7", "skin8", "skin9"), inline=TRUE)),
+    column(width=9,
+        
+           fluidRow( 
+             column(3, imageOutput("skin_top9", height=250)), 
+             column(3, offset=1, imageOutput("skin_use", height=250)),
+             column(3, offset=1,imageOutput("skin2", height=250)))))),
+  #hr(),
+tabPanel(title= "Eyes", value="P2",
+         wellPanel(style = "background-color:#C3DDDE;",
+                   titlePanel("Eye Evaluation")),
+  fluidRow(
+    column(width=3,
+                 checkboxGroupInput("eyes9use", "Please un-check any captured eye colors that should NOT be considered because they are not an accurate reflection of your eye coloring:",
+                 c("1" = "eye1", "2" = "eye2", "3" = "eye3", "4" = "eye4", "5" = "eye5",
+                   "6" = "eye6", "7" = "eye7", "8" = "eye8", "9" = "eye9"), 
+                  selected=c("eye1", "eye2", "eye3", "eye4", "eye5", "eye6", "eye7", "eye8", "eye9"), inline=TRUE)),
+    column(width=9,
+              fluidRow(column(3, imageOutput("eyes_top9", height=250)), 
+                       column(3, offset=1, imageOutput("eyes_use", height=250)), 
+                       column(3, offset=1, imageOutput("eyes2", height=250)))))),
+
+
+
+##### Personality tab 1 ###########################  
+  tabPanel("Personality Part 1",
+     wellPanel(style = "background-color:#C3DDDE;",
+          titlePanel("Personality Assessment, True/False")),
+         fluidRow(column(5, offset=1,
+         radioButtons("aut1", "I get a lot of personal satisfaction from my roles at work or with a volunteer organization.", choices=c("True", "False"), width="88%", selected=character(0)),
+         radioButtons("aut2", "I'm not an early adopter type - I have what works for me and don't change quickly for what's new.", choices=c("True", "False"), width="88%", selected=character(0)),
+         radioButtons("spr3", "I consider myself witty.", choices=c("True", "False"), width="88%", selected=character(0)),
+         radioButtons("spr4", "I'm often indecisive.", choices=c("True", "False"), width="88%", selected=character(0))),
+         
+         fluidRow(column(5, offset=1,
+         radioButtons("win5", "I'm known for being punctual.", choices=c("True", "False"), width="88%", selected=character(0)),
+         radioButtons("win6", "I'm more of a black and white thinker.... I don't see the gray area often.", choices=c("True", "False"), width="88%", selected=character(0)),
+         radioButtons("sum7", "I am innately gentle and kind.", choices=c("True", "False"), width="88%", selected=character(0)),
+         radioButtons("sum8", "If a friend asks 'does this look good on me?' I'd tell a white lie to spare feelings rather than tell the truth.", choices=c("True", "False"), width="88%", selected=character(0))),
+
+         wellPanel(style = "background-color:#C3DDDE;",
+                   fluidRow(column(offset=4, width=4, actionButton("perdone", label="Compile Results", width="100%"))))),
+)),
+
+##### Personality tab 2 ###########################  
+tabPanel("Personality Part 2",
+         wellPanel(style = "background-color:#C3DDDE;",
+                   titlePanel("Personality Assessment, True/False")),
+         fluidRow(column(5, offset=1,
+                         radioButtons("spr1", "I'd rather go out to a party than spend a night at home.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("spr2", "A community festival and/or parade sound like a great Saturday.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("aut3", "When there's confusion, I tend to be someone who speaks up.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("aut4", "When I walk, I tend to walk with a determined gait rather than leisurely.", choices=c("True", "False"), width="88%", selected=character(0)))),
+                  column(5,offset=1,
+                         radioButtons("sum5", "People would likely describe me as humble.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("sum6", "I'm talented with my hands... knitting, caligraphy, piano, painting, gaming, or some other activity involving hand dexterity/coordination.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("win7", "It's not that I don't care, but I don't like to be the one to volunteer for things.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("win8", "Having quiet time is an important part of my day.", choices=c("True", "False"), width="88%", selected=character(0))),
+         wellPanel(style = "background-color:#C3DDDE;",
+                   fluidRow(column(offset=4, width=4, actionButton("perdone", label="Compile Results", width="100%"))))),
+
+
+##### Personality tab 3 ###########################  
+tabPanel("Personality Part 3",
+         wellPanel(style = "background-color:#C3DDDE;",
+                   titlePanel("Personality Assessment, True/False")),
+         fluidRow(column(5,offset=1,
+                         radioButtons("sum1", "People think I'm a good listener and tend to confide in me.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("sum2", "I feel like I stand out too much in bright colors.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("aut7", "More than one person has told me I'm stubborn.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("aut8", "When a group of equals needs a leader, I'm often someone who steps up.", choices=c("True", "False"), width="88%", selected=character(0))),
+                  column(5,offset=1,
+                         radioButtons("spr6", "People might describe me as warm, cheerful, and spontaneous.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("spr7", "I tend to have a lot of friends and meet new people easily.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("win3", "In a large party or networking event, people tend to come to me rather than me going to them.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("win4", "I have perfectionist tendencies and enjoy when I've reached my goals.", choices=c("True", "False"), width="88%", selected=character(0)))),
+                         
+         wellPanel(style = "background-color:#C3DDDE;",
+                   fluidRow(column(offset=4, width=4, actionButton("perdone", label="Compile Results", width="100%"))))),
+
+
+##### Personality tab 4 ###########################  
+tabPanel("Personality Part 4",
+         wellPanel(style = "background-color:#C3DDDE;",
+                   titlePanel("Personality Assessment, True/False")),
+         fluidRow(column(5, offset=1,
+                         radioButtons("sum3", "I'm rather soft-spoken.", choices=c("True", "False"), selected=character(0)),
+                         radioButtons("sum4", "I find it easy and satisfying entertaining guests in my home.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("win1", "People have told me I seem kind of aloof.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("win2", "I keep friends for a long time.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("aut5", "I'm generally mellow and emotionally controlled.", choices=c("True", "False"), width="88%", selected=character(0))),
+                  column(5, offset=1,
+                         radioButtons("aut6", "I'm an independent and original thinker.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("spr5", "My schedule is pretty packed because there are so many things I want to do.", choices=c("True", "False"), width="88%", selected=character(0)),
+                         radioButtons("spr8", "I'm good at starting projects, but not often good at finishing them.", choices=c("True", "False"), width="88%", selected=character(0)))),
+         
+         wellPanel(style = "background-color:#C3DDDE;",
+                   fluidRow(column(offset=4, width=4, actionButton("perdone", label="Compile Results", width="100%"))))),
+
+
+
+
+##### Compilation tab ###########################  
+tabPanel("Results",
+         fluidRow(textOutput("seas_pic")),
+         fluidRow(textOutput("seas_pers")),
+         fluidRow(textOutput("seas_comb")),
+         fluidRow(textOutput("decision_season")),
+         fluidRow(column(imageOutput("OptionA"), width=4), column(imageOutput("OptionB"), width=4, ofset=1))
+
+)))
+         
+         
+######################################################################################
+######################################################################################
+###   
+###    Server Section
+###
+######################################################################################
+######################################################################################
+
+server <- function(input, output, session) {
+  
+  tabfil<-function(inp){
+    if(length(inp)<2){rep("missing", 4)}
+    else(inp)
+  }  
+  
+  output$files <- renderTable({
+    allin<-as.data.frame(rbind(c("Skin1", tabfil(input$upcheek)), c("Skin2", tabfil(input$upforehead)), 
+                               c("Skin3", tabfil(input$upear)), c("Left Eye", tabfil(input$upeyeL)), 
+                               c("Right Eye", tabfil(input$upeyeR)), c("Face", tabfil(input$upface)))) 
+    names(allin)<-c("Photo", "File In", "Size", "Type", "Path")
+    allin
+    })
+  
+############ After go button clicked ########################################
+
+  observeEvent(input$goP2, {
+    updateTabsetPanel(session, "col_analysis",
+                      selected = "P2")
+  })
+  
+########### Face Image ##################################################  
+  observeEvent(input$checkem, {
+    output$face <- renderImage({ 
+    if(input$upface$type=="image/jpeg"){
+      imgf <-readJPEG(input$upface$datapath)}
+    if(input$upface$type=="image/png"){
+      imgf <-readPNG(input$upface$datapath)}  
+    
+    jpeg("facep.jpg", height=300, width=300)
+      par(mai=rep(0,4))
+      plot(NA,xlim=0:1,ylim=0:1,bty="n",axes=0,xaxs = 'i',yaxs='i')
+      rasterImage(imgf,0,0,1,1)
+      dev.off()
+    
+    list(src="facep.jpg", width=220, height=220)}, deleteFile=FALSE)})
+  
+########### Basic Skin Plot ##################################################  
+  observeEvent(input$checkem, {
+    output$skin <- renderImage({ 
+    if(input$upcheek$type=="image/jpeg"){  
+      img1s <-readJPEG(input$upcheek$datapath)}
+    if(input$upcheek$type=="image/png"){  
+      img1s <-readPNG(input$upcheek$datapath)} 
+    if(input$upear$type=="image/jpeg"){  
+      img2s <-readJPEG(input$upear$datapath)}
+    if(input$upear$type=="image/png"){  
+      img2s <-readPNG(input$upear$datapath)}  
+    if(input$upcheek$type=="image/jpeg"){  
+      img3s <-readJPEG(input$upforehead$datapath)}
+    if(input$upcheek$type=="image/png"){  
+      img3s <-readPNG(input$upforehead$datapath)}       
+    
+    jpeg("skinp.jpg", height=300, width=300)
+    par(mai=rep(0,4))
+    layout(matrix(1:3, ncol=3, byrow=TRUE))
+    plot(NA,xlim=0:1,ylim=0:1,bty="n",axes=0,xaxs = 'i',yaxs='i')
+    rasterImage(img1s,0,0,1,1)
+    plot(NA,xlim=0:1,ylim=0:1,bty="n",axes=0,xaxs = 'i',yaxs='i')
+    rasterImage(img2s,0,0,1,1)
+    plot(NA,xlim=0:1,ylim=0:1,bty="n",axes=0,xaxs = 'i',yaxs='i')
+    rasterImage(img3s,0,0,1,1)
+    dev.off()
+    
+    list(src="skinp.jpg", width=220, height=220)}, deleteFile=FALSE)})
+  
+########### Secondary Basic Skin Plot #############################################  
+  observeEvent(input$checkem, {
+    output$skin2 <- renderImage({ 
+    list(src="skinp.jpg", width=220, height=220)}, deleteFile=FALSE)})
+  
+  
+########### Basic Eye Plot ##################################################
+  observeEvent(input$checkem, {
+    output$eyes <- renderImage({ 
+    if(input$upcheek$type=="image/jpeg"){  
+      img1e <-readJPEG(input$upeyeL$datapath)}
+    if(input$upcheek$type=="image/png"){  
+      img1e <-readPNG(input$upeyeL$datapath)} 
+    if(input$upear$type=="image/jpeg"){  
+      img2e <-readJPEG(input$upeyeR$datapath)}
+    if(input$upear$type=="image/png"){  
+      img2e <-readPNG(input$upeyeR$datapath)}  
+      
+    img1e <-readJPEG(input$upeyeL$datapath)
+    img2e <-readJPEG(input$upeyeR$datapath)
+    
+    jpeg("eyep.jpg", height=300, width=300)
+    par(mai=rep(0,4))
+    layout(matrix(1:2, ncol=2, byrow=TRUE))
+    plot(NA,xlim=0:1,ylim=0:1,bty="n",axes=0,xaxs = 'i',yaxs='i')
+    rasterImage(img1e,0,0,1,1)
+    plot(NA,xlim=0:1,ylim=0:1,bty="n",axes=0,xaxs = 'i',yaxs='i')
+    rasterImage(img2e,0,0,1,1)
+    dev.off()
+    
+    list(src="eyep.jpg", width=220, height=220)}, deleteFile=FALSE) })
+  
+  ########### Secondary Basic Eye Plot ##################################################
+  observeEvent(input$checkem, {
+    output$eyes2 <- renderImage({ 
+    list(src="eyep.jpg", width=220, height=220)}, deleteFile=FALSE) })
+  
+  ########### Hair Color Chart ##################################################
+  output$hair <- renderImage({
+    h4<-c("0c0502", "473F3A", "837572", "bdaeb0", "dcd5de", "eae8eb", "311505", 
+           "4F331F", "7F6448", "A68C69", "CCB38A", "DFCC9A","651800", "7d3009", 
+           "924a17", "ba7a34", "e2b661", "f0e393")
+    h4<-paste("#", h4, sep="")
+    
+    jpeg("hair_colors.jpg", width=880, height=440)
+      par(mar=rep(0,4))
+      plot(c(.5, 6.5), c(.5, 3.5), type="n", xlab="", ylab="", main="", xaxt="n", yaxt="n")
+      points(rep(1:6, 3), rep(1:3, each=6), pch=15, cex=24, col=h4)
+      text(c(.7, 1.7, 2.7, 3.7, 4.7, 5.7), rep(3.3, 6), 1:6, col=rep(c("white", "black"), each=3), cex=2)
+      text(c(.7, 1.7, 2.7, 3.7, 4.7, 5.7), rep(2.3, 6), 7:12, col=rep(c("white", "black"), each=3), cex=2)
+      text(c(.7, 1.7, 2.7, 3.7, 4.7, 5.7), rep(1.3, 6), 13:18,col=rep(c("white", "black"), each=3), cex=2)
+      dev.off()
+      
+    list(src="hair_colors.jpg", width=660, height=330)}, deleteFile=FALSE)
+
+    
+############################# Related to Skin Analysis###########################
+skin9Run<-reactive({ 
+    
+  image_pal("skinp.jpg", 9, "qual", bw=c(.15, .9), seq_by="vhs")}) 
+
+observeEvent(input$goP2, {     
+output$skin_top9<-renderImage({
+        jpeg("skinTop9.jpg", width=300, height=300)
+        par(mar=c(0,0,3,0))
+        plot(c(.5, 3.5), c(1.5, 4.5), type="n", main="Colors Extracted From Photos")
+        coluse<-image_pal("skinp.jpg", 9, "qual", bw=c(.15, .9), seed=123, seq_by="vhs")
+        points(rep(1:3,3), rep(4:2, each=3), pch=16, col=coluse, cex=14)
+        text(.6, 4.35, "1", col="black", cex=1.5)
+        text(1.6, 4.35, "2", col="black", cex=1.5)
+        text(2.6, 4.35, "3", col="black", cex=1.5)
+        text(.6, 3.35, "4", col="black", cex=1.5)
+        text(1.6, 3.35, "5", col="black", cex=1.5)
+        text(2.6, 3.35, "6", col="black", cex=1.5)
+        text(.6, 2.35, "7", col="black", cex=1.5)
+        text(1.6, 2.35, "8", col="black", cex=1.5)
+        text(2.6, 2.35, "9", col="black", cex=1.5)
+        dev.off()
+      
+        list(src="skinTop9.jpg", width=230, height=230)}, deleteFile=FALSE)  })
+  
+observeEvent(input$goP2, {  
+output$skin_use<-renderImage({
+        all9<-c("skin1", "skin2", "skin3", "skin4", "skin5", "skin6", "skin7", "skin8", "skin9")
+        skinkeep<-is.element(all9, input$skin9use)
+        lenkeep<-sum(skinkeep)
+        coluse<-image_pal("skinp.jpg", 9, "qual", bw=c(.15, .9), seed=123, seq_by="vhs")
+        skin_col_use<-c(coluse, "white")[c((1:9)[skinkeep], rep(10, 9-lenkeep))]
+        
+        jpeg("skinUse.jpg", width=300, height=300)
+        par(mar=c(0,0,3,0))
+        plot(c(.5, 3.5), c(.5, 3.5), type="n", main="Skin Colors To Use In Analysis")
+        points(rep(1:3,3), rep(3:1, each=3), pch=16, col=skin_col_use, cex=14)
+        dev.off()
+        
+        list(src="skinUse.jpg", width=230, height=230)}, deleteFile=FALSE)  })
+    
+    
+############################# Related to Eyes
+eye9Run<-function(blah){  
+  image2<-readJPEG("eyep.jpg")
+    outRs1e<-as.integer(image2[,,1]*255*1)
+    outGs1e<-as.integer(image2[,,2]*255*1)
+    outBs1e<-as.integer(image2[,,3]*255*1)
+    
+    set.seed(1234)
+    srow<-1:length(outRs1e)
+    if(length(outRs1e)>9){
+      srow<-sample(1:length(outRs1e), length(outRs1e)/2)}
+    
+    outRs2e<-as.integer(round(outRs1e[srow],-1)/1)
+    outGs2e<-as.integer(round(outGs1e[srow],-1)/1)
+    outBs2e<-as.integer(round(outBs1e[srow],-1)/1)
+    
+    outRs2e[outRs2e>255]<-255
+    outGs2e[outGs2e>255]<-255
+    outBs2e[outBs2e>255]<-255
+    
+    outRs3e<-as.hexmode(outRs2e)
+    outGs3e<-as.hexmode(outGs2e)
+    outBs3e<-as.hexmode(outBs2e)
+    
+    outRe<-as.character(outRs3e)
+    outRe[nchar(outRe)==1]<-paste("0", outRe[nchar(outRe)==1], sep="")
+    outGe<-as.character(outGs3e)
+    outGe[nchar(outGe)==1]<-paste("0", outGe[nchar(outGe)==1], sep="")
+    outBe<-as.character(outBs3e)
+    outBe[nchar(outBe)==1]<-paste("0", outBe[nchar(outBe)==1], sep="")
+    
+    outRGBe<-paste(outRe, outGe, outBe, sep="")
+    
+    tcol<-sort(table(outRGBe), decreasing=TRUE)
+    fqm<-RGBtoMunsell(t(col2rgb(paste("#", names(tcol), sep=""))))
+    greycheck<-sum(fqm[1:10,3]<0.1)
+    if(greycheck<8){
+      targ1<-as.numeric(names(sort(table(round(fqm[fqm[,3]>0.1,1][1:8]*2, -1)/2), decreasing=TRUE))[1])
+      intarg1<-(fqm[,1]>(targ1-7)) & (fqm[,1]<(targ1+7))
+      km1<-kmeans((fqm[intarg1,-1]), 5)  
+      targ2<-as.numeric(names(sort(table(round(fqm[(!intarg1 & fqm[,3]>0.1),1][1:6]*2, -1)/2), decreasing=TRUE))[1])
+      intarg2<-(fqm[,1]>(targ2-7)) & (fqm[,1]<(targ2+7))
+      km2<-kmeans((fqm[intarg2,-1]), 4)    
+      m21<-unlist(by(fqm[intarg1,1], km1$cluster, mean))
+      m22<-unlist(by(fqm[intarg2,1], km2$cluster, mean))
+      tempM<-cbind(c(as.vector(m21), as.vector(m22)), rbind(km1$centers, km2$centers))
+      temp2<-MunsellToRGB(tempM)}
+    if(greycheck>7){
+      intarg<-fqm[,3]<0.15
+      km<-kmeans((fqm[intarg,-3]), 9)    
+      tempM<-cbind(km$centers, sample(fqm[intarg,3],9))
+      temp2<-MunsellToRGB(tempM)}
+      rgb(temp2[,3]/255)}
+ 
+observeEvent(input$goP2, { 
+output$eyes_top9<-renderImage({      
+        jpeg("eyesTop9.jpg", width=300, height=300)
+        par(mar=c(0,0,3,0))
+        plot(c(.5, 3.5), c(1.5, 4.5), type="n", main="Colors Extracted From Photos")
+        points(rep(1:3,3), rep(4:2, each=3), pch=16, col=eye9Run(2), cex=14)
+        text(.6, 4.35, "1", col="black", cex=1.5)
+        text(1.6, 4.35, "2", col="black", cex=1.5)
+        text(2.6, 4.35, "3", col="black", cex=1.5)
+        text(.6, 3.35, "4", col="black", cex=1.5)
+        text(1.6, 3.35, "5", col="black", cex=1.5)
+        text(2.6, 3.35, "6", col="black", cex=1.5)
+        text(.6, 2.35, "7", col="black", cex=1.5)
+        text(1.6, 2.35, "8", col="black", cex=1.5)
+        text(2.6, 2.35, "9", col="black", cex=1.5)
+        dev.off()
+        
+        list(src="eyesTop9.jpg", width=230, height=230)}, deleteFile=FALSE)  })
+  
+observeEvent(input$goP2, { 
+output$eyes_use<-renderImage({    
+       all9<-c("eye1", "eye2", "eye3", "eye4", "eye5", "eye6", "eye7", "eye8", "eye9")
+       eyeskeep<-is.element(all9, input$eyes9use)
+       lenkeep<-sum(eyeskeep)
+       eye_col_use<-c(eye9Run(2), "white")[c((1:9)[eyeskeep], rep(10, 9-lenkeep))]
+      
+       jpeg("eyesUse.jpg", width=300, height=300)
+       par(mar=c(0,0,3,0))
+       plot(c(.5, 3.5), c(.5, 3.5), type="n", main="Eye Colors To Use In Analysis")
+       points(rep(1:3,3), rep(3:1, each=3), pch=16, col=eye_col_use, cex=14)
+       dev.off()
+      
+       list(src="eyesUse.jpg", width=230, height=230)}, deleteFile=FALSE)})
+  
+
+#####################################################################
+## Personality Assessment
+  
+observeEvent(input$perdone, { 
+ spr_ans<-c(input$spr1, input$spr2, input$spr3, input$spr4, input$spr5, input$spr6, input$spr7, input$spr8)
+ sum_ans<-c(input$sum1, input$sum2, input$sum3, input$sum4, input$sum5, input$sum6, input$sum7, input$sum8)
+ aut_ans<-c(input$aut1, input$aut2, input$aut3, input$aut4, input$aut5, input$aut6, input$aut7, input$aut8)
+ win_ans<-c(input$win1, input$win2, input$win3, input$win4, input$win5, input$win6, input$win7, input$win8)
+
+ spr_t<-sum(spr_ans=="True")+1
+ sum_t<-sum(sum_ans=="True")+1
+ aut_t<-sum(aut_ans=="True")+1
+ win_t<-sum(win_ans=="True")+1
+ all_t<-spr_t+sum_t+aut_t+win_t
+ 
+ spr_f<-sum(spr_ans=="False")+1
+ sum_f<-sum(sum_ans=="False")+1
+ aut_f<-sum(aut_ans=="False")+1
+ win_f<-sum(win_ans=="False")+1 
+ all_f<-spr_f+sum_f+aut_f+win_f
+  
+ spr_r<-spr_t/(spr_t+spr_f)
+ sum_r<-sum_t/(sum_t+sum_f)
+ aut_r<-aut_t/(aut_t+aut_f)
+ win_r<-win_t/(win_t+win_f)
+ 
+ spr_or<-(all_t-spr_t)/(all_f-spr_f)
+ sum_or<-(all_t-sum_t)/(all_f-sum_f)
+ aut_or<-(all_t-aut_t)/(all_f-aut_f)
+ win_or<-(all_t-win_t)/(all_f-win_f)
+ 
+ spr_p<-prop.test(c(spr_t, all_t-spr_t), c(spr_t+spr_f, all_t+all_f-spr_t-spr_f), alt="greater")
+ sum_p<-prop.test(c(sum_t, all_t-sum_t), c(sum_t+sum_f, all_t+all_f-sum_t-sum_f), alt="greater")
+ aut_p<-prop.test(c(aut_t, all_t-aut_t), c(aut_t+aut_f, all_t+all_f-aut_t-aut_f), alt="greater")
+ win_p<-prop.test(c(win_t, all_t-win_t), c(win_t+win_f, all_t+all_f-win_t-win_f), alt="greater")
+ 
+ ##### standardize
+ all_ps<-4-(spr_p$p.val + sum_p$p.val + aut_p$p.val + win_p$p.val)
+ per_aut<-(1-aut_p$p.val)/all_ps
+ per_spr<-(1-spr_p$p.val)/all_ps
+ per_sum<-(1-sum_p$p.val)/all_ps
+ per_win<-(1-win_p$p.val)/all_ps 
+ 
+ 
+ 
+ #########################
+ ## picture analysis
+ ##########################
+ 
+ ##skin part to decide warm or cool
+ all9s<-c("skin1", "skin2", "skin3", "skin4", "skin5", "skin6", "skin7", "skin8", "skin9")
+ skinkeep<-is.element(all9s, input$skin9use)
+ skin_keeps<-skin9Run()[(1:9)[skinkeep]]
+ skinrgb<-t(col2rgb(skin_keeps))
+ pc2<-(.81820138*(skinrgb[,1]-208.6))-(0.04082876*(skinrgb[,2]-165.6))-(0.57348018*(skinrgb[,3]-150.3))
+ pc3<-(-0.3250201*(skinrgb[,1]-208.6))+(0.7899418*(skinrgb[,2]-165.6))-(0.5199556*(skinrgb[,3]-150.3))
+ meanpc2<-mean(pc2)
+ score_wm<-(meanpc2-3.63)/(11/sqrt(length(pc2)/2))
+ score_cl<-(meanpc2+6.39)/(11/sqrt(length(pc2)/2))
+ p_wm<-pt(score_wm, df=length(pc2)-1)
+ p_cl<-1-pt(score_cl, df=length(pc2)-1)
+ odwm<-p_wm/(p_wm+p_cl)
+ odcl<-p_cl/(p_wm+p_cl)
+ 
+ ## eye part to decide season given warm/cool  
+ all9e<-c("eye1", "eye2", "eye3", "eye4", "eye5", "eye6", "eye7", "eye8", "eye9")
+ eyeskeep<-is.element(all9e, input$eyes9use)
+ lenkeep<-sum(eyeskeep)
+ eye_keeps<-eye9Run()[(1:9)[eyeskeep]]
+ eyergb<-t(col2rgb(eye_keeps))
+ eyehsv<-t(rgb2hsv(t(eyergb)))
+ 
+ ## assume warm
+ targ<-min(c(15,length(pc2)*lenkeep))
+ eye_s<-sample(eyehsv[,2], targ, replace=TRUE)
+ skin_s<-sample(1:length(pc2), targ, replace=TRUE)
+ pc2s<-pc2[skin_s]
+ pc3s<-pc3[skin_s]
+ temp_eye_warm<-2.0382-(0.04729*pc2s)-(0.08779*pc3s)-(7.25128*eye_s)
+ eye_warm<-exp(temp_eye_warm)/(1+exp(temp_eye_warm))
+ eye_warm_mean<-mean(eye_warm)
+ score_aut<-(eye_warm_mean-.33206)/(.23/sqrt(targ/2))
+ score_spr<-(eye_warm_mean-.6556)/(.23/sqrt(targ/2))
+ p_aut<-1-pt(score_aut, df=targ-1)
+ p_spr<-pt(score_spr, df=targ-1)
+ odaut<-p_aut/(p_aut+p_spr)
+ odspr<-p_spr/(p_aut+p_spr)
+ 
+ ## assume cool
+ eyeh2<-eyehsv[,1]
+ eyeh2[eyeh2<.125]<-eyeh2[eyeh2<.125]+1
+ targ2<-min(c(15,length(pc3)*lenkeep))
+ eye_s2<-sample(eyeh2, targ2, replace=TRUE)
+ skin_s2<-sample(pc3, targ2, replace=TRUE)
+ temp_eye_cool<-(-2.25653)+(0.11810*skin_s2)+(3.61459*eye_s2)
+ eye_cool<-exp(temp_eye_cool)/(1+exp(temp_eye_cool))
+ eye_cool_mean<-mean(eye_cool)
+ score_sum<-(eye_cool_mean-.39653)/(.22/sqrt(targ2/2))
+ score_win<-(eye_cool_mean-.6601)/(.22/sqrt(targ2/2))
+ p_sum<-1-pt(score_sum, df=length(eye_cool))
+ p_win<-pt(score_win, df=length(eye_cool))
+ odsum<-p_sum/(p_sum+p_win)
+ odwin<-p_win/(p_sum+p_win)
+ 
+ ## combine skin and eye
+ comb_aut<-odwm*odaut
+ comb_spr<-odwm*odspr
+ comb_sum<-odcl*odsum
+ comb_win<-odcl*odwin
+ sum_all<-comb_aut+comb_spr+comb_sum+comb_win
+ pic_aut<-comb_aut/sum_all
+ pic_spr<-comb_spr/sum_all
+ pic_sum<-comb_sum/sum_all
+ pic_win<-comb_win/sum_all
+ 
+ 
+output$seas_pers<-renderText({
+ paste("The personality based probabilities are ", round(per_aut, 3), " for autumn, ", 
+       round(per_spr,3), " for spring, ", round(per_sum,3), " for summer, and ",
+       round(per_win, 3), " for winter.  Thanks.")})
+  
+  
+output$seas_pic<-renderText({
+ paste("The picture based probabilities are ", round(pic_aut, 3), " for autumn, ", 
+              round(pic_spr,3), " for spring, ", round(pic_sum,3), " for summer, and ",
+              round(pic_win, 3), " for winter.  Thanks.")})  
+
+
+temp_comb<-c(pic_aut+per_aut, pic_spr+per_spr, pic_sum+per_sum, pic_win+per_win)
+comb_probs<-temp_comb/sum(temp_comb)
+
+max_per<-which.max(c(per_aut, per_spr, per_sum, per_win))
+max_col<-which.max(c(pic_aut, pic_spr, pic_sum, pic_win))
+
+print(max_per)
+print(max_col)
+
+if(max_per<2.5 & max_col<2.5){seas_decision<-which.max(comb_probs[1:2])}
+  else if(max_per>2.5 & max_col>2.5){seas_decision<-which.max(comb_probs[3:4])}
+  else if(max(c(per_aut, per_spr))>.5 & ((pic_aut+pic_spr)<(pic_sum+pic_win))){seas_decision<-5}
+  else if(max(c(per_sum, per_win))>.5 & ((pic_aut+pic_spr)>(pic_sum+pic_win))){seas_decision<-6}
+  else {seas_decision<-which.max(comb_probs)}
+
+#sub_seas<-1
+  #autumn, 1=not soft autumn, 2=not evening autumn
+#  if(seas_decision==1 & is.element(input$HairNow, c(4,5,6,10,11,12,16,17,18))){sub_seas<-2}
+  #spring, 1=not deep spring, 2=not early spring.... switch o strategy number 2
+#  if(seas_decision==2 & is.element(input$HairNow, c(1,2,3,7,8,9,13,14,15))){sub_seas<-2}
+  #summer, 1=not dusky summer, 2=not iridescent summer.... switch to strategy number 2
+#  if(seas_decision==3 & is.element(input$HairNow, c(1,2,7,8,13,14))){sub_seas<-2}
+  #winter, 1=not icy winter, 2=not exotic winter
+#  if(seas_decision==4 & is.element(input$HairNow, c(5,6,11,12,15,16,17,18))){sub_seas<-2}     
+
+output$OptionA<-renderPlot({
+  par(mar=rep(0,4))
+  face_use<-readJPEG("facep.jpg")
+  if(seas_decision==1 & is.element(input$HairNat, paste("hair",c(4,5,6,10,11,12,16,17,18), "n", sep="n"))){ #autumn not evening
+    plot(c(1,2), c(1,2), type="n")
+    points(1.5, 1.5, pch=15, cex=400, col="#A43b1b")}
+  if(seas_decision==1 & !is.element(input$HairNat, paste("hair", c(4,5,6,10,11,12,16,17,18), "n", sep=""))){ #autumn not soft
+    plot(c(1,2), c(1,2), type="n")
+    points(1.5, 1.5, pch=15, cex=400, col="#772a18")}
+  if(seas_decision==2){ #spring
+    plot(c(1,2), c(1,2), type="n")
+    points(1.5, 1.5, pch=15, cex=400, col="#2b8c9b")}
+  if(seas_decision==3){ #summer
+    plot(c(1,2), c(1,2), type="n")
+    points(1.5, 1.5, pch=15, cex=400, col="#57708f")}
+  if(seas_decision==4 & !is.element(input$HairNat, paste("hair", c(5,6,11,12,15,16,17,18), "n", sep=""))){ #winter not icy
+    plot(c(1,2), c(1,2), type="n")
+    points(1.5, 1.5, pch=15, cex=400, col="#eb3436")}
+  if(seas_decision==4 & is.element(input$HairNat, paste("hair", c(5,6,11,12,15,16,17,18), "n", sep=""))){ #winter not exotic
+    plot(c(1,2), c(1,2), type="n")
+    points(1.5, 1.5, pch=15, cex=400, col="#247085")}
+  rasterImage(face_use, 1.2, 1.2, 1.8, 1.8)
+  text(1.05, 1.95, "A", cex=3)})
+
+
+output$OptionB<-renderPlot({
+  par(mar=rep(0,4))
+  face_use<-readJPEG("facep.jpg")
+  if(seas_decision==1 & is.element(input$HairNat, paste("hair", c(4,5,6,10,11,12,16,17,18), "n", sep=""))){ #autumn not evening
+    plot(c(1,2), c(1,2), type="n")
+    points(1.5, 1.5, pch=15, cex=400, col="#E3A898")}
+  if(seas_decision==1 & !is.element(input$HairNat, paste("hair", c(4,5,6,10,11,12,16,17,18), "n", sep="n"))){ #autumn not soft
+    plot(c(1,2), c(1,2), type="n")
+    points(1.5, 1.5, pch=15, cex=400, col="#BF3E1F")}
+  if(seas_decision==2){ #spring
+    plot(c(1,2), c(1,2), type="n")
+    points(1.5, 1.5, pch=15, cex=400, col="#23c2ba")}
+  if(seas_decision==3){ #summer
+    plot(c(1,2), c(1,2), type="n")
+    points(1.5, 1.5, pch=15, cex=400, col="#9ebbcb")}
+  if(seas_decision==4 & !is.element(input$HairNat, paste("hair", c(5,6,11,12,15,16,17,18), "n", sep=""))){ #winter not icy
+    plot(c(1,2), c(1,2), type="n")
+    points(1.5, 1.5, pch=15, cex=400, col="#bec44d")}
+  if(seas_decision==4 & is.element(input$HairNat, paste("hair", c(5,6,11,12,15,16,17,18), "n", sep=""))){ #winter not exotic
+    plot(c(1,2), c(1,2), type="n")
+    points(1.5, 1.5, pch=15, cex=400, col="#b8d5d9")}
+  rasterImage(face_use, 1.2, 1.2, 1.8, 1.8)
+  text(1.05, 1.95, "B", cex=3)})
+  
+
+
+
+
+        
+output$seas_comb<-renderText({
+  paste("Combined probabilities are ", round(comb_probs[1], 3), " for autumn, ", 
+        round(comb_probs[2],3), " for spring, ", round(comb_probs[3],3), " for summer, and ",
+        round(comb_probs[4], 3), " for winter.  Thanks.")})
+  
+output$decision_season<-renderText({
+    paste("The decision is ", c("Autumn", "Spring", "Summer", 
+          "Winter", "Special1", "Special2")[seas_decision], ".  Hooray!", sep="")
+  })
+})
+}
+  
+
+
+
+# Run the application 
+shinyApp(ui = ui, server = server)

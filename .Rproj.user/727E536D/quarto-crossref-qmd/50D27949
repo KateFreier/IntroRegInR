@@ -1,0 +1,39 @@
+{
+    "entries": [
+        {
+            "file": "Chapter6.qmd",
+            "type": "fig",
+            "id": "catsexfit",
+            "suffix": "",
+            "title": "Cat heart weight as function of body weight"
+        },
+        {
+            "file": "Chapter6.qmd",
+            "type": "fig",
+            "id": "catsex",
+            "suffix": "",
+            "title": "Cat heart weight by sex, 1=Female"
+        },
+        {
+            "file": "Chapter6.qmd",
+            "type": "fig",
+            "id": "cats_full",
+            "suffix": "",
+            "title": "Cat heart weight as function of body weight"
+        },
+        {
+            "file": "Chapter6.qmd",
+            "type": "sec",
+            "id": "mlev_ind",
+            "suffix": "",
+            "title": "Multi-level factors in Regression"
+        },
+        {
+            "file": "Chapter6.qmd",
+            "type": "fig",
+            "id": "mtcars_mpg_hp",
+            "suffix": "",
+            "title": "Car MPG as function of HP"
+        }
+    ]
+}

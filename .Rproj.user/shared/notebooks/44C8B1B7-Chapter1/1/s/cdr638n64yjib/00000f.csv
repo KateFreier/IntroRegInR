@@ -1,0 +1,4 @@
+"0","#| echo: false"
+"0","#| layout-align: ""center"""
+"0",""
+"0","mtcars[c(15, 19, 25), c(6,1)]"

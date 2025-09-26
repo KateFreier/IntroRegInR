@@ -1,0 +1,794 @@
+---
+title: "Go Bigger"
+format: pdf
+editor: visual
+label: sec-chap7
+---
+
+## Multiple Regression
+
+Multiple linear regression is just like simple linear regression, but instead of using only one independent variable $(X)$ to predict the outcome $(Y)$, it uses two or more independent variables at the same time. Each independent variable gets its own coefficient ( $β_1, β_2, β_3...$ etc.), representing its unique effect on the dependent variable while keeping the others constant. This allows you to see how each factor influences the outcome, controlling for the others.
+
+So for a model with $p$ independent predictor terms, the model now takes the form:
+
+$$y=β_0+β_1x_1+β_2x_2+β_3x_3+...+β_px_p+ε$$As you can see, it gets to be a bit much to write out this long-form notation, hence the beauty and value of the alternative matrix approach. Recall that in addition to describing a linear regression model with a simple algebraic linear equation like $y=β_0+β_1x_1+ε$ our model can also be expressed using matrix notation as:
+
+$$
+Y=Xβ+ε
+$$
+
+While up until now we've only worked in the situation where $X$ is an $n\times 2$ matrix with the first column full of 1s to correspond to the intercept term, there is no reason $X$ can't be $n\times (p+1)$ where $p$ is any number of parameters we'd like to include in our quest to model $Y$. All we need to do is expand $β$ to be $(p+1)\times 1$ to match.
+
+The matrix approach to solve for $\hatβ$ is still calculated by:
+
+$$
+\hatβ=(X^TX)^{-1}X^TY
+$$
+
+This of course means that the solution for $β$ still requires $X^TX$ have an inverse. No inverse, no $\hat{β}$, no matter the dimensions.
+
+What does this look like in practice? Consider the `hills` data set in the `MASS` library that contains the winning times for 35 Scottish hill races in 1984. These races range from a greulling 16km length with a climb of 7500 meters that takes hours to simpler runs of 3km rising 300 meters that are done in under 20 minutes. Since both distance and elevation change obviously play a role in the challenge presented by a race, it would make sense to include both distance and climb in a model predicting the winning time. We want a model that looks like:$winning \space time=β_0+(β_1\times distance) + (β_2 \times climb) + ε$.
+
+The matrix form of our model data is:
+
+$$
+Y=\begin{bmatrix}
+    16.083 \\
+    48.350 \\
+33.650\\
+    \vdots \\
+159.833\\
+    \end{bmatrix}
+ and \space 
+X=\begin{bmatrix}
+    1 & 2.5  & 650\\
+    1 & 6 & 2500\\
+ 1 & 6 & 900 \\
+    \vdots & \vdots \\
+    1 & 20 & 5000\\
+\end{bmatrix}
+$$ {#eq-orig_climb}
+
+$$
+\hatβ=(X^TX)^{-1}X^TY=\begin{bmatrix}
+    -8.992 \\
+    6.218 \\
+0.011\\
+    \end{bmatrix}
+$$
+
+Through R we can obtain this same fit with:
+
+```{r}
+library(MASS)
+mod_hills<-lm(time~dist+climb, data=hills)
+summary(mod_hills)$coef
+```
+
+The approach to using and interpreting this model is similar to if only one predictor term was used. To use it for prediction, we just plug in values of $x_1$ and $x_2$ and note the resulting $y$. For example, to estimate the winning race time for a new race that's 10km with an elevation change of 3100m, our our model would suggest $-8.992+(6.218\times 10)+(0.011\times 3100)=87.436$ minutes. The intercept tells us the winning race time expected for a hypothetical race that is 0km long with 0m climb: an end almost 9 minutes before the race begins. Not a meaningful answer but not a possible real race either. Our slopes are now in two different dimensions making for a fit plane in 3-dimensional space rather than a fit line. It also makes a plot of the data and the fit hard to do. Interpreting the slopes one by one we see that each additional km of distance adds, on average, about 6.2 minutes to the finishing time and each additional meter of climb adds, on average, 0.011 minutes which is less than one second.
+
+## Variance and Inference for $\hat\beta$
+
+For standard errors in multiple regression we'll continue with the matrix notation for our model and rely more on your linear algebra skills. Start with:
+
+$$
+\hatβ=(X^TX)^{-1}X^TY
+$$
+
+Since our model is based on $Y=Xβ+ε$ we can then plug in $Xβ+ε$ for $Y$ to get:
+
+$$\hatβ=(X^TX)^{-1}X^T(Xβ+ε)$$ which reduces to
+
+$$\hatβ=β+(X^TX)^{-1}X^Tε$$
+
+thanks to $(X^TX)^{-1}X^TX=I$. Unlike our estimate $\hatβ$, the parameter $β$ is an unknown constant and therefore has zero variance. This means $$var(\hatβ)=var((X^TX)^{-1}X^Tε)$$
+
+A property of random vectors says that if $A$ is a matrix and $v$ a random vector, then $var(Av)=A var(v)A^T$. Applying that, we now can express $var(\hatβ)$ as:
+
+$$
+var(\hatβ)=(X^TX)^{-1}X^Tvar(ε)X(X^TX)^{-1}
+$$ {#eq-vartrick}
+
+Recall one of our big assumptions is that $Var(ε)$ is constant. As part of that, we denote $Var(ε)$ as simply $\sigma^2I$ where $\sigma$ is that constant variance. So now:
+
+$$
+var(\hatβ)=(X^TX)XT^{-1}\sigma^2IX(X^TX)^{-1}
+$$
+
+$$
+var(\hatβ)=\sigma^2I(X^TX)^{-1}X^TX(X^TX)^{-1}
+$$
+
+$$
+var(\hatβ)=\sigma^2I(X^TX)^{-1}
+$$
+
+This is what R is doing under the hood when it produces your column of standard errors for the model summary output. This holds whether $\hat\beta$ is a simple $2\times1$ vector with an intercept and slope for a single predictor like we saw back in Chapter 3, or whether $\hat\beta$ is a much larger $(p+1)\times1$ vector with an intercept and slopes for $p$ predictors.
+
+An example demonstrating this in R on the hill race model:
+
+```{r}
+xmat<-matrix(c(rep(1, nrow(hills)), hills$dist, hills$climb), ncol=3)
+
+sigma<-summary(mod_hills)$sigma
+
+var_b<-(sigma^2)*solve(t(xmat)%*%xmat)
+
+#diagonal is the variance of each beta, off-diagonals are covariances
+var_b
+
+#but standard errors are square-roots of variances
+c(sqrt(var_b[1,1]), sqrt(var_b[2,2]), sqrt(var_b[3,3]))
+
+#compare to output from model summary
+summary(mod_hills)$coef
+```
+
+Why does variance of $\hat\beta$ matter? Inference in multiple regression is just like inference in the single-predictor simple linear regression with confidence intervals that take the form of:$$
+point\: estimate \pm multiplier\times standard \: error 
+$$and hypothesis test statistics have the general format of:
+
+$$
+\frac{observed \: value - hypothesized\: value}{standard\: error}
+$$
+
+so obviously standard error is a key element of both. Confidence intervals for each $\beta$ coefficient can be estimated from $\hat\beta_i \pm t_{\alpha/2}\times SE_{\hat\beta_i}$ where $t$ has $n-(p+1)$ degrees of freedom and tests of $\beta_i=0$ have a test statistic of $t=\hat\beta_i/SE_{\hat\beta_i}$ with p-values calculated from a $t_{n-(p+1)}$ distribution.
+
+The easiest way to do confidence intervals for $\beta$ in R is still the `confint` function as seen earlier with single predictor models.
+
+```{r}
+mod_hills<-lm(time~dist+climb, data=hills)
+confint(mod_hills, level=.9)
+```
+
+For hypothesis tests on $\beta$, all of the information you need for the most common test of $H_0:\beta_i=0$ is given in the model summary output. If instead you are interested in testing $H_0:\beta_i=b$ for some value $b$, you can simply calculate your test statistic from the standard error as given in the model summary table, and the corresponding p-value using the `pt` function. For example, if we wanted to test the hypothesis that each additional km of distance added an average of more than 5 minutes to the race time, that would be testing $H_0:\beta_{dist}\leq5$ with $H_A:\beta_{dist}>5$. The test statistic would be calculated as:
+
+```{r}
+summary(mod_hills)$coef
+
+#using estimate and std. error for dist:
+t_stat<-(6.217956-5)/0.601148
+
+#find upper tail since alternative is upper tail
+pt(t_stat, nrow(hills)-3, lower.tail = FALSE)
+```
+
+With an $\alpha=0.05$, this is sufficient evidence that the mean increase in race time for every additional km of distance is indeed greater than 5 minutes.
+
+## Variance and Inference for fitted Y
+
+Recall $\hat y=X\hat\beta=Hy$ where $H=X(X^TX)^{-1}X^T$ and is known as the "hat" matrix. Therefore, $var(\hat y)=Hvar(y)H^T$ using the same property applied in @eq-vartrick. Fun fact about $H$: it is both symmetric and idempotent. This means $H=H^T$ and $HH=H$. Assuming $Y$ is distributed $N(X\beta, \sigma^2)$ we can then plug in $\sigma^2I$ for $var(y)$ yielding:
+
+$$
+var(\hat y)=\sigma^2H
+$$
+
+which means the variance for any specific fitted $\hat {y_i}$ is:
+
+$$
+var(\hat y)=\sigma^2h_{ii}
+$$ {#eq-hatdiagvar}
+
+the variance of y, multiplied by the $i^{th}$ diagonal of the hat matrix.
+
+This is great, but more often in regression we aren't interested in just the variance of specific fitted values for the data set the model trained on. Usually un-observed $x^*$ values are plugged in to our fitted model to estimate additional $y$ outcomes. When that's the case there is no $h_{ii}$ that applies. This takes us back to $\hat y=X\hat\beta$ but now instead of the full $X$ we only have the vector $x_*$ so:
+
+$$var(\hat y_*)=\sigma^2 x_*^T(X^TX)^{-1}x_*$$ This is the same as formula you saw for the simple linear case back in chapter 3: $$
+SE_{\bar{Y}|x_*}=S_R\sqrt{\frac{1}{n}+\frac{(x_*-\bar{x})^2}{\sum{(x_i-\bar{x})^2}}}
+$$ {#eq-vary}
+
+The matrix algebra is what's going on behind the scenes in R no matter how many predictors you have. Writing it out longhand as in @eq-vary is much harder to do for multiple predictors, but seeing it that way for the simple case makes it easier to see that when $x_*$ values are close to the mean $x$ values the standard error is smaller making the resulting intervals narrower.
+
+The `predict` function used for confidence and prediction intervals for $y_*$ in the simple linear case continues to do the job for multiple regression models.
+
+Consider the 90% prediction intervals below for a race with a distance of 7km and climb of 1800m (values near the respective means) and a race with a distance 23km and a climb of 6000m (more unusual but within the range observed in the training set).
+
+```{r}
+new_races<-data.frame(dist=c(7, 23), climb=c(1800, 6000))
+predict(mod_hills, new_races, interval="prediction", level=.9)
+```
+
+The race first race has a narrower interval because it involves $x_*$ nearer the center of the training $X$ values.
+
+## Transformations
+
+### Units change on one term
+
+We begin with the simplest type of transformation on a single predictor: a unit change. Maybe meters of climb isn't the unit of measurement we want to use for climb in our hill racing model. Let's change it so that we can get the amount of time added per km of climb so that the units on climb will match the units on distance. That means instead of what we saw earlier in @eq-orig_climb now:
+
+$$
+Y=\begin{bmatrix}
+    16.083 \\
+    48.350 \\
+33.650\\
+    \vdots \\
+159.833\\
+    \end{bmatrix}
+ and \space 
+X=\begin{bmatrix}
+    1 & 2.5  & 0.650\\
+    1 & 6 & 2.5\\
+ 1 & 6 & 0.9 \\
+    \vdots & \vdots \\
+    1 & 20 & 5.0\\
+\end{bmatrix}
+$$
+
+$$
+\hatβ=(X^TX)^{-1}X^TY=\begin{bmatrix}
+    -8.992 \\
+    6.218 \\
+11.048\\
+    \end{bmatrix}
+$$
+
+Or through R code:
+
+```{r}
+climb_km<-hills$climb/1000
+mod_hills2<-lm(time~dist+climb_km, data=hills)
+summary(mod_hills2)$coef
+```
+
+Which makes perfect sense and behaves just as we saw in the simple linear example from Chapter 5: we divided our $x_2$ by 1000, so to get the same result from $β_2 \times x_2$ the value of ${β_2}$ would need to increase by a factor of 1000. And now our interpretation includes that the winning time increase by about 11 minutes on average for every km of climb added.
+
+Any time you want to make a units change on a predictor term the $β$ estimate for the associated variable will simply change by the inverse and all other β will be unaffected. Standard errors will change in scale as well which will leave you with parameter test statistics and p-values that are unchanged. The quality of your fit as measured by $R^2$ won't change at all either so use whatever scales you'd like predictor by predictor.
+
+### One or more X terms
+
+```{r}
+#| label: fig-mtcar4
+#| fig-cap: Displacement Transformations and Residuals
+#| fig-subcap: 
+#| - Displacement Squared
+#| - Square-root Displacement
+#| - Inverse Displacement
+#| - Log Displacement
+#| echo: false
+#| layout-ncol: 2
+#| layout-nrow: 2
+
+par(mar=c(4,1,1,1))
+attach(mtcars)
+mdisp<-lm(mpg~hp+drat+wt, data=mtcars)
+plot(disp^2, mdisp$resid, xlab="Displacement Squared", ylab="Residuals, no disp", pch=16)
+plot(disp^.5, mdisp$resid, xlab="Sqrt Displacement", ylab="Residuals, no disp", pch=16)
+plot(1/disp, mdisp$resid, xlab="Inverse Displacement", ylab="Residuals, no disp", pch=16)
+plot(log(disp), mdisp$resid, xlab="Log Displacement", ylab="Residuals, no disp", pch=16)
+
+```
+
+```{r}
+#| label: fig-mtcar5
+#| fig-cap: Motor Trend Car Data
+#| fig-subcap: 
+#| - Model with Displacement^2 plus HP, Axle Ratio, and Wt
+#| echo: false
+#| fig-width: 5
+
+par(mar=c(4,3,1,1))
+mod_mt2<-lm(mpg~I(disp^2)+hp+drat+wt)
+plot(mod_mt2$fitted, mod_mt2$resid, xlab="Fitted MPG", ylab="Model Residuals")
+abline(h=0, col=2, lwd=3)
+```
+
+```{r}
+#| label: fig-hills3
+#| fig-cap: Scottish Hill Races, Log transformations
+#| fig-subcap: 
+#| - Log(dist) vs. residuals of time~climb
+#| - Log(climb) vs. residuals of time~dist
+#| echo: false
+#| fig-align: center
+#| fig-height: 3
+#| fig-width: 4
+#| layout-ncol: 2
+
+par(mar=c(4,4,1,1))
+mdist<-lm(time~dist, data=hills)
+mclimb<-lm(time~climb, data=hills)
+plot(log(hills$dist), mclimb$resid, xlab="Log Distance (km)", ylab="time~climb residuals")
+plot(log(hills$climb), mdist$resid, xlab="Log Climb (m)", ylab="time~dist residuals")
+```
+
+### Transforming Y
+
+Why would you want to transform Y instead of one or more of your X terms? Well, what if what you really want for the format of your model is $y=e^{\beta_0+x_1\beta_1+x_2\beta_2+\epsilon}$ ? You aren't able to fit that type of relationship directly with the least-squares regression methods we've covered, but you could use a log transform on y and then fit $log(y)=\beta_0+x_1\beta_1+x_2\beta_2+\epsilon$ without any trouble. Generally, any time you think the relationship at hand is of the form $y=f(\beta_0+x_1\beta_1+x_2\beta_2+\epsilon)$ the solution is to transform your $y$ with $f'$ and fit the $f'(y)=\beta_0+x_1\beta_1+x_2\beta_2+\epsilon$ model.
+
+## Plotting for Multiple Regression
+
+While the basics of fitting a model and using it for inference are largely unchanged from our simple linear regression modeling, expanding beyond one independent predictor variable in our model makes plotting the data more complicated (but also more vital). It's more complicated because we can generally only plot two continuous dimensions at a time (in a way our brains can understand) simply because our screens (and paper) are two-dimensional, but more vital because there are now even more nuances to the relationships of the variables that we need to know about.
+
+A good first step is to look at the simple pairwise relationships between each indpendent $x$ predictor and the dependent outcome $y$. This means for the hill data we'd consider the plots shown in @fig-hillplot2.
+
+```{r}
+#| label: fig-hillplot2
+#| fig-cap: Scottish Hill Race Data
+#| fig-subcap: 
+#| - Distance and Time
+#| - Climb and Time
+#| echo: false
+#| layout-nrow: 1
+
+par(mar=c(4,4,1,1))
+plot(hills$dist, hills$time, xlab="Distance", ylab="Time", pch=16)
+mdist<-lm(time~dist, data=hills)
+abline(mdist, col="dodgerblue", lwd=3)
+text(24.5, 30, paste("R^2=", round(summary(mdist)$r.sq, 3)), cex=1.2)
+
+plot(hills$climb, hills$time, xlab="Elevation Climb", ylab="Time", pch=16)
+mclimb<-lm(time~climb, data=hills)
+abline(mclimb, col="dodgerblue", lwd=3)
+text(6700, 30, paste("R^2=", round(summary(mclimb)$r.sq, 3)), cex=1.2)
+
+```
+
+From @fig-hillplot2 it is clearly seen that both the distance of the race and the elevation climb of the race are reasonably linearly related to our outcome of race record time. $R^2$ values for the two simple linear models tell us that distance alone explains 84.6% of the variability in race time and elevation climb explains 64.8% of race time variability. The next step now is to consider how your independent variables relate to each other.
+
+```{r}
+#| label: fig-hillplot3
+#| fig-cap: Scottish Hill Race Distance and Elevation Climb
+#| echo: false
+#| layout-nrow: 1
+#| fig-width: 3.5
+#| fig-height: 2.5
+
+par(mar=c(4,4,1,1))
+plot(hills$dist, hills$climb, xlab="Distance", ylab="Elevation Climb", pch=16)
+
+mdc<-lm(climb~dist, data=hills)
+abline(mdc, col="dodgerblue", lwd=3)
+text(6, 7000, paste("R^2=", round(summary(mdc)$r.sq, 3)), cex=.8)
+```
+
+This is the relationship shown in @fig-hillplot3. As one might expect, race distance and elevation change are related to each other. This makes intuitive sense since longer races have greater opportunity for changes in elevation. You aren't going to have a race that increases 3000 meters in elevation but is only 1 km long - that's just too steep to be at all safe (or enjoyable). The $R^2$ of a linear model predicting climb as a function of distance is 42.6%. Why is this important when working to predict time? Well if distance gets us 84.6% of the way to explaining time, and climb gets us 64.8% of the way to explaining time, clearly there must be some overlap in the value they offer since 0.846+0.648\>1. The 42.6% is a measure of the overlap.
+
+### Added Variable Plot (aka Partial Regression Plot)
+
+The ***Added Variable Plot***, also sometimes referred to as a ***Partial Regression Plot***, is a tool for capturing how much value an additional independent variable offers in predicting your dependent variable. The plot contains the residuals from two different linear models. First, the x-axis is the residuals from a model predicting $x_2$ using $x_1$. Then, the y-axis is the residuals of a model predicting y using only only $x_1$. To put this another way, the added variable plot shows the relationship between the variability of your possible new predictor term given the existing predictor compared to the variability that remains in your dependent variable after the first predictor is considered.
+
+```{r}
+#| label: fig-hillplot4
+#| fig-cap: Added Variable Plots
+#| fig-subcap: 
+#| - Adding Climb to Distance Only
+#| - Adding Distance to Climb Only
+#| echo: false
+#| layout-ncol: 2
+#| fig-height: 3.5
+#| fig-pos: "H"
+
+par(mar=c(4,4,1,2))
+mclid<-lm(climb~dist, data=hills)
+plot(mclid$resid, mdist$resid, xlab="Climb|Dist Residuals", ylab="Time|Dist Residuals", pch=16)
+
+mplusclimb<-lm(mdist$resid~mclid$resid)
+abline(mplusclimb, col="dodgerblue", lwd=3)
+text(-2800, 70, paste("y=", round(mplusclimb$coef[1],3), "+", round(mplusclimb$coef[2],4), "x"))
+
+mdisc<-lm(dist~climb, data=hills)
+plot(mdisc$resid, mclimb$resid, xlab="Dist|Climb Residuals", ylab="Time|Climb Residuals", pch=16)
+
+mplusdist<-lm(mclimb$resid~mdisc$resid)
+abline(mplusdist, col="dodgerblue", lwd=3)
+text(-1, 117, paste("y=", round(mplusdist$coef[1],3), "+", round(mplusdist$coef[2],4), "x"))
+```
+
+@fig-hillplot4 shows two added variable plots. @fig-hillplot4 (a) shows the plot assessing the value climb offers in predicting time after distance, and @fig-hillplot4 (b) assesses the value of adding distance if climb was included first. Equations of the least-squares regression lines are given in the top left corners.
+
+Note that the equations both have an intercept of zero. That's because, as you should recall, 1) fitted regression lines always pass through the mean of X and the mean of Y, and 2) our X and Y in these cases are both residuals and the mean residual from a linear regression model is always zero. The slopes from these fits are worth noting though.
+
+When the multiple regression model is fit including distance and climb together, notice the slopes for the distance and climb terms exactly match the slopes from the added variable plots.
+
+```{r}
+#| echo: true
+mhill<-lm(time~dist+climb, data=hills)
+summary(mhill)$coef
+```
+
+Now let's expand beyond our two-predictor hill race model and look at a larger data set with multiple predictors. @fig-mtcar1 shows a scatterplot matrix for the first 6 columns of the `mtcar` data frame we've worked with earlier.
+
+```{r}
+#| label: fig-mtcar1
+#| echo: false
+#| fig-cap: Motor Trend Car Data
+#| fig-height: 5
+#| layout-valign: "top"
+
+
+par(mar=c(4,4,1,1))
+plot(mtcars[,1:6])
+```
+
+Across the top row you can see that all of the available independent variables are strong potential predictors of fuel efficiency (MPG). Some terms may warrant some transformation given apparent curvature in the mpg-displacement and mpg-hp plots, but all indicate they could be useful in a model for MPG. Other scatterplots in the matrix show us that many of these terms are closely related to each other as well so we know there is overlap in the value they offer to predict MPG.
+
+We start with the model $mpg=β_0+β_1wt+β_2cyl+ε$ because vehicle weight and the number of engine cylinders should have the strongest influence on fuel efficiency. From there, the question is how much would our model improve if drat, the rear axle ratio, were added? From our initial scatterplot matrix drat's relationship with mpg appears reasonably linear so there shouldn't be any transformations to worry about.
+
+```{r}
+#| label: fig-mtcar2
+#| fig-cap: Added Variable Plot, Rear Axle Ratio
+#| echo: false
+#| fig-height: 2.5
+#| fig-width: 3.5
+
+
+par(mar=c(4,4,1,1))
+mod_mt1<-lm(mpg~cyl+wt, data=mtcars)
+moddr<-lm(drat~cyl+wt, data=mtcars)
+plot(moddr$resid, mod_mt1$resid, xlab="drat | cyl+wt residuals", ylab="MPG | cyl+wt residuals", pch=16)
+
+mtemp<-lm(mod_mt1$resid~moddr$resid)
+abline(mtemp, col="dodgerblue", lwd=3)
+text(-.65, 5.5, paste("R^2=", round(summary(mtemp)$r.sq,4)))
+```
+
+The added variable plot for drat given in @fig-mtcar2 shows that there is no real additional value that drat offers when cylinders and weight are already in the model. The relationship between the residuals from drat modeled by cylinders+weight and the residuals of mpg modeled by cylinders+weight appears completely random; has a best fit line that is virtually horizontal, and a correlation that is zero.
+
+After seeing this plot, it should come as no surprise that when a model is fit predicting MPG as a function of cylinders+weight+axle ratio the axle ratio term is not statistically significant.
+
+```{r}
+#| echo: true
+m_cars<-lm(mpg~cyl+wt+drat, data=mtcars)
+summary(m_cars)$coef
+```
+
+#### In R {.unnumbered}
+
+@fig-hillplot2 and @fig-mtcar2 show added variable plots put together manually using basic plotting functionality in R. There's also the `avPlot` function in the `car` library that will produce added variable plots directly with much less effort. All you need to specify in `avPlot` is the name of the full fitted model object, and the name of the variable you want to consider as the possible add/drop term. The variable name needs to be put in quotation marks. First, an example using the `avPlot` function on the hill race data:
+
+```{r}
+#| echo: false
+library(car, quietly=TRUE)
+par(mar=c(4,4,1,1))
+```
+
+```{r}
+#| label: fig-hillplot5
+#| fig-cap: Added Variable Plots
+#| fig-subcap: 
+#| - Climb plot
+#| - Distance plot
+#| echo: true
+#| layout-ncol: 2
+#| fig-height: 4.25
+#| fig-pos: "H"
+
+mhills<-lm(time~climb+dist, data=hills)
+avPlot(mhills, "climb")
+avPlot(mhills, "dist")
+```
+
+And here is the `mtcar` model example with identification of unusual points removed:
+
+```{r}
+#| label: fig-mtcar3
+#| fig-cap: Added Variable Plot for Axle Ratio
+#| echo: true
+#| fig-height: 3.25
+#| fig-width: 4.25
+#| fig-pos: "H"
+
+mcars<-lm(mpg~cyl+wt+drat, data=mtcars)
+avPlot(mcars, "drat", id=FALSE)
+```
+
+If you want to quickly produce all added variable plots for a model, you can use the `avPlots` command. Just add that `s` to the command name and simply providing the model object will create all plots.
+
+```{r}
+#| echo: true
+#| fig-height: 3.5 
+#| fig-width: 7
+avPlots(mhills)
+```
+
+### Partial Residual Plot
+
+There's another useful plot to know about when working with multiple regression: the ***Partial Residual Plot***. A partial residual plot is another way to look at how each predictor plays a role in a model with multiple independent variables.
+
+To investigate $x_i$ using a partial residual plot, first fit a model with all independent terms of interest included. The x-axis is then $x_i$, and the y-axis is the residuals from your full model $+β_ix_i$. @fig-hills_partres shows these plots for distance and elevation climb as predictors for race time in the hill race data. The partial residual plots produced by R by default have two helpful overlaid lines: a dashed blue line showing the best linear fit, and a more free-form line showing the pattern followed by the points.
+
+```{r}
+#| label: fig-hills_partres
+#| fig-cap: Partial residual plots, Hill Races
+#| fig-subcap: 
+#| - Distance
+#| - Elevation Climb
+#| echo: false
+#| fig-height: 3.25
+#| fig-width: 3.75
+#| layout-ncol: 2
+
+modh<-lm(time~dist+climb, data=hills)
+library(car, quietly = TRUE)
+crPlot(modh, "dist")
+crPlot(modh, "climb")
+
+```
+
+In this example, the pink line for distance follows the blue dashed line fairly well as shown in @fig-hills_partres (a). The curvature shown in the pink line for the partial residual plot for climb in @fig-hills_partres (b) however, indicates a transformation on climb might make for an even better model. Specifically, it appears that squaring climb might straighten the relationship out.
+
+To investigate this, consider the plots in @fig-hills_partres2 showing (a) the partial residual plot when $climb^2$ is used in the model and (b) the partial residual plot when $climb^3$ in the model. The $climb^2$ model is a definite improvement over the original, but still not quite right. The $climb^3$ model straightens the pink curve further to the point that it aligns nearly perfectly with the dashed blue line.
+
+```{r}
+#| label: fig-hills_partres2
+#| fig-cap: Partial residual plots, Climb transformed
+#| fig-subcap: 
+#| - Climb Squared
+#| - Climb Cubed
+#| echo: false
+#| fig-height: 3.25
+#| fig-width: 3.75
+#| layout-ncol: 2
+#| fig-pos: "H"
+
+climb2<-hills$climb^2
+climb3<-hills$climb^3
+modh2<-lm(hills$time~hills$dist+climb2)
+crPlot(modh2, "climb2")
+modh3<-lm(hills$time~hills$dist+climb3)
+crPlot(modh3, "climb3")
+
+```
+
+Using this, we can update our model for winning time to use $climb^3$, and then evaluate the fit and model assumptions. @fig-hills_newmod3 shows the fitted vs. residual plots for both the basic model with $climb$ directly and the approach and the $climb^3$ model.
+
+```{r}
+#| label: fig-hills_newmod3
+#| fig-cap: Fitted vs. Residual Plots
+#| fig-subcap: 
+#| - Dist + Climb model
+#| - Dist + Climb$^3$ model
+#| echo: false
+#| fig-height: 3.75
+#| fig-width: 3.9
+#| layout-ncol: 2
+
+modh1<-lm(hills$time~hills$dist+hills$climb)
+modh3<-lm(hills$time~hills$dist+climb3)
+
+plot(modh1$fitted, modh1$resid, pch=16, xlab="Fitted", ylab="Residuals")
+abline(h=0, col=2, lwd=3)
+
+plot(modh3$fitted, modh3$resid, pch=16, xlab="Fitted", ylab="Residuals")
+abline(h=0, col=2, lwd=3)
+```
+
+This shows there is one extreme outlier with a residual greater than 50 that is present in both approaches. We can also see that the basic model does exhibit some curvature that appears fully corrected in the $climb^3$ model. Homoskedasticity appears much improved in the new model as well.
+
+How do partial residual plots look for our more complex `mtcars` example? Consider @fig-mtcars_partres. The plot for weight shows slight, but non-consistent deviation from the line. The plot for cylinders suggests perhaps a simple transformation might improve the fit. And the plot for drat, the measure of the rear axle ratio, definitely shows curvature away from a horizontal line. This horizontal line confirms what we saw with the added variable plot: inclusion of the term won't significantly help predict MPG at all.
+
+```{r}
+#| label: fig-mtcars_partres
+#| fig-cap: Partial Residual Plots
+#| fig-subcap: 
+#| - Cylinders
+#| - Weight
+#| - Rear Axle Ratio
+#| echo: false
+#| fig-height: 3.5
+#| fig-width: 3.75
+#| layout-ncol: 3
+#| fig-pos: "H"
+
+mcar<-lm(mpg~cyl+wt+drat)
+crPlot(mcar, "cyl")
+crPlot(mcar, "wt")
+crPlot(mcar, "drat")
+```
+
+If cylinders is transformed to be included in the model as $1/cylinders$ then the updated partial residual plot becomes what is shown in @fig-invcyl (a) and the resulting fitted vs. residual plot for the weight+inverse cylinders model is as shown in @fig-invcyl (b). The $R^2$ of the model fit with cylinders inverted is very slightly increased over the initial model with simply weight+cylinders, 0.837 vs 0.830, making it a matter of scientist discretion if the added complexity of inverting cylinders is worth the minimal fit improvement.
+
+```{r}
+#| label: fig-invcyl
+#| echo: false
+#| fig-cap: Weight + 1/cylinders
+#| fig-height: 3.55
+#| fig-pos: H
+#| fig-subcap: Inverse Cylinders Partial Residual Plot,Fitted vs. Residual
+#| fig-width: 3.75
+#| layout-ncol: 2
+
+cyl2<-1/mtcars$cyl
+mcar2<-lm(mpg~cyl2+wt, data=mtcars)
+crPlot(mcar2, "cyl2")
+
+plot(mcar2$fitted.values, mcar2$residuals, pch=16, xlab="Fitted", ylab="Residuals")
+abline(h=0, col=2, lwd=3)
+```
+
+```{r}
+mod_car<-lm(mpg~wt+cyl, data=mtcars)
+mod_car2<-lm(mpg~wt+I(1/cyl), data=mtcars)
+
+c(summary(mod_car)$r.square, summary(mod_car2)$r.square)
+```
+
+#### In R {.unnumbered}
+
+Like the `avPlot` function, the partial residual plot function is in the `car` library. `crPlot` creates the partial residual plots with a minimum of two inputs: the full fitted model object, and the name of the variable you want to focus on. Make sure you put the variable name in quotation marks.
+
+The code to produce @fig-hills_partres was simply:
+
+```{r}
+#| eval: false
+#| include: true
+
+modh<-lm(time~dist+climb, data=hills)
+crPlot(modh, "dist")
+crPlot(modh, "climb")
+```
+
+As seen with `avPlot`, there is also a plural version of the `crPlot` command. `crPlots` will create all possible partial residual plots for a specified model. Where does the name "crPlot" come from? The y-axis is the component of interest plus the model residual: "cr" is short for "component + residual".
+
+### Inverse Response Plot
+
+When in a situation where transforming Y is your best course of action, an ***Inverse Response Plot*** can help. For this we'll create two dummy examples so the real relationship is fully known. Let's create 50 rows of three independent columns, "A", "B", and "C", where each is a created from a random sample from a Uniform\[0,5\]. Then we'll make Y1 and Y2 where $Y_1=(A+2B+3C)^2+\epsilon$ and $Y_2=e^{A+B+C}+\epsilon$ using a Normal(0, 1) for the $\epsilon$ noise component.
+
+```{r}
+set.seed(123)
+A<-runif(50, 0, 5)
+B<-runif(50, 0, 5)
+C<-runif(50, 0, 5)
+
+Y1<-(A+2*B+3*C)^2 + rnorm(50)
+Y2<-exp(A+B+C) + rnorm(50)
+```
+
+If we start by looking at simple plots of A, B, and C plotted against Y1, and against Y2, it is not immediately clear that transforming our Ys is what needs to happen (see @fig-fake1).
+
+```{r}
+#| echo: false
+#| label: fig-fake1
+#| fig-cap: Simple Scatter Plots
+#| fig-subcap: 
+#| - A vs. Y1
+#| - B vs. Y1
+#| - C vs. Y1
+#| - A vs. Y2
+#| - B vs. Y2
+#| - C vs. Y2
+#| layout-ncol: 3
+#| layout-nrow: 2
+#| fig-pos: "H"
+plot(A, Y1, pch=16)
+plot(B, Y1, pch=16)
+plot(C, Y1, pch=16)
+plot(A, Y2, pch=16)
+plot(B, Y2, pch=16)
+plot(C, Y2, pch=16)
+
+```
+
+If we fit the basic models for Y1 and Y2 as functions of A, B, and C we get fitted vs. residual plots as shown in @fig-fake2 which clearly indicate there is a strong non-linear relationship at play and a transformation somewhere is warranted.
+
+```{r}
+#| echo: false
+#| label: fig-fake2
+#| fig-cap: Fitted vs. Residuals
+#| fig-subcap: 
+#| - Y1~A+B+C Fitted vs. Residual
+#| - Y2~A+B+C Fitted vs. Residual
+#| layout-ncol: 2
+
+mod1<-lm(Y1~A+B+C)
+plot(mod1$fitted, mod1$residuals)
+
+mod2<-lm(Y2~A+B+C)
+plot(mod2$fitted, mod2$residuals)
+```
+
+So let's look at the partial residual plots for A, B, and C to find out where to transform. These are shown in @fig-fake3 and none look to have significant curvature in their pink line fits.
+
+```{r}
+#| echo: false
+#| label: fig-fake3
+#| fig-cap: Partial Residual Plots
+#| fig-subcap: 
+#| - A in model of Y1
+#| - B in model of Y1
+#| - C in model of Y1
+#| - A in model of Y2
+#| - B in model of Y2
+#| - C in model of Y2
+#| layout-ncol: 3
+#| layout-nrow: 2
+#| fig-height: 4
+#| fig-pos: "H"
+
+crPlot(mod1, "A")
+crPlot(mod1, "B")
+crPlot(mod1, "C")
+crPlot(mod2, "A")
+crPlot(mod2, "B")
+crPlot(mod2, "C")
+```
+
+If none of the X predictor terms are the source, consider the response Y as needing the transformation by looking at a plot of the fitted value of Y on the x-axis, vs the observed Y values on the y-axis. This is called the ***Inverse Response Plot*** and if Y needs a transformation, the shape of the curve in the inverse response plot will tell you which one you need.
+
+```{r}
+#| echo: false
+#| label: fig-fake4
+#| fig-cap: Inverse Response Plots
+#| fig-subcap: 
+#| - Inverse Response Y1
+#| - Inverse Response Y2
+#| layout-ncol: 2
+#| fig-height: 4
+#| fig-pos: "H"
+
+plot(mod1$fitted.values, Y1, xlab="Mod 1 Fitted Values")
+plot(mod2$fitted.values, Y2, xlab="Mod 2 Fitted Values")
+
+```
+
+Sure enough, the inverse response plot for Y1 is a curve that follows an $x^2$ curve shape which aligns with us needing to apply a square-root to Y1 to make it linear, and the inverse response plot for Y2 is a curve that follows an exponential curve shape indicating to us that a log transformation for Y2 is the way to go. Both just as our data was created.
+
+## Multicollinearity {#sec-multico}
+
+When two or more independent variables are highly correlated with each other, your multiple regression model suffers from a problem known as multicollinearity. At issue is the fact that this correlation undermines the assumption that independent random variables are in fact *independent*, which is critical for accurately estimating their individual impacts on the dependent variable you're predicting.
+
+Sometimes multicollinearity arises because of a choice the modeler has made that is easily corrected. For example, in a health study rather than including both the weight of a patient and the patient body mass index, you can just select one as a measure of patient size and move on. Often though the choice isn't quite so simple as the variables might very naturally move together while at the same time each providing valuable insight.
+
+The problem is that having highly correlated independent variables makes the standard errors of the estimated regression coefficients increase. This means your confidence intervals are wider and you're less able to identify when a term is significantly different from zero or any other key value of interest. Multicollinearity can also lead to coefficients changing notably, even changing signs unexpectedly, with relatively minor changes to the data or the model.
+
+For an example, let's look at the `fgl` data frame from the `MASS` library. This data frame considers the refractive index of 214 fragments of six different types of glass and their oxide makeup. We'll start with the full model that includes all available predictors of refractive index:
+
+```{r}
+#| echo: true
+mod_glass<-lm(RI~., data=fgl)
+summary(mod_glass)
+```
+
+This model summary tells us a few things. First, you'll notice that many of our independent variables do not appear significant - many p-values are well above any reasonable $\alpha$ level. You can also see that two glass types that are most different from each other are vehicle window glass, with a -0.88579 slope and vehicle headlight glass with a 1.58 slope. This kind of makes sense that they would differ from the other types because the thick safety glass of vehicle windows is very different from the type of glass used to make regular home windows or tableware. Similarly, glass for headlights is also very different from your drinking glass but in an entirely different way. These observations aside though, the $R^2=0.9081$ does indicate the model does a fairly good job at predicting the refractive index of glass given the glass components.
+
+Now consider a reduced model that reduces glass type down to only three levels: vehicle, headlight, or other, and only considers the Al, Si, Ca, and Ba elements.
+
+```{r}
+#| echo: true
+
+vehicle<-as.factor(fgl$type=="Veh")
+headlight<-as.factor(fgl$type=="Head")
+mod_glass2<-lm(RI~Al+Si+Ca+Ba+vehicle+headlight, data=fgl)
+summary(mod_glass2)
+```
+
+Our intercept is wildly different now. What do you notice about the coefficients for Al, Si, Ca and Ba for the second model compared to the first? The Al and Si slopes are more than twice what they were in the earlier model while the Ca and Ba ones decreased significantly. And look at the standard errors on those new coefficient estimates. Our large model had standard errors that were all in the .66 to .74 range, but now they are much much smaller. Si went from having a standard error of 0.6846 to one of only .09887. The model coefficient of determination, $R^2$, is only slightly decreased and still strong at 0.8941. What is going on here? Multicollinearity. Here is the correlation matrix (rounded to three decimal places) on our continuous independent variables:
+
+```{r}
+round(cor(fgl[,2:9]),3)
+```
+
+Looks like Mg is fairly strongly correlated with a few of the other terms. That's why the model wasn't hurt much by it's removal.
+
+In addition to checking correlation matrices, the *variance inflation factor* is a good metric for flagging where multicollinearity is likely an issue. The variance inflation factor is defined as:
+
+$$
+VIF_i=\frac{1}{1-R_i^2}
+$$
+
+Where $R_i^2$ is the $R^2$ from a regression model predicting variable $i$ using all other predictors. So to examine the influence of Mg in our model we would look at how well Mg could be modeled linearly as a function of NA, Al, Si, K, Ca, Ba, Fe, and our two glass types:
+
+```{r}
+mod_Mg<-lm(Mg~Na+Al+Si+K+Ca+Ba+Fe+vehicle+headlight, data=fgl)
+summary(mod_Mg)$r.square
+```
+
+Seems Mg can be almost entirely explained by the other terms. With a high $R_{Mg}^2$, that means $VIF_{Mg}$ will be large. In fact, $\frac{1}{1-.9952}=208.42$. Values of $VIF>5$ are generally considered to be worth a closer look.
+
+#### In R {.unnumbered}
+
+Fortunately, R will pretty easily provide you with all VIF metrics when provided with a full model under consideration. In the `car` library lives the `vif` function. Running all VIFs for our glass model is as simple as:
+
+```{r}
+mod_glass<-lm(RI~Na+Mg+Al+Si+K+Ca+Ba+Fe+vehicle+headlight, data=fgl)
+vif(mod_glass)
+```
+
+Taking away Mg as the term with the largest VIF, our new model with VIFs looks like:
+
+```{r}
+mod_glass2<-lm(RI~Na+Al+Si+K+Ca+Ba+Fe+vehicle+headlight, data=fgl)
+vif(mod_glass2)
+```
+
+Showing with that one omission, the bulk of our multicollinearity issue has been cleared up.

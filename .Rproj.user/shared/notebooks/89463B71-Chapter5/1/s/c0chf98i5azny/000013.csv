@@ -1,0 +1,3 @@
+"0",""
+"0",""
+"0","plot(sqrt(cpus$estperf), new_cpu_perf, xlab=""SQRT Estimated Performance"", ylab=""Transformed Performance"")"

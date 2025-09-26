@@ -1,0 +1,32 @@
+{
+    "id": "AE395CF5",
+    "path": "~/Desktop/Regression Book/IntroRegInR/Chapter1.qmd",
+    "project_path": "Chapter1.qmd",
+    "type": "quarto_markdown",
+    "hash": "4154657417",
+    "contents": "",
+    "dirty": true,
+    "created": 1758424457165.0,
+    "source_on_save": false,
+    "relative_order": 13,
+    "properties": {
+        "rmdVisualMode": "true",
+        "rmdVisualWrapConfigured": "true",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "0,0",
+        "scrollLine": "0",
+        "docOutlineVisible": "1",
+        "rmdVisualCollapsedChunks": "",
+        "rmdVisualModeLocation": "108:0",
+        "docOutlineSize": "157"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1758845343,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1758845347519,
+    "read_only": false,
+    "read_only_alternatives": []
+}

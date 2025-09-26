@@ -1,0 +1,2 @@
+"0",""
+"0","plot(mod_cpu_bc2$fitted.values, mod_cpu_bc2$residuals, xlab=""New Fitted"", ylab=""New Residuals"")"

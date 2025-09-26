@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>7&nbsp; Go Bigger – Intro Regression In R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Chapter8.html" rel="next">
+<link href="./Chapter6.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-0615981f0f11b1670b07f78b9ae6e573.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Chapter7.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Go Bigger</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Intro Regression In R</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Chapter1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Visualize the Relationship</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Chapter2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Add a Line</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Chapter3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">How sure are you?</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Chapter4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Assumptions Were Made</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Chapter5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Make it Work</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Chapter6.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Zeros and Ones</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Chapter7.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Go Bigger</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Chapter8.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Building and Selection</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Chapter9.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Well that’s weird</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#multiple-regression" id="toc-multiple-regression" class="nav-link active" data-scroll-target="#multiple-regression"><span class="header-section-number">7.1</span> Multiple Regression</a></li>
+  <li><a href="#variance-and-inference-for-hatbeta" id="toc-variance-and-inference-for-hatbeta" class="nav-link" data-scroll-target="#variance-and-inference-for-hatbeta"><span class="header-section-number">7.2</span> Variance and Inference for <span class="math inline">\(\hat\beta\)</span></a></li>
+  <li><a href="#variance-and-inference-for-fitted-y" id="toc-variance-and-inference-for-fitted-y" class="nav-link" data-scroll-target="#variance-and-inference-for-fitted-y"><span class="header-section-number">7.3</span> Variance and Inference for fitted Y</a></li>
+  <li><a href="#transformations" id="toc-transformations" class="nav-link" data-scroll-target="#transformations"><span class="header-section-number">7.4</span> Transformations</a>
+  <ul class="collapse">
+  <li><a href="#units-change-on-one-term" id="toc-units-change-on-one-term" class="nav-link" data-scroll-target="#units-change-on-one-term"><span class="header-section-number">7.4.1</span> Units change on one term</a></li>
+  <li><a href="#one-or-more-x-terms" id="toc-one-or-more-x-terms" class="nav-link" data-scroll-target="#one-or-more-x-terms"><span class="header-section-number">7.4.2</span> One or more X terms</a></li>
+  <li><a href="#transforming-y" id="toc-transforming-y" class="nav-link" data-scroll-target="#transforming-y"><span class="header-section-number">7.4.3</span> Transforming Y</a></li>
+  </ul></li>
+  <li><a href="#plotting-for-multiple-regression" id="toc-plotting-for-multiple-regression" class="nav-link" data-scroll-target="#plotting-for-multiple-regression"><span class="header-section-number">7.5</span> Plotting for Multiple Regression</a>
+  <ul class="collapse">
+  <li><a href="#added-variable-plot-aka-partial-regression-plot" id="toc-added-variable-plot-aka-partial-regression-plot" class="nav-link" data-scroll-target="#added-variable-plot-aka-partial-regression-plot"><span class="header-section-number">7.5.1</span> Added Variable Plot (aka Partial Regression Plot)</a></li>
+  <li><a href="#partial-residual-plot" id="toc-partial-residual-plot" class="nav-link" data-scroll-target="#partial-residual-plot"><span class="header-section-number">7.5.2</span> Partial Residual Plot</a></li>
+  <li><a href="#inverse-response-plot" id="toc-inverse-response-plot" class="nav-link" data-scroll-target="#inverse-response-plot"><span class="header-section-number">7.5.3</span> Inverse Response Plot</a></li>
+  </ul></li>
+  <li><a href="#sec-multico" id="toc-sec-multico" class="nav-link" data-scroll-target="#sec-multico"><span class="header-section-number">7.6</span> Multicollinearity</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Go Bigger</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="multiple-regression" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="multiple-regression"><span class="header-section-number">7.1</span> Multiple Regression</h2>
+<p>Multiple linear regression is just like simple linear regression, but instead of using only one independent variable <span class="math inline">\((X)\)</span> to predict the outcome <span class="math inline">\((Y)\)</span>, it uses two or more independent variables at the same time. Each independent variable gets its own coefficient ( <span class="math inline">\(β_1, β_2, β_3...\)</span> etc.), representing its unique effect on the dependent variable while keeping the others constant. This allows you to see how each factor influences the outcome, controlling for the others.</p>
+<p>So for a model with <span class="math inline">\(p\)</span> independent predictor terms, the model now takes the form:</p>
+<p><span class="math display">\[y=β_0+β_1x_1+β_2x_2+β_3x_3+...+β_px_p+ε\]</span>As you can see, it gets to be a bit much to write out this long-form notation, hence the beauty and value of the alternative matrix approach. Recall that in addition to describing a linear regression model with a simple algebraic linear equation like <span class="math inline">\(y=β_0+β_1x_1+ε\)</span> our model can also be expressed using matrix notation as:</p>
+<p><span class="math display">\[
+Y=Xβ+ε
+\]</span></p>
+<p>While up until now we’ve only worked in the situation where <span class="math inline">\(X\)</span> is an <span class="math inline">\(n\times 2\)</span> matrix with the first column full of 1s to correspond to the intercept term, there is no reason <span class="math inline">\(X\)</span> can’t be <span class="math inline">\(n\times (p+1)\)</span> where <span class="math inline">\(p\)</span> is any number of parameters we’d like to include in our quest to model <span class="math inline">\(Y\)</span>. All we need to do is expand <span class="math inline">\(β\)</span> to be <span class="math inline">\((p+1)\times 1\)</span> to match.</p>
+<p>The matrix approach to solve for <span class="math inline">\(\hatβ\)</span> is still calculated by:</p>
+<p><span class="math display">\[
+\hatβ=(X^TX)^{-1}X^TY
+\]</span></p>
+<p>This of course means that the solution for <span class="math inline">\(β\)</span> still requires <span class="math inline">\(X^TX\)</span> have an inverse. No inverse, no <span class="math inline">\(\hat{β}\)</span>, no matter the dimensions.</p>
+<p>What does this look like in practice? Consider the <code>hills</code> data set in the <code>MASS</code> library that contains the winning times for 35 Scottish hill races in 1984. These races range from a greulling 16km length with a climb of 7500 meters that takes hours to simpler runs of 3km rising 300 meters that are done in under 20 minutes. Since both distance and elevation change obviously play a role in the challenge presented by a race, it would make sense to include both distance and climb in a model predicting the winning time. We want a model that looks like:<span class="math inline">\(winning \space time=β_0+(β_1\times distance) + (β_2 \times climb) + ε\)</span>.</p>
+<p>The matrix form of our model data is:</p>
+<p><span id="eq-orig_climb"><span class="math display">\[
+Y=\begin{bmatrix}
+    16.083 \\
+    48.350 \\
+33.650\\
+    \vdots \\
+159.833\\
+    \end{bmatrix}
+and \space
+X=\begin{bmatrix}
+    1 &amp; 2.5  &amp; 650\\
+    1 &amp; 6 &amp; 2500\\
+1 &amp; 6 &amp; 900 \\
+    \vdots &amp; \vdots \\
+    1 &amp; 20 &amp; 5000\\
+\end{bmatrix}
+\tag{7.1}\]</span></span></p>
+<p><span class="math display">\[
+\hatβ=(X^TX)^{-1}X^TY=\begin{bmatrix}
+    -8.992 \\
+    6.218 \\
+0.011\\
+    \end{bmatrix}
+\]</span></p>
+<p>Through R we can obtain this same fit with:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>mod_hills<span class="ot">&lt;-</span><span class="fu">lm</span>(time<span class="sc">~</span>dist<span class="sc">+</span>climb, <span class="at">data=</span>hills)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_hills)<span class="sc">$</span>coef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               Estimate  Std. Error   t value     Pr(&gt;|t|)
+(Intercept) -8.99203896 4.302734388 -2.089843 4.466516e-02
+dist         6.21795571 0.601147884 10.343471 9.859214e-12
+climb        0.01104791 0.002050892  5.386882 6.445183e-06</code></pre>
+</div>
+</div>
+<p>The approach to using and interpreting this model is similar to if only one predictor term was used. To use it for prediction, we just plug in values of <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span> and note the resulting <span class="math inline">\(y\)</span>. For example, to estimate the winning race time for a new race that’s 10km with an elevation change of 3100m, our our model would suggest <span class="math inline">\(-8.992+(6.218\times 10)+(0.011\times 3100)=87.436\)</span> minutes. The intercept tells us the winning race time expected for a hypothetical race that is 0km long with 0m climb: an end almost 9 minutes before the race begins. Not a meaningful answer but not a possible real race either. Our slopes are now in two different dimensions making for a fit plane in 3-dimensional space rather than a fit line. It also makes a plot of the data and the fit hard to do. Interpreting the slopes one by one we see that each additional km of distance adds, on average, about 6.2 minutes to the finishing time and each additional meter of climb adds, on average, 0.011 minutes which is less than one second.</p>
+</section>
+<section id="variance-and-inference-for-hatbeta" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="variance-and-inference-for-hatbeta"><span class="header-section-number">7.2</span> Variance and Inference for <span class="math inline">\(\hat\beta\)</span></h2>
+<p>For standard errors in multiple regression we’ll continue with the matrix notation for our model and rely more on your linear algebra skills. Start with:</p>
+<p><span class="math display">\[
+\hatβ=(X^TX)^{-1}X^TY
+\]</span></p>
+<p>Since our model is based on <span class="math inline">\(Y=Xβ+ε\)</span> we can then plug in <span class="math inline">\(Xβ+ε\)</span> for <span class="math inline">\(Y\)</span> to get:</p>
+<p><span class="math display">\[\hatβ=(X^TX)^{-1}X^T(Xβ+ε)\]</span> which reduces to</p>
+<p><span class="math display">\[\hatβ=β+(X^TX)^{-1}X^Tε\]</span></p>
+<p>thanks to <span class="math inline">\((X^TX)^{-1}X^TX=I\)</span>. Unlike our estimate <span class="math inline">\(\hatβ\)</span>, the parameter <span class="math inline">\(β\)</span> is an unknown constant and therefore has zero variance. This means <span class="math display">\[var(\hatβ)=var((X^TX)^{-1}X^Tε)\]</span></p>
+<p>A property of random vectors says that if <span class="math inline">\(A\)</span> is a matrix and <span class="math inline">\(v\)</span> a random vector, then&nbsp;<span class="math inline">\(var(Av)=A var(v)A^T\)</span>. Applying that, we now can express <span class="math inline">\(var(\hatβ)\)</span> as:</p>
+<p><span id="eq-vartrick"><span class="math display">\[
+var(\hatβ)=(X^TX)^{-1}X^Tvar(ε)X(X^TX)^{-1}
+\tag{7.2}\]</span></span></p>
+<p>Recall one of our big assumptions is that <span class="math inline">\(Var(ε)\)</span> is constant. As part of that, we denote <span class="math inline">\(Var(ε)\)</span> as simply <span class="math inline">\(\sigma^2I\)</span> where <span class="math inline">\(\sigma\)</span> is that constant variance. So now:</p>
+<p><span class="math display">\[
+var(\hatβ)=(X^TX)XT^{-1}\sigma^2IX(X^TX)^{-1}
+\]</span></p>
+<p><span class="math display">\[
+var(\hatβ)=\sigma^2I(X^TX)^{-1}X^TX(X^TX)^{-1}
+\]</span></p>
+<p><span class="math display">\[
+var(\hatβ)=\sigma^2I(X^TX)^{-1}
+\]</span></p>
+<p>This is what R is doing under the hood when it produces your column of standard errors for the model summary output. This holds whether <span class="math inline">\(\hat\beta\)</span> is a simple <span class="math inline">\(2\times1\)</span> vector with an intercept and slope for a single predictor like we saw back in Chapter 3, or whether <span class="math inline">\(\hat\beta\)</span> is a much larger <span class="math inline">\((p+1)\times1\)</span> vector with an intercept and slopes for <span class="math inline">\(p\)</span> predictors.</p>
+<p>An example demonstrating this in R on the hill race model:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>xmat<span class="ot">&lt;-</span><span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">nrow</span>(hills)), hills<span class="sc">$</span>dist, hills<span class="sc">$</span>climb), <span class="at">ncol=</span><span class="dv">3</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>sigma<span class="ot">&lt;-</span><span class="fu">summary</span>(mod_hills)<span class="sc">$</span>sigma</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>var_b<span class="ot">&lt;-</span>(sigma<span class="sc">^</span><span class="dv">2</span>)<span class="sc">*</span><span class="fu">solve</span>(<span class="fu">t</span>(xmat)<span class="sc">%*%</span>xmat)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#diagonal is the variance of each beta, off-diagonals are covariances</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>var_b</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             [,1]          [,2]          [,3]
+[1,] 18.513523217 -1.2606623775 -1.580489e-03
+[2,] -1.260662378  0.3613787787 -8.042704e-04
+[3,] -0.001580489 -0.0008042704  4.206156e-06</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#but standard errors are square-roots of variances</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="fu">sqrt</span>(var_b[<span class="dv">1</span>,<span class="dv">1</span>]), <span class="fu">sqrt</span>(var_b[<span class="dv">2</span>,<span class="dv">2</span>]), <span class="fu">sqrt</span>(var_b[<span class="dv">3</span>,<span class="dv">3</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4.302734388 0.601147884 0.002050892</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#compare to output from model summary</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_hills)<span class="sc">$</span>coef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               Estimate  Std. Error   t value     Pr(&gt;|t|)
+(Intercept) -8.99203896 4.302734388 -2.089843 4.466516e-02
+dist         6.21795571 0.601147884 10.343471 9.859214e-12
+climb        0.01104791 0.002050892  5.386882 6.445183e-06</code></pre>
+</div>
+</div>
+<p>Why does variance of <span class="math inline">\(\hat\beta\)</span> matter? Inference in multiple regression is just like inference in the single-predictor simple linear regression with confidence intervals that take the form of:<span class="math display">\[
+point\: estimate \pm multiplier\times standard \: error
+\]</span>and hypothesis test statistics have the general format of:</p>
+<p><span class="math display">\[
+\frac{observed \: value - hypothesized\: value}{standard\: error}
+\]</span></p>
+<p>so obviously standard error is a key element of both. Confidence intervals for each <span class="math inline">\(\beta\)</span> coefficient can be estimated from <span class="math inline">\(\hat\beta_i \pm t_{\alpha/2}\times SE_{\hat\beta_i}\)</span> where <span class="math inline">\(t\)</span> has <span class="math inline">\(n-(p+1)\)</span> degrees of freedom and tests of <span class="math inline">\(\beta_i=0\)</span> have a test statistic of <span class="math inline">\(t=\hat\beta_i/SE_{\hat\beta_i}\)</span> with p-values calculated from a <span class="math inline">\(t_{n-(p+1)}\)</span> distribution.</p>
+<p>The easiest way to do confidence intervals for <span class="math inline">\(\beta\)</span> in R is still the <code>confint</code> function as seen earlier with single predictor models.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>mod_hills<span class="ot">&lt;-</span><span class="fu">lm</span>(time<span class="sc">~</span>dist<span class="sc">+</span>climb, <span class="at">data=</span>hills)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(mod_hills, <span class="at">level=</span>.<span class="dv">9</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                      5 %        95 %
+(Intercept) -16.280392325 -1.70368559
+dist          5.199678069  7.23623334
+climb         0.007573928  0.01452189</code></pre>
+</div>
+</div>
+<p>For hypothesis tests on <span class="math inline">\(\beta\)</span>, all of the information you need for the most common test of <span class="math inline">\(H_0:\beta_i=0\)</span> is given in the model summary output. If instead you are interested in testing <span class="math inline">\(H_0:\beta_i=b\)</span> for some value <span class="math inline">\(b\)</span>, you can simply calculate your test statistic from the standard error as given in the model summary table, and the corresponding p-value using the <code>pt</code> function. For example, if we wanted to test the hypothesis that each additional km of distance added an average of more than 5 minutes to the race time, that would be testing <span class="math inline">\(H_0:\beta_{dist}\leq5\)</span> with <span class="math inline">\(H_A:\beta_{dist}&gt;5\)</span>. The test statistic would be calculated as:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_hills)<span class="sc">$</span>coef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               Estimate  Std. Error   t value     Pr(&gt;|t|)
+(Intercept) -8.99203896 4.302734388 -2.089843 4.466516e-02
+dist         6.21795571 0.601147884 10.343471 9.859214e-12
+climb        0.01104791 0.002050892  5.386882 6.445183e-06</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#using estimate and std. error for dist:</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>t_stat<span class="ot">&lt;-</span>(<span class="fl">6.217956</span><span class="dv">-5</span>)<span class="sc">/</span><span class="fl">0.601148</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">#find upper tail since alternative is upper tail</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">pt</span>(t_stat, <span class="fu">nrow</span>(hills)<span class="sc">-</span><span class="dv">3</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.02558215</code></pre>
+</div>
+</div>
+<p>With an <span class="math inline">\(\alpha=0.05\)</span>, this is sufficient evidence that the mean increase in race time for every additional km of distance is indeed greater than 5 minutes.</p>
+</section>
+<section id="variance-and-inference-for-fitted-y" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="variance-and-inference-for-fitted-y"><span class="header-section-number">7.3</span> Variance and Inference for fitted Y</h2>
+<p>Recall <span class="math inline">\(\hat y=X\hat\beta=Hy\)</span> where <span class="math inline">\(H=X(X^TX)^{-1}X^T\)</span> and is known as the “hat” matrix. Therefore, <span class="math inline">\(var(\hat y)=Hvar(y)H^T\)</span> using the same property applied in <a href="#eq-vartrick" class="quarto-xref">Equation&nbsp;<span>7.2</span></a>. Fun fact about <span class="math inline">\(H\)</span>: it is both symmetric and idempotent. This means <span class="math inline">\(H=H^T\)</span> and <span class="math inline">\(HH=H\)</span>. Assuming <span class="math inline">\(Y\)</span> is distributed <span class="math inline">\(N(X\beta, \sigma^2)\)</span> we can then plug in <span class="math inline">\(\sigma^2I\)</span> for <span class="math inline">\(var(y)\)</span> yielding:</p>
+<p><span class="math display">\[
+var(\hat y)=\sigma^2H
+\]</span></p>
+<p>which means the variance for any specific fitted <span class="math inline">\(\hat {y_i}\)</span> is:</p>
+<p><span id="eq-hatdiagvar"><span class="math display">\[
+var(\hat y)=\sigma^2h_{ii}
+\tag{7.3}\]</span></span></p>
+<p>the variance of y, multiplied by the <span class="math inline">\(i^{th}\)</span> diagonal of the hat matrix.</p>
+<p>This is great, but more often in regression we aren’t interested in just the variance of specific fitted values for the data set the model trained on. Usually un-observed <span class="math inline">\(x^*\)</span> values are plugged in to our fitted model to estimate additional <span class="math inline">\(y\)</span> outcomes. When that’s the case there is no <span class="math inline">\(h_{ii}\)</span> that applies. This takes us back to <span class="math inline">\(\hat y=X\hat\beta\)</span> but now instead of the full <span class="math inline">\(X\)</span> we only have the vector <span class="math inline">\(x_*\)</span> so:</p>
+<p><span class="math display">\[var(\hat y_*)=\sigma^2 x_*^T(X^TX)^{-1}x_*\]</span> This is the same as formula you saw for the simple linear case back in chapter 3: <span id="eq-vary"><span class="math display">\[
+SE_{\bar{Y}|x_*}=S_R\sqrt{\frac{1}{n}+\frac{(x_*-\bar{x})^2}{\sum{(x_i-\bar{x})^2}}}
+\tag{7.4}\]</span></span></p>
+<p>The matrix algebra is what’s going on behind the scenes in R no matter how many predictors you have. Writing it out longhand as in <a href="#eq-vary" class="quarto-xref">Equation&nbsp;<span>7.4</span></a> is much harder to do for multiple predictors, but seeing it that way for the simple case makes it easier to see that when <span class="math inline">\(x_*\)</span> values are close to the mean <span class="math inline">\(x\)</span> values the standard error is smaller making the resulting intervals narrower.</p>
+<p>The <code>predict</code> function used for confidence and prediction intervals for <span class="math inline">\(y_*\)</span> in the simple linear case continues to do the job for multiple regression models.</p>
+<p>Consider the 90% prediction intervals below for a race with a distance of 7km and climb of 1800m (values near the respective means) and a race with a distance 23km and a climb of 6000m (more unusual but within the range observed in the training set).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>new_races<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">dist=</span><span class="fu">c</span>(<span class="dv">7</span>, <span class="dv">23</span>), <span class="at">climb=</span><span class="fu">c</span>(<span class="dv">1800</span>, <span class="dv">6000</span>))</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(mod_hills, new_races, <span class="at">interval=</span><span class="st">"prediction"</span>, <span class="at">level=</span>.<span class="dv">9</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        fit       lwr       upr
+1  54.41989  29.20351  79.63627
+2 200.30840 172.08899 228.52782</code></pre>
+</div>
+</div>
+<p>The race first race has a narrower interval because it involves <span class="math inline">\(x_*\)</span> nearer the center of the training <span class="math inline">\(X\)</span> values.</p>
+</section>
+<section id="transformations" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="transformations"><span class="header-section-number">7.4</span> Transformations</h2>
+<section id="units-change-on-one-term" class="level3" data-number="7.4.1">
+<h3 data-number="7.4.1" class="anchored" data-anchor-id="units-change-on-one-term"><span class="header-section-number">7.4.1</span> Units change on one term</h3>
+<p>We begin with the simplest type of transformation on a single predictor: a unit change. Maybe meters of climb isn’t the unit of measurement we want to use for climb in our hill racing model. Let’s change it so that we can get the amount of time added per km of climb so that the units on climb will match the units on distance. That means instead of what we saw earlier in <a href="#eq-orig_climb" class="quarto-xref">Equation&nbsp;<span>7.1</span></a> now:</p>
+<p><span class="math display">\[
+Y=\begin{bmatrix}
+    16.083 \\
+    48.350 \\
+33.650\\
+    \vdots \\
+159.833\\
+    \end{bmatrix}
+and \space
+X=\begin{bmatrix}
+    1 &amp; 2.5  &amp; 0.650\\
+    1 &amp; 6 &amp; 2.5\\
+1 &amp; 6 &amp; 0.9 \\
+    \vdots &amp; \vdots \\
+    1 &amp; 20 &amp; 5.0\\
+\end{bmatrix}
+\]</span></p>
+<p><span class="math display">\[
+\hatβ=(X^TX)^{-1}X^TY=\begin{bmatrix}
+    -8.992 \\
+    6.218 \\
+11.048\\
+    \end{bmatrix}
+\]</span></p>
+<p>Or through R code:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>climb_km<span class="ot">&lt;-</span>hills<span class="sc">$</span>climb<span class="sc">/</span><span class="dv">1000</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>mod_hills2<span class="ot">&lt;-</span><span class="fu">lm</span>(time<span class="sc">~</span>dist<span class="sc">+</span>climb_km, <span class="at">data=</span>hills)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_hills2)<span class="sc">$</span>coef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             Estimate Std. Error   t value     Pr(&gt;|t|)
+(Intercept) -8.992039  4.3027344 -2.089843 4.466516e-02
+dist         6.217956  0.6011479 10.343471 9.859214e-12
+climb_km    11.047910  2.0508916  5.386882 6.445183e-06</code></pre>
+</div>
+</div>
+<p>Which makes perfect sense and behaves just as we saw in the simple linear example from Chapter 5: we divided our <span class="math inline">\(x_2\)</span> by 1000, so to get the same result from <span class="math inline">\(β_2 \times x_2\)</span> the value of <span class="math inline">\({β_2}\)</span> would need to increase by a factor of 1000. And now our interpretation includes that the winning time increase by about 11 minutes on average for every km of climb added.</p>
+<p>Any time you want to make a units change on a predictor term the <span class="math inline">\(β\)</span> estimate for the associated variable will simply change by the inverse and all other β will be unaffected. Standard errors will change in scale as well which will leave you with parameter test statistics and p-values that are unchanged. The quality of your fit as measured by <span class="math inline">\(R^2\)</span> won’t change at all either so use whatever scales you’d like predictor by predictor.</p>
+</section>
+<section id="one-or-more-x-terms" class="level3" data-number="7.4.2">
+<h3 data-number="7.4.2" class="anchored" data-anchor-id="one-or-more-x-terms"><span class="header-section-number">7.4.2</span> One or more X terms</h3>
+<div id="fig-mtcar4" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-mtcar4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-mtcar4" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-mtcar4-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-mtcar4-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-mtcar4-1.png" class="img-fluid figure-img" data-ref-parent="fig-mtcar4" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-mtcar4-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Displacement Squared
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-mtcar4" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-mtcar4-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-mtcar4-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-mtcar4-2.png" class="img-fluid figure-img" data-ref-parent="fig-mtcar4" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-mtcar4-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Square-root Displacement
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-mtcar4" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-mtcar4-3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-mtcar4-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-mtcar4-3.png" class="img-fluid figure-img" data-ref-parent="fig-mtcar4" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-mtcar4-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(c) Inverse Displacement
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-mtcar4" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-mtcar4-4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-mtcar4-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-mtcar4-4.png" class="img-fluid figure-img" data-ref-parent="fig-mtcar4" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-mtcar4-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(d) Log Displacement
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mtcar4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.1: Displacement Transformations and Residuals
+</figcaption>
+</figure>
+</div>
+<div class="cell">
+<div id="fig-mtcar5" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-mtcar5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="fig-mtcar5" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-mtcar5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-mtcar5-1.png" class="img-fluid figure-img" data-ref-parent="fig-mtcar5" width="480">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-mtcar5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Model with Displacement^2 plus HP, Axle Ratio, and Wt
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mtcar5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.2: Motor Trend Car Data
+</figcaption>
+</figure>
+</div>
+</div>
+<div id="fig-hills3" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-hills3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-hills3" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-hills3-1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-hills3-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hills3-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-ref-parent="fig-hills3" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-hills3-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Log(dist) vs.&nbsp;residuals of time~climb
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-hills3" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-hills3-2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-hills3-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hills3-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-ref-parent="fig-hills3" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-hills3-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Log(climb) vs.&nbsp;residuals of time~dist
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hills3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.3: Scottish Hill Races, Log transformations
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="transforming-y" class="level3" data-number="7.4.3">
+<h3 data-number="7.4.3" class="anchored" data-anchor-id="transforming-y"><span class="header-section-number">7.4.3</span> Transforming Y</h3>
+<p>Why would you want to transform Y instead of one or more of your X terms? Well, what if what you really want for the format of your model is <span class="math inline">\(y=e^{\beta_0+x_1\beta_1+x_2\beta_2+\epsilon}\)</span> ? You aren’t able to fit that type of relationship directly with the least-squares regression methods we’ve covered, but you could use a log transform on y and then fit <span class="math inline">\(log(y)=\beta_0+x_1\beta_1+x_2\beta_2+\epsilon\)</span> without any trouble. Generally, any time you think the relationship at hand is of the form <span class="math inline">\(y=f(\beta_0+x_1\beta_1+x_2\beta_2+\epsilon)\)</span> the solution is to transform your <span class="math inline">\(y\)</span> with <span class="math inline">\(f'\)</span> and fit the <span class="math inline">\(f'(y)=\beta_0+x_1\beta_1+x_2\beta_2+\epsilon\)</span> model.</p>
+</section>
+</section>
+<section id="plotting-for-multiple-regression" class="level2" data-number="7.5">
+<h2 data-number="7.5" class="anchored" data-anchor-id="plotting-for-multiple-regression"><span class="header-section-number">7.5</span> Plotting for Multiple Regression</h2>
+<p>While the basics of fitting a model and using it for inference are largely unchanged from our simple linear regression modeling, expanding beyond one independent predictor variable in our model makes plotting the data more complicated (but also more vital). It’s more complicated because we can generally only plot two continuous dimensions at a time (in a way our brains can understand) simply because our screens (and paper) are two-dimensional, but more vital because there are now even more nuances to the relationships of the variables that we need to know about.</p>
+<p>A good first step is to look at the simple pairwise relationships between each indpendent <span class="math inline">\(x\)</span> predictor and the dependent outcome <span class="math inline">\(y\)</span>. This means for the hill data we’d consider the plots shown in <a href="#fig-hillplot2" class="quarto-xref">Figure&nbsp;<span>7.4</span></a>.</p>
+<div class="cell" data-layout-nrow="1">
+<div id="fig-hillplot2" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-hillplot2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-hillplot2" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-hillplot2-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-hillplot2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hillplot2-1.png" class="img-fluid figure-img" data-ref-parent="fig-hillplot2" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-hillplot2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Distance and Time
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-hillplot2" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-hillplot2-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-hillplot2-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hillplot2-2.png" class="img-fluid figure-img" data-ref-parent="fig-hillplot2" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-hillplot2-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Climb and Time
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hillplot2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.4: Scottish Hill Race Data
+</figcaption>
+</figure>
+</div>
+</div>
+<p>From <a href="#fig-hillplot2" class="quarto-xref">Figure&nbsp;<span>7.4</span></a> it is clearly seen that both the distance of the race and the elevation climb of the race are reasonably linearly related to our outcome of race record time. <span class="math inline">\(R^2\)</span> values for the two simple linear models tell us that distance alone explains 84.6% of the variability in race time and elevation climb explains 64.8% of race time variability. The next step now is to consider how your independent variables relate to each other.</p>
+<div>
+
+</div>
+<div class="cell quarto-layout-panel" data-layout-nrow="1">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
+<div id="fig-hillplot3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-hillplot3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hillplot3-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hillplot3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.5: Scottish Hill Race Distance and Elevation Climb
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>This is the relationship shown in <a href="#fig-hillplot3" class="quarto-xref">Figure&nbsp;<span>7.5</span></a>. As one might expect, race distance and elevation change are related to each other. This makes intuitive sense since longer races have greater opportunity for changes in elevation. You aren’t going to have a race that increases 3000 meters in elevation but is only 1 km long - that’s just too steep to be at all safe (or enjoyable). The <span class="math inline">\(R^2\)</span> of a linear model predicting climb as a function of distance is 42.6%. Why is this important when working to predict time? Well if distance gets us 84.6% of the way to explaining time, and climb gets us 64.8% of the way to explaining time, clearly there must be some overlap in the value they offer since 0.846+0.648&gt;1. The 42.6% is a measure of the overlap.</p>
+<section id="added-variable-plot-aka-partial-regression-plot" class="level3" data-number="7.5.1">
+<h3 data-number="7.5.1" class="anchored" data-anchor-id="added-variable-plot-aka-partial-regression-plot"><span class="header-section-number">7.5.1</span> Added Variable Plot (aka Partial Regression Plot)</h3>
+<p>The <strong><em>Added Variable Plot</em></strong>, also sometimes referred to as a <strong><em>Partial Regression Plot</em></strong>, is a tool for capturing how much value an additional independent variable offers in predicting your dependent variable. The plot contains the residuals from two different linear models. First, the x-axis is the residuals from a model predicting <span class="math inline">\(x_2\)</span> using <span class="math inline">\(x_1\)</span>. Then, the y-axis is the residuals of a model predicting y using only only <span class="math inline">\(x_1\)</span>. To put this another way, the added variable plot shows the relationship between the variability of your possible new predictor term given the existing predictor compared to the variability that remains in your dependent variable after the first predictor is considered.</p>
+<div id="fig-hillplot4" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-hillplot4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-hillplot4" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-hillplot4-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-hillplot4-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hillplot4-1.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-hillplot4" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-hillplot4-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Adding Climb to Distance Only
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-hillplot4" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-hillplot4-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-hillplot4-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hillplot4-2.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-hillplot4" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-hillplot4-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Adding Distance to Climb Only
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hillplot4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.6: Added Variable Plots
+</figcaption>
+</figure>
+</div>
+<p><a href="#fig-hillplot4" class="quarto-xref">Figure&nbsp;<span>7.6</span></a> shows two added variable plots. <a href="#fig-hillplot4" class="quarto-xref">Figure&nbsp;<span>7.6</span></a> (a) shows the plot assessing the value climb offers in predicting time after distance, and <a href="#fig-hillplot4" class="quarto-xref">Figure&nbsp;<span>7.6</span></a> (b) assesses the value of adding distance if climb was included first. Equations of the least-squares regression lines are given in the top left corners.</p>
+<p>Note that the equations both have an intercept of zero. That’s because, as you should recall, 1) fitted regression lines always pass through the mean of X and the mean of Y, and 2) our X and Y in these cases are both residuals and the mean residual from a linear regression model is always zero. The slopes from these fits are worth noting though.</p>
+<p>When the multiple regression model is fit including distance and climb together, notice the slopes for the distance and climb terms exactly match the slopes from the added variable plots.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>mhill<span class="ot">&lt;-</span><span class="fu">lm</span>(time<span class="sc">~</span>dist<span class="sc">+</span>climb, <span class="at">data=</span>hills)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mhill)<span class="sc">$</span>coef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               Estimate  Std. Error   t value     Pr(&gt;|t|)
+(Intercept) -8.99203896 4.302734388 -2.089843 4.466516e-02
+dist         6.21795571 0.601147884 10.343471 9.859214e-12
+climb        0.01104791 0.002050892  5.386882 6.445183e-06</code></pre>
+</div>
+</div>
+<p>Now let’s expand beyond our two-predictor hill race model and look at a larger data set with multiple predictors. <a href="#fig-mtcar1" class="quarto-xref">Figure&nbsp;<span>7.7</span></a> shows a scatterplot matrix for the first 6 columns of the <code>mtcar</code> data frame we’ve worked with earlier.</p>
+<div class="cell" data-layout-valign="top">
+<div class="cell-output-display">
+<div id="fig-mtcar1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-mtcar1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-mtcar1-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mtcar1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.7: Motor Trend Car Data
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Across the top row you can see that all of the available independent variables are strong potential predictors of fuel efficiency (MPG). Some terms may warrant some transformation given apparent curvature in the mpg-displacement and mpg-hp plots, but all indicate they could be useful in a model for MPG. Other scatterplots in the matrix show us that many of these terms are closely related to each other as well so we know there is overlap in the value they offer to predict MPG.</p>
+<p>We start with the model <span class="math inline">\(mpg=β_0+β_1wt+β_2cyl+ε\)</span> because vehicle weight and the number of engine cylinders should have the strongest influence on fuel efficiency. From there, the question is how much would our model improve if drat, the rear axle ratio, were added? From our initial scatterplot matrix drat’s relationship with mpg appears reasonably linear so there shouldn’t be any transformations to worry about.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-mtcar2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-mtcar2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-mtcar2-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mtcar2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.8: Added Variable Plot, Rear Axle Ratio
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The added variable plot for drat given in <a href="#fig-mtcar2" class="quarto-xref">Figure&nbsp;<span>7.8</span></a> shows that there is no real additional value that drat offers when cylinders and weight are already in the model. The relationship between the residuals from drat modeled by cylinders+weight and the residuals of mpg modeled by cylinders+weight appears completely random; has a best fit line that is virtually horizontal, and a correlation that is zero.</p>
+<p>After seeing this plot, it should come as no surprise that when a model is fit predicting MPG as a function of cylinders+weight+axle ratio the axle ratio term is not statistically significant.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>m_cars<span class="ot">&lt;-</span><span class="fu">lm</span>(mpg<span class="sc">~</span>cyl<span class="sc">+</span>wt<span class="sc">+</span>drat, <span class="at">data=</span>mtcars)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m_cars)<span class="sc">$</span>coef</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               Estimate Std. Error    t value     Pr(&gt;|t|)
+(Intercept) 39.76765828  6.8728698  5.7861795 3.258387e-06
+cyl         -1.50957715  0.4464205 -3.3815136 2.142188e-03
+wt          -3.19473392  0.8293065 -3.8522956 6.235168e-04
+drat        -0.01620074  1.3230926 -0.0122446 9.903173e-01</code></pre>
+</div>
+</div>
+<section id="in-r" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="in-r">In R</h4>
+<p><a href="#fig-hillplot2" class="quarto-xref">Figure&nbsp;<span>7.4</span></a> and <a href="#fig-mtcar2" class="quarto-xref">Figure&nbsp;<span>7.8</span></a> show added variable plots put together manually using basic plotting functionality in R. There’s also the <code>avPlot</code> function in the <code>car</code> library that will produce added variable plots directly with much less effort. All you need to specify in <code>avPlot</code> is the name of the full fitted model object, and the name of the variable you want to consider as the possible add/drop term. The variable name needs to be put in quotation marks. First, an example using the <code>avPlot</code> function on the hill race data:</p>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>mhills<span class="ot">&lt;-</span><span class="fu">lm</span>(time<span class="sc">~</span>climb<span class="sc">+</span>dist, <span class="at">data=</span>hills)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">avPlot</span>(mhills, <span class="st">"climb"</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">avPlot</span>(mhills, <span class="st">"dist"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="fig-hillplot5" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-hillplot5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-hillplot5" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-hillplot5-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-hillplot5-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hillplot5-1.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-hillplot5" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-hillplot5-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Climb plot
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-hillplot5" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-hillplot5-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-hillplot5-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hillplot5-2.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-hillplot5" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-hillplot5-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Distance plot
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hillplot5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.9: Added Variable Plots
+</figcaption>
+</figure>
+</div>
+<p>And here is the <code>mtcar</code> model example with identification of unusual points removed:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>mcars<span class="ot">&lt;-</span><span class="fu">lm</span>(mpg<span class="sc">~</span>cyl<span class="sc">+</span>wt<span class="sc">+</span>drat, <span class="at">data=</span>mtcars)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">avPlot</span>(mcars, <span class="st">"drat"</span>, <span class="at">id=</span><span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-mtcar3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-mtcar3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-mtcar3-1.png" class="img-fluid figure-img" data-fig-pos="H" width="408">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mtcar3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.10: Added Variable Plot for Axle Ratio
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>If you want to quickly produce all added variable plots for a model, you can use the <code>avPlots</code> command. Just add that <code>s</code> to the command name and simply providing the model object will create all plots.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avPlots</span>(mhills)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Chapter7_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="partial-residual-plot" class="level3" data-number="7.5.2">
+<h3 data-number="7.5.2" class="anchored" data-anchor-id="partial-residual-plot"><span class="header-section-number">7.5.2</span> Partial Residual Plot</h3>
+<p>There’s another useful plot to know about when working with multiple regression: the <strong><em>Partial Residual Plot</em></strong>. A partial residual plot is another way to look at how each predictor plays a role in a model with multiple independent variables.</p>
+<p>To investigate <span class="math inline">\(x_i\)</span> using a partial residual plot, first fit a model with all independent terms of interest included. The x-axis is then <span class="math inline">\(x_i\)</span>, and the y-axis is the residuals from your full model <span class="math inline">\(+β_ix_i\)</span>. <a href="#fig-hills_partres" class="quarto-xref">Figure&nbsp;<span>7.11</span></a> shows these plots for distance and elevation climb as predictors for race time in the hill race data. The partial residual plots produced by R by default have two helpful overlaid lines: a dashed blue line showing the best linear fit, and a more free-form line showing the pattern followed by the points.</p>
+<div id="fig-hills_partres" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-hills_partres-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-hills_partres" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-hills_partres-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-hills_partres-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hills_partres-1.png" class="img-fluid figure-img" data-ref-parent="fig-hills_partres" width="360">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-hills_partres-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Distance
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-hills_partres" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-hills_partres-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-hills_partres-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hills_partres-2.png" class="img-fluid figure-img" data-ref-parent="fig-hills_partres" width="360">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-hills_partres-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Elevation Climb
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hills_partres-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.11: Partial residual plots, Hill Races
+</figcaption>
+</figure>
+</div>
+<p>In this example, the pink line for distance follows the blue dashed line fairly well as shown in <a href="#fig-hills_partres" class="quarto-xref">Figure&nbsp;<span>7.11</span></a> (a). The curvature shown in the pink line for the partial residual plot for climb in <a href="#fig-hills_partres" class="quarto-xref">Figure&nbsp;<span>7.11</span></a> (b) however, indicates a transformation on climb might make for an even better model. Specifically, it appears that squaring climb might straighten the relationship out.</p>
+<p>To investigate this, consider the plots in <a href="#fig-hills_partres2" class="quarto-xref">Figure&nbsp;<span>7.12</span></a> showing (a) the partial residual plot when <span class="math inline">\(climb^2\)</span> is used in the model and (b) the partial residual plot when <span class="math inline">\(climb^3\)</span> in the model. The <span class="math inline">\(climb^2\)</span> model is a definite improvement over the original, but still not quite right. The <span class="math inline">\(climb^3\)</span> model straightens the pink curve further to the point that it aligns nearly perfectly with the dashed blue line.</p>
+<div id="fig-hills_partres2" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-hills_partres2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-hills_partres2" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-hills_partres2-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-hills_partres2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hills_partres2-1.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-hills_partres2" width="360">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-hills_partres2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Climb Squared
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-hills_partres2" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-hills_partres2-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-hills_partres2-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hills_partres2-2.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-hills_partres2" width="360">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-hills_partres2-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Climb Cubed
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hills_partres2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.12: Partial residual plots, Climb transformed
+</figcaption>
+</figure>
+</div>
+<p>Using this, we can update our model for winning time to use <span class="math inline">\(climb^3\)</span>, and then evaluate the fit and model assumptions. <a href="#fig-hills_newmod3" class="quarto-xref">Figure&nbsp;<span>7.13</span></a> shows the fitted vs.&nbsp;residual plots for both the basic model with <span class="math inline">\(climb\)</span> directly and the approach and the <span class="math inline">\(climb^3\)</span> model.</p>
+<div id="fig-hills_newmod3" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-hills_newmod3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-hills_newmod3" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-hills_newmod3-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-hills_newmod3-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hills_newmod3-1.png" class="img-fluid figure-img" data-ref-parent="fig-hills_newmod3" width="374">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-hills_newmod3-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Dist + Climb model
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-hills_newmod3" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-hills_newmod3-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-hills_newmod3-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-hills_newmod3-2.png" class="img-fluid figure-img" data-ref-parent="fig-hills_newmod3" width="374">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-hills_newmod3-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Dist + Climb<span class="math inline">\(^3\)</span> model
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hills_newmod3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.13: Fitted vs.&nbsp;Residual Plots
+</figcaption>
+</figure>
+</div>
+<p>This shows there is one extreme outlier with a residual greater than 50 that is present in both approaches. We can also see that the basic model does exhibit some curvature that appears fully corrected in the <span class="math inline">\(climb^3\)</span> model. Homoskedasticity appears much improved in the new model as well.</p>
+<p>How do partial residual plots look for our more complex <code>mtcars</code> example? Consider <a href="#fig-mtcars_partres" class="quarto-xref">Figure&nbsp;<span>7.14</span></a>. The plot for weight shows slight, but non-consistent deviation from the line. The plot for cylinders suggests perhaps a simple transformation might improve the fit. And the plot for drat, the measure of the rear axle ratio, definitely shows curvature away from a horizontal line. This horizontal line confirms what we saw with the added variable plot: inclusion of the term won’t significantly help predict MPG at all.</p>
+<div id="fig-mtcars_partres" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-mtcars_partres-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-mtcars_partres" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-mtcars_partres-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-mtcars_partres-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-mtcars_partres-1.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-mtcars_partres" width="360">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-mtcars_partres-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Cylinders
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-mtcars_partres" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-mtcars_partres-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-mtcars_partres-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-mtcars_partres-2.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-mtcars_partres" width="360">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-mtcars_partres-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Weight
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-mtcars_partres" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-mtcars_partres-3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-mtcars_partres-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-mtcars_partres-3.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-mtcars_partres" width="360">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-mtcars_partres-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(c) Rear Axle Ratio
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mtcars_partres-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.14: Partial Residual Plots
+</figcaption>
+</figure>
+</div>
+<p>If cylinders is transformed to be included in the model as <span class="math inline">\(1/cylinders\)</span> then the updated partial residual plot becomes what is shown in <a href="#fig-invcyl" class="quarto-xref">Figure&nbsp;<span>7.15</span></a> (a) and the resulting fitted vs.&nbsp;residual plot for the weight+inverse cylinders model is as shown in <a href="#fig-invcyl" class="quarto-xref">Figure&nbsp;<span>7.15</span></a> (b). The <span class="math inline">\(R^2\)</span> of the model fit with cylinders inverted is very slightly increased over the initial model with simply weight+cylinders, 0.837 vs 0.830, making it a matter of scientist discretion if the added complexity of inverting cylinders is worth the minimal fit improvement.</p>
+<div id="fig-invcyl" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-invcyl-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-invcyl" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-invcyl-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-invcyl-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-invcyl-1.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-invcyl" width="360">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-invcyl-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Inverse Cylinders Partial Residual Plot,Fitted vs.&nbsp;Residual
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-invcyl" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-invcyl-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-invcyl-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-invcyl-2.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-invcyl" width="360">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-invcyl-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Inverse Cylinders Partial Residual Plot,Fitted vs.&nbsp;Residual
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-invcyl-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.15: Weight + 1/cylinders
+</figcaption>
+</figure>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>mod_car<span class="ot">&lt;-</span><span class="fu">lm</span>(mpg<span class="sc">~</span>wt<span class="sc">+</span>cyl, <span class="at">data=</span>mtcars)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>mod_car2<span class="ot">&lt;-</span><span class="fu">lm</span>(mpg<span class="sc">~</span>wt<span class="sc">+</span><span class="fu">I</span>(<span class="dv">1</span><span class="sc">/</span>cyl), <span class="at">data=</span>mtcars)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="fu">summary</span>(mod_car)<span class="sc">$</span>r.square, <span class="fu">summary</span>(mod_car2)<span class="sc">$</span>r.square)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.8302274 0.8372329</code></pre>
+</div>
+</div>
+<section id="in-r-1" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="in-r-1">In R</h4>
+<p>Like the <code>avPlot</code> function, the partial residual plot function is in the <code>car</code> library. <code>crPlot</code> creates the partial residual plots with a minimum of two inputs: the full fitted model object, and the name of the variable you want to focus on. Make sure you put the variable name in quotation marks.</p>
+<p>The code to produce <a href="#fig-hills_partres" class="quarto-xref">Figure&nbsp;<span>7.11</span></a> was simply:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>modh<span class="ot">&lt;-</span><span class="fu">lm</span>(time<span class="sc">~</span>dist<span class="sc">+</span>climb, <span class="at">data=</span>hills)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">crPlot</span>(modh, <span class="st">"dist"</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">crPlot</span>(modh, <span class="st">"climb"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As seen with <code>avPlot</code>, there is also a plural version of the <code>crPlot</code> command. <code>crPlots</code> will create all possible partial residual plots for a specified model. Where does the name “crPlot” come from? The y-axis is the component of interest plus the model residual: “cr” is short for “component + residual”.</p>
+</section>
+</section>
+<section id="inverse-response-plot" class="level3" data-number="7.5.3">
+<h3 data-number="7.5.3" class="anchored" data-anchor-id="inverse-response-plot"><span class="header-section-number">7.5.3</span> Inverse Response Plot</h3>
+<p>When in a situation where transforming Y is your best course of action, an <strong><em>Inverse Response Plot</em></strong> can help. For this we’ll create two dummy examples so the real relationship is fully known. Let’s create 50 rows of three independent columns, “A”, “B”, and “C”, where each is a created from a random sample from a Uniform[0,5]. Then we’ll make Y1 and Y2 where <span class="math inline">\(Y_1=(A+2B+3C)^2+\epsilon\)</span> and <span class="math inline">\(Y_2=e^{A+B+C}+\epsilon\)</span> using a Normal(0, 1) for the <span class="math inline">\(\epsilon\)</span> noise component.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>A<span class="ot">&lt;-</span><span class="fu">runif</span>(<span class="dv">50</span>, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>B<span class="ot">&lt;-</span><span class="fu">runif</span>(<span class="dv">50</span>, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>C<span class="ot">&lt;-</span><span class="fu">runif</span>(<span class="dv">50</span>, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>Y1<span class="ot">&lt;-</span>(A<span class="sc">+</span><span class="dv">2</span><span class="sc">*</span>B<span class="sc">+</span><span class="dv">3</span><span class="sc">*</span>C)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">50</span>)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>Y2<span class="ot">&lt;-</span><span class="fu">exp</span>(A<span class="sc">+</span>B<span class="sc">+</span>C) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>If we start by looking at simple plots of A, B, and C plotted against Y1, and against Y2, it is not immediately clear that transforming our Ys is what needs to happen (see <a href="#fig-fake1" class="quarto-xref">Figure&nbsp;<span>7.16</span></a>).</p>
+<div id="fig-fake1" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fake1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake1" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-fake1-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake1-1.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-fake1" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake1-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) A vs.&nbsp;Y1
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake1" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-fake1-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake1-2.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-fake1" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake1-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) B vs.&nbsp;Y1
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake1" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-fake1-3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake1-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake1-3.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-fake1" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake1-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(c) C vs.&nbsp;Y1
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake1" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-fake1-4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake1-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake1-4.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-fake1" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake1-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(d) A vs.&nbsp;Y2
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake1" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-fake1-5" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake1-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake1-5.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-fake1" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake1-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(e) B vs.&nbsp;Y2
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake1" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-fake1-6" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake1-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake1-6.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-fake1" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake1-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(f) C vs.&nbsp;Y2
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fake1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.16: Simple Scatter Plots
+</figcaption>
+</figure>
+</div>
+<p>If we fit the basic models for Y1 and Y2 as functions of A, B, and C we get fitted vs.&nbsp;residual plots as shown in <a href="#fig-fake2" class="quarto-xref">Figure&nbsp;<span>7.17</span></a> which clearly indicate there is a strong non-linear relationship at play and a transformation somewhere is warranted.</p>
+<div id="fig-fake2" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fake2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake2" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-fake2-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake2-1.png" class="img-fluid figure-img" data-ref-parent="fig-fake2" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake2-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Y1~A+B+C Fitted vs.&nbsp;Residual
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake2" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-fake2-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake2-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake2-2.png" class="img-fluid figure-img" data-ref-parent="fig-fake2" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake2-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Y2~A+B+C Fitted vs.&nbsp;Residual
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fake2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.17: Fitted vs.&nbsp;Residuals
+</figcaption>
+</figure>
+</div>
+<p>So let’s look at the partial residual plots for A, B, and C to find out where to transform. These are shown in <a href="#fig-fake3" class="quarto-xref">Figure&nbsp;<span>7.18</span></a> and none look to have significant curvature in their pink line fits.</p>
+<div id="fig-fake3" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fake3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake3" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-fake3-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake3-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake3-1.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-fake3" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake3-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) A in model of Y1
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake3" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-fake3-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake3-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake3-2.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-fake3" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake3-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) B in model of Y1
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake3" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-fake3-3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake3-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake3-3.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-fake3" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake3-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(c) C in model of Y1
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake3" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-fake3-4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake3-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake3-4.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-fake3" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake3-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(d) A in model of Y2
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake3" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-fake3-5" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake3-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake3-5.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-fake3" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake3-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(e) B in model of Y2
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake3" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-fake3-6" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake3-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake3-6.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-fake3" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake3-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(f) C in model of Y2
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fake3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.18: Partial Residual Plots
+</figcaption>
+</figure>
+</div>
+<p>If none of the X predictor terms are the source, consider the response Y as needing the transformation by looking at a plot of the fitted value of Y on the x-axis, vs the observed Y values on the y-axis. This is called the <strong><em>Inverse Response Plot</em></strong> and if Y needs a transformation, the shape of the curve in the inverse response plot will tell you which one you need.</p>
+<div id="fig-fake4" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fake4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake4" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-fake4-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake4-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake4-1.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-fake4" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake4-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Inverse Response Y1
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-fake4" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-fake4-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-fake4-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Chapter7_files/figure-html/fig-fake4-2.png" class="img-fluid figure-img" data-fig-pos="H" data-ref-parent="fig-fake4" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-fake4-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Inverse Response Y2
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fake4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.19: Inverse Response Plots
+</figcaption>
+</figure>
+</div>
+<p>Sure enough, the inverse response plot for Y1 is a curve that follows an <span class="math inline">\(x^2\)</span> curve shape which aligns with us needing to apply a square-root to Y1 to make it linear, and the inverse response plot for Y2 is a curve that follows an exponential curve shape indicating to us that a log transformation for Y2 is the way to go. Both just as our data was created.</p>
+</section>
+</section>
+<section id="sec-multico" class="level2" data-number="7.6">
+<h2 data-number="7.6" class="anchored" data-anchor-id="sec-multico"><span class="header-section-number">7.6</span> Multicollinearity</h2>
+<p>When two or more independent variables are highly correlated with each other, your multiple regression model suffers from a problem known as multicollinearity. At issue is the fact that this correlation undermines the assumption that independent random variables are in fact <em>independent</em>, which is critical for accurately estimating their individual impacts on the dependent variable you’re predicting.</p>
+<p>Sometimes multicollinearity arises because of a choice the modeler has made that is easily corrected. For example, in a health study rather than including both the weight of a patient and the patient body mass index, you can just select one as a measure of patient size and move on. Often though the choice isn’t quite so simple as the variables might very naturally move together while at the same time each providing valuable insight.</p>
+<p>The problem is that having highly correlated independent variables makes the standard errors of the estimated regression coefficients increase. This means your confidence intervals are wider and you’re less able to identify when a term is significantly different from zero or any other key value of interest. Multicollinearity can also lead to coefficients changing notably, even changing signs unexpectedly, with relatively minor changes to the data or the model.</p>
+<p>For an example, let’s look at the <code>fgl</code> data frame from the <code>MASS</code> library. This data frame considers the refractive index of 214 fragments of six different types of glass and their oxide makeup. We’ll start with the full model that includes all available predictors of refractive index:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>mod_glass<span class="ot">&lt;-</span><span class="fu">lm</span>(RI<span class="sc">~</span>., <span class="at">data=</span>fgl)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_glass)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = RI ~ ., data = fgl)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-5.2131 -0.3786 -0.0186  0.3697  4.0317 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 11.68095   67.73022   0.172 0.863248    
+Na           0.60928    0.66840   0.912 0.363100    
+Mg           1.32017    0.67269   1.963 0.051086 .  
+Al          -0.92790    0.70416  -1.318 0.189098    
+Si          -0.61637    0.68460  -0.900 0.369022    
+K            0.74007    0.68789   1.076 0.283286    
+Ca           2.47150    0.66700   3.705 0.000273 ***
+Ba           1.97569    0.70198   2.814 0.005374 ** 
+Fe           0.36329    0.73879   0.492 0.623442    
+typeWinNF    0.09996    0.17352   0.576 0.565209    
+typeVeh     -0.88579    0.26111  -3.392 0.000835 ***
+typeCon      0.39910    0.39687   1.006 0.315810    
+typeTabl     0.39263    0.42512   0.924 0.356822    
+typeHead     1.58234    0.43890   3.605 0.000394 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.9503 on 200 degrees of freedom
+Multiple R-squared:  0.9081,    Adjusted R-squared:  0.9021 
+F-statistic:   152 on 13 and 200 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>This model summary tells us a few things. First, you’ll notice that many of our independent variables do not appear significant - many p-values are well above any reasonable <span class="math inline">\(\alpha\)</span> level. You can also see that two glass types that are most different from each other are vehicle window glass, with a -0.88579 slope and vehicle headlight glass with a 1.58 slope. This kind of makes sense that they would differ from the other types because the thick safety glass of vehicle windows is very different from the type of glass used to make regular home windows or tableware. Similarly, glass for headlights is also very different from your drinking glass but in an entirely different way. These observations aside though, the <span class="math inline">\(R^2=0.9081\)</span> does indicate the model does a fairly good job at predicting the refractive index of glass given the glass components.</p>
+<p>Now consider a reduced model that reduces glass type down to only three levels: vehicle, headlight, or other, and only considers the Al, Si, Ca, and Ba elements.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>vehicle<span class="ot">&lt;-</span><span class="fu">as.factor</span>(fgl<span class="sc">$</span>type<span class="sc">==</span><span class="st">"Veh"</span>)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>headlight<span class="ot">&lt;-</span><span class="fu">as.factor</span>(fgl<span class="sc">$</span>type<span class="sc">==</span><span class="st">"Head"</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>mod_glass2<span class="ot">&lt;-</span><span class="fu">lm</span>(RI<span class="sc">~</span>Al<span class="sc">+</span>Si<span class="sc">+</span>Ca<span class="sc">+</span>Ba<span class="sc">+</span>vehicle<span class="sc">+</span>headlight, <span class="at">data=</span>fgl)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_glass2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = RI ~ Al + Si + Ca + Ba + vehicle + headlight, data = fgl)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-5.3816 -0.4509  0.0376  0.4418  3.9111 
+
+Coefficients:
+               Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   108.21998    7.34898  14.726  &lt; 2e-16 ***
+Al             -2.19413    0.17487 -12.547  &lt; 2e-16 ***
+Si             -1.61520    0.09887 -16.336  &lt; 2e-16 ***
+Ca              1.39476    0.05230  26.671  &lt; 2e-16 ***
+Ba              0.89572    0.20551   4.359 2.06e-05 ***
+vehicleTRUE    -0.93091    0.26208  -3.552 0.000473 ***
+headlightTRUE   0.63323    0.31455   2.013 0.045397 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.015 on 207 degrees of freedom
+Multiple R-squared:  0.8914,    Adjusted R-squared:  0.8883 
+F-statistic: 283.3 on 6 and 207 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Our intercept is wildly different now. What do you notice about the coefficients for Al, Si, Ca and Ba for the second model compared to the first? The Al and Si slopes are more than twice what they were in the earlier model while the Ca and Ba ones decreased significantly. And look at the standard errors on those new coefficient estimates. Our large model had standard errors that were all in the .66 to .74 range, but now they are much much smaller. Si went from having a standard error of 0.6846 to one of only .09887. The model coefficient of determination, <span class="math inline">\(R^2\)</span>, is only slightly decreased and still strong at 0.8941. What is going on here? Multicollinearity. Here is the correlation matrix (rounded to three decimal places) on our continuous independent variables:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">cor</span>(fgl[,<span class="dv">2</span><span class="sc">:</span><span class="dv">9</span>]),<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       Na     Mg     Al     Si      K     Ca     Ba     Fe
+Na  1.000 -0.274  0.157 -0.070 -0.266 -0.275  0.327 -0.241
+Mg -0.274  1.000 -0.482 -0.166  0.005 -0.444 -0.492  0.083
+Al  0.157 -0.482  1.000 -0.006  0.326 -0.260  0.479 -0.074
+Si -0.070 -0.166 -0.006  1.000 -0.193 -0.209 -0.102 -0.094
+K  -0.266  0.005  0.326 -0.193  1.000 -0.318 -0.043 -0.008
+Ca -0.275 -0.444 -0.260 -0.209 -0.318  1.000 -0.113  0.125
+Ba  0.327 -0.492  0.479 -0.102 -0.043 -0.113  1.000 -0.059
+Fe -0.241  0.083 -0.074 -0.094 -0.008  0.125 -0.059  1.000</code></pre>
+</div>
+</div>
+<p>Looks like Mg is fairly strongly correlated with a few of the other terms. That’s why the model wasn’t hurt much by it’s removal.</p>
+<p>In addition to checking correlation matrices, the <em>variance inflation factor</em> is a good metric for flagging where multicollinearity is likely an issue. The variance inflation factor is defined as:</p>
+<p><span class="math display">\[
+VIF_i=\frac{1}{1-R_i^2}
+\]</span></p>
+<p>Where <span class="math inline">\(R_i^2\)</span> is the <span class="math inline">\(R^2\)</span> from a regression model predicting variable <span class="math inline">\(i\)</span> using all other predictors. So to examine the influence of Mg in our model we would look at how well Mg could be modeled linearly as a function of NA, Al, Si, K, Ca, Ba, Fe, and our two glass types:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>mod_Mg<span class="ot">&lt;-</span><span class="fu">lm</span>(Mg<span class="sc">~</span>Na<span class="sc">+</span>Al<span class="sc">+</span>Si<span class="sc">+</span>K<span class="sc">+</span>Ca<span class="sc">+</span>Ba<span class="sc">+</span>Fe<span class="sc">+</span>vehicle<span class="sc">+</span>headlight, <span class="at">data=</span>fgl)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_Mg)<span class="sc">$</span>r.square</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.995202</code></pre>
+</div>
+</div>
+<p>Seems Mg can be almost entirely explained by the other terms. With a high <span class="math inline">\(R_{Mg}^2\)</span>, that means <span class="math inline">\(VIF_{Mg}\)</span> will be large. In fact, <span class="math inline">\(\frac{1}{1-.9952}=208.42\)</span>. Values of <span class="math inline">\(VIF&gt;5\)</span> are generally considered to be worth a closer look.</p>
+<section id="in-r-2" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="in-r-2">In R</h4>
+<p>Fortunately, R will pretty easily provide you with all VIF metrics when provided with a full model under consideration. In the <code>car</code> library lives the <code>vif</code> function. Running all VIFs for our glass model is as simple as:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>mod_glass<span class="ot">&lt;-</span><span class="fu">lm</span>(RI<span class="sc">~</span>Na<span class="sc">+</span>Mg<span class="sc">+</span>Al<span class="sc">+</span>Si<span class="sc">+</span>K<span class="sc">+</span>Ca<span class="sc">+</span>Ba<span class="sc">+</span>Fe<span class="sc">+</span>vehicle<span class="sc">+</span>headlight, <span class="at">data=</span>fgl)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(mod_glass)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        Na         Mg         Al         Si          K         Ca         Ba 
+ 65.145740 208.421848  27.958365  62.254625  44.602864 200.586359  27.131346 
+        Fe    vehicle  headlight 
+  1.218031   1.053694   3.388083 </code></pre>
+</div>
+</div>
+<p>Taking away Mg as the term with the largest VIF, our new model with VIFs looks like:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>mod_glass2<span class="ot">&lt;-</span><span class="fu">lm</span>(RI<span class="sc">~</span>Na<span class="sc">+</span>Al<span class="sc">+</span>Si<span class="sc">+</span>K<span class="sc">+</span>Ca<span class="sc">+</span>Ba<span class="sc">+</span>Fe<span class="sc">+</span>vehicle<span class="sc">+</span>headlight, <span class="at">data=</span>fgl)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(mod_glass2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       Na        Al        Si         K        Ca        Ba        Fe   vehicle 
+ 2.038928  1.882341  1.551700  1.776061  1.648278  2.245932  1.092993  1.047940 
+headlight 
+ 3.277242 </code></pre>
+</div>
+</div>
+<p>Showing with that one omission, the bulk of our multicollinearity issue has been cleared up.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Chapter6.html" class="pagination-link" aria-label="Zeros and Ones">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Zeros and Ones</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Chapter8.html" class="pagination-link" aria-label="Building and Selection">
+        <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Building and Selection</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

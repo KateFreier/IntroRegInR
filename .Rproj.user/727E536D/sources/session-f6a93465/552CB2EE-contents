@@ -1,0 +1,534 @@
+<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
+
+# write a text book section explaining Cook's distance in multiple regression
+
+Cook's distance is a diagnostic measure in multiple regression used to assess the influence of individual data points on the regression model's parameter estimates. By quantifying the impact that each observation has, Cook's distance helps to identify influential data points that may disproportionately affect the model’s results.[^write-a-text-book-section-explaining-cooks-distan-1][^write-a-text-book-section-explaining-cooks-distan-2][^write-a-text-book-section-explaining-cooks-distan-3][^write-a-text-book-section-explaining-cooks-distan-4][^write-a-text-book-section-explaining-cooks-distan-5][^write-a-text-book-section-explaining-cooks-distan-6]
+
+[^write-a-text-book-section-explaining-cooks-distan-1]: <https://www.jmp.com/en/statistics-knowledge-portal/what-is-multiple-regression/mlr-residual-analysis-and-outliers>
+
+[^write-a-text-book-section-explaining-cooks-distan-2]: [https://en.wikipedia.org/wiki/Cook's_distance](https://en.wikipedia.org/wiki/Cook's_distance){.uri}
+
+[^write-a-text-book-section-explaining-cooks-distan-3]: <https://towardsdatascience.com/identifying-outliers-in-linear-regression-cooks-distance-9e212e9136a/>
+
+[^write-a-text-book-section-explaining-cooks-distan-4]: <https://www.mathworks.com/help/stats/cooks-distance.html>
+
+[^write-a-text-book-section-explaining-cooks-distan-5]: <https://www.machinelearningplus.com/machine-learning/cooks-distance/>
+
+[^write-a-text-book-section-explaining-cooks-distan-6]: <https://www.tqmp.org/RegularArticles/vol20-2/p096/p096.pdf>
+
+### What is Cook's Distance?
+
+Cook’s distance (often denoted as \$ D_i \$) combines information from both the residual (how far off an observation is from the fitted model) and the leverage (how unusual a data point's predictors are compared to the rest of the dataset). In essence, it measures how much all of the fitted values in a regression model change when a particular observation is deleted. Large values of Cook's distance indicate that deleting the observation would substantially change the model's results, suggesting that the point is influential.[^write-a-text-book-section-explaining-cooks-distan-7][^write-a-text-book-section-explaining-cooks-distan-8][^write-a-text-book-section-explaining-cooks-distan-9][^write-a-text-book-section-explaining-cooks-distan-10]
+
+[^write-a-text-book-section-explaining-cooks-distan-7]: <https://online.stat.psu.edu/stat462/node/173/>
+
+[^write-a-text-book-section-explaining-cooks-distan-8]: <https://www.statology.org/cooks-distance-spss/>
+
+[^write-a-text-book-section-explaining-cooks-distan-9]: <https://www.statisticshowto.com/cooks-distance/>
+
+[^write-a-text-book-section-explaining-cooks-distan-10]: <https://www.mathworks.com/help/stats/cooks-distance.html>
+
+### Mathematical Definition
+
+In multiple regression, the Cook's distance for observation \$ i \$ is typically defined as:
+
+$$
+D_i = \frac{\sum_{j=1}^{n} (\hat{y}_j - \hat{y}_{j(i)})^2}{p s^2}
+$$
+
+where:
+
+-   \$ \hat{y}\_j \$ is the fitted value using all data,[^write-a-text-book-section-explaining-cooks-distan-11][^write-a-text-book-section-explaining-cooks-distan-12]
+-   \$ \hat{y}\_{j(i)} \$ is the fitted value with the ith observation removed,
+-   \$ p \$ is the number of predictors in the model,
+-   \$ s\^2 \$ is the mean squared error of the regression.
+
+[^write-a-text-book-section-explaining-cooks-distan-11]: [https://en.wikipedia.org/wiki/Cook's_distance](https://en.wikipedia.org/wiki/Cook's_distance){.uri}
+
+[^write-a-text-book-section-explaining-cooks-distan-12]: <http://parker.ad.siu.edu/Olive/ch6.pdf>
+
+An equivalent formula using the residual (\$ e_i $) and leverage ($ h\_{ii} \$) is:
+
+$$
+D_i = \frac{e_{i}^2}{p s^2} \left[ \frac{h_{ii}}{(1-h_{ii})^2} \right]
+$$
+
+This highlights that Cook's distance increases for observations that are both outliers (large residuals) and have unusual predictor values (high leverage).[^write-a-text-book-section-explaining-cooks-distan-13][^write-a-text-book-section-explaining-cooks-distan-14]
+
+[^write-a-text-book-section-explaining-cooks-distan-13]: <https://www.statology.org/cooks-distance-spss/>
+
+[^write-a-text-book-section-explaining-cooks-distan-14]: <https://online.stat.psu.edu/stat462/node/173/>
+
+### Interpretation and Thresholds
+
+Cook's distance provides a scaled measure of influence. Several commonly used thresholds help to identify points for further investigation:
+
+-   A rule of thumb is to examine points with \$ D_i \> 4/n \$, where \$ n \$ is the total number of observations.[^write-a-text-book-section-explaining-cooks-distan-15][^write-a-text-book-section-explaining-cooks-distan-16]
+-   Alternatively, a \$ D_i \$ above 1 is often considered indicative of a particularly influential point.[^write-a-text-book-section-explaining-cooks-distan-17][^write-a-text-book-section-explaining-cooks-distan-18]
+-   Ultimately, any value that stands out from most others (“much larger than most”) merits inspection.[^write-a-text-book-section-explaining-cooks-distan-19]
+
+[^write-a-text-book-section-explaining-cooks-distan-15]: <https://www.statisticshowto.com/cooks-distance/>
+
+[^write-a-text-book-section-explaining-cooks-distan-16]: <https://www.statology.org/cooks-distance-spss/>
+
+[^write-a-text-book-section-explaining-cooks-distan-17]: <https://www.youtube.com/watch?v=KZoxzI4PesA>
+
+[^write-a-text-book-section-explaining-cooks-distan-18]: <https://www.statisticshowto.com/cooks-distance/>
+
+[^write-a-text-book-section-explaining-cooks-distan-19]: <https://www.statisticshowto.com/cooks-distance/>
+
+### Practical Usage in Regression Diagnostics
+
+-   Cook’s distance is calculated for each observation after fitting a regression model.
+-   Statistical software, such as SPSS or R, routinely compute Cook’s distance and can display diagnostics or plots to help analysts identify problematic data points.[^write-a-text-book-section-explaining-cooks-distan-20][^write-a-text-book-section-explaining-cooks-distan-21]
+-   It is recommended to investigate data points with large Cook’s D values rather than automatically deleting them, as influential cases may provide important insight into the data-generating process.[^write-a-text-book-section-explaining-cooks-distan-22][^write-a-text-book-section-explaining-cooks-distan-23]
+
+[^write-a-text-book-section-explaining-cooks-distan-20]: <https://www.mathworks.com/help/stats/cooks-distance.html>
+
+[^write-a-text-book-section-explaining-cooks-distan-21]: <https://www.statology.org/cooks-distance-spss/>
+
+[^write-a-text-book-section-explaining-cooks-distan-22]: <https://www.tqmp.org/RegularArticles/vol20-2/p096/p096.pdf>
+
+[^write-a-text-book-section-explaining-cooks-distan-23]: <https://www.statisticshowto.com/cooks-distance/>
+
+### Importance in Multiple Regression
+
+In multiple regression models, the presence of influential data points may distort results, mask true relationships, or artificially inflate the significance of predictors. Using Cook's distance allows researchers to detect and address these issues, improving model validity and robustness.[^write-a-text-book-section-explaining-cooks-distan-24][^write-a-text-book-section-explaining-cooks-distan-25][^write-a-text-book-section-explaining-cooks-distan-26]
+
+[^write-a-text-book-section-explaining-cooks-distan-24]: <https://www.bookdown.org/rwnahhas/RMPH/mlr-influence.html>
+
+[^write-a-text-book-section-explaining-cooks-distan-25]: <https://www.jmp.com/en/statistics-knowledge-portal/what-is-multiple-regression/mlr-residual-analysis-and-outliers>
+
+[^write-a-text-book-section-explaining-cooks-distan-26]: <https://www.tqmp.org/RegularArticles/vol20-2/p096/p096.pdf>
+
+------------------------------------------------------------------------
+
+Cook’s distance is a crucial tool for diagnosing and managing influential observations in multiple regression, aiding in the detection of outliers and improving the overall reliability of statistical modeling.[^write-a-text-book-section-explaining-cooks-distan-27][^write-a-text-book-section-explaining-cooks-distan-28][^write-a-text-book-section-explaining-cooks-distan-29] [^write-a-text-book-section-explaining-cooks-distan-30][^write-a-text-book-section-explaining-cooks-distan-31][^write-a-text-book-section-explaining-cooks-distan-32]
+
+[^write-a-text-book-section-explaining-cooks-distan-27]: [https://en.wikipedia.org/wiki/Cook's_distance](https://en.wikipedia.org/wiki/Cook's_distance){.uri}
+
+[^write-a-text-book-section-explaining-cooks-distan-28]: <https://online.stat.psu.edu/stat462/node/173/>
+
+[^write-a-text-book-section-explaining-cooks-distan-29]: <https://www.mathworks.com/help/stats/cooks-distance.html>
+
+[^write-a-text-book-section-explaining-cooks-distan-30]: [<https://www.scikit-yb.org/en/latest/api/regressor/influence.html>]{style="display:none"}
+
+[^write-a-text-book-section-explaining-cooks-distan-31]: <https://rpubs.com/DragonflyStats/Cooks-Distance>
+
+[^write-a-text-book-section-explaining-cooks-distan-32]: <https://towardsdatascience.com/outlier-detection-in-regression-using-cooks-distance-f5e4954461a0/>
+
+::: {style="text-align: center"}
+⁂
+:::
+
+### Definition and Calculation
+
+Leverage is commonly measured using the diagonal elements of the "hat matrix" ($\mathbf{H}$), which projects observed response values onto fitted values in regression. For observation $i$, the leverage score ($h_{ii}$) reflects the impact that point's $x$-values have on its predicted value, and is given by:[^write-a-text-book-section-explaining-cooks-distan-33][^write-a-text-book-section-explaining-cooks-distan-34]
+
+[^write-a-text-book-section-explaining-cooks-distan-33]: <https://www.sjsu.edu/faculty/guangliang.chen/Math261a/Ch6slides-leverage-influence.pdf>
+
+[^write-a-text-book-section-explaining-cooks-distan-34]: [https://en.wikipedia.org/wiki/Leverage\_(statistics)](https://en.wikipedia.org/wiki/Leverage_(statistics)){.uri}
+
+$$
+h_{ii} = \mathbf{x}_i^T (\mathbf{X}^T\mathbf{X})^{-1} \mathbf{x}_i
+$$
+
+where $\mathbf{X}$ is the matrix of predictor variables and $\mathbf{x}_i$ is the vector of predictors for observation $i$. In simple linear regression, leverage for each point can be calculated analytically, but in multiple regression, leverage requires matrix computations. The average leverage across all cases is $p/n$, where $p$ is the number of predictors plus one (for the intercept) and $n$ is the sample size.[^write-a-text-book-section-explaining-cooks-distan-35][^write-a-text-book-section-explaining-cooks-distan-36][^write-a-text-book-section-explaining-cooks-distan-37]
+
+[^write-a-text-book-section-explaining-cooks-distan-35]: <https://www.statology.org/the-concise-guide-to-leverage/>
+
+[^write-a-text-book-section-explaining-cooks-distan-36]: <https://www.youtube.com/watch?v=ZV6OfGgroc0>
+
+[^write-a-text-book-section-explaining-cooks-distan-37]: <https://www.sjsu.edu/faculty/guangliang.chen/Math261a/Ch6slides-leverage-influence.pdf>
+
+### Interpretation and Guidelines
+
+High leverage does not necessarily mean a point is influential—it indicates "potential" for influence on the regression results. Typically, leverage values above $2p/n$ or much higher than the average are flagged for review. High-leverage points have predictor values far from the mean, which means the regression line will often be pulled toward them. However, if their response value aligns well with the model, they may not affect coefficients much, distinguishing high leverage from true influence.[^write-a-text-book-section-explaining-cooks-distan-38][^write-a-text-book-section-explaining-cooks-distan-39][^write-a-text-book-section-explaining-cooks-distan-40][^write-a-text-book-section-explaining-cooks-distan-41][^write-a-text-book-section-explaining-cooks-distan-42][^write-a-text-book-section-explaining-cooks-distan-43]
+
+[^write-a-text-book-section-explaining-cooks-distan-38]: <https://www.sciencedirect.com/topics/mathematics/leverage-point>
+
+[^write-a-text-book-section-explaining-cooks-distan-39]: <https://online.stat.psu.edu/stat462/node/171/>
+
+[^write-a-text-book-section-explaining-cooks-distan-40]: <https://www.jmp.com/en/statistics-knowledge-portal/what-is-multiple-regression/mlr-residual-analysis-and-outliers>
+
+[^write-a-text-book-section-explaining-cooks-distan-41]: <https://fiveable.me/key-terms/ap-stats/high-leverage-points>
+
+[^write-a-text-book-section-explaining-cooks-distan-42]: <https://www.statology.org/the-concise-guide-to-leverage/>
+
+[^write-a-text-book-section-explaining-cooks-distan-43]: <https://www.sjsu.edu/faculty/guangliang.chen/Math261a/Ch6slides-leverage-influence.pdf>
+
+### Diagnostic Use and Examples
+
+Leverage diagnostics help identify observations that could disproportionately shape the model. For example, if most data points cluster around moderate values of predictors and one point has an extreme value (e.g., much larger or smaller), that point has high leverage. In practical regression diagnostics, plots such as "residuals vs leverage," possibly with contours for influential measures (like Cook’s Distance), visualize both a point’s leverage and its real-world impact on the model.[^write-a-text-book-section-explaining-cooks-distan-44][^write-a-text-book-section-explaining-cooks-distan-45][^write-a-text-book-section-explaining-cooks-distan-46][^write-a-text-book-section-explaining-cooks-distan-47]
+
+[^write-a-text-book-section-explaining-cooks-distan-44]: <https://www.theopeneducator.com/doe/Regression/outlier-leverage-influential-points>
+
+[^write-a-text-book-section-explaining-cooks-distan-45]: [https://stats.libretexts.org/Bookshelves/Advanced_Statistics/Intermediate_Statistics_with_R\_(Greenwood)/06:\_Correlation_and_Simple_Linear_Regression/6.09:\_Outliers\_-\_leverage_and_influence](https://stats.libretexts.org/Bookshelves/Advanced_Statistics/Intermediate_Statistics_with_R_(Greenwood)/06:_Correlation_and_Simple_Linear_Regression/6.09:_Outliers_-_leverage_and_influence){.uri}
+
+[^write-a-text-book-section-explaining-cooks-distan-46]: <https://www.statology.org/the-concise-guide-to-leverage/>
+
+[^write-a-text-book-section-explaining-cooks-distan-47]: <https://www.sjsu.edu/faculty/guangliang.chen/Math261a/Ch6slides-leverage-influence.pdf>
+
+### Distinction from Outliers and Influence
+
+-   **Outliers:** Points with large residuals (unusual $y$-values).
+-   **Leverage Points:** Points with unusual $x$-values.
+-   **Influential Points:** Points that, if removed, would change the model coefficients significantly.
+
+Not all outliers or leverage points are influential—but influence requires a combination of high leverage and a large residual.[^write-a-text-book-section-explaining-cooks-distan-48][^write-a-text-book-section-explaining-cooks-distan-49]
+
+[^write-a-text-book-section-explaining-cooks-distan-48]: <https://www.bookdown.org/rwnahhas/RMPH/mlr-influence.html>
+
+[^write-a-text-book-section-explaining-cooks-distan-49]: <https://www.sjsu.edu/faculty/guangliang.chen/Math261a/Ch6slides-leverage-influence.pdf>
+
+### Summary Table
+
+| Concept | Definition | Role in Regression | Diagnostic Use |
+|:-----------------|:-----------------|:-----------------|:-----------------|
+| Leverage | Distance from mean $x$ | Potential to influence | Flag high-leverage for review[^write-a-text-book-section-explaining-cooks-distan-50][^write-a-text-book-section-explaining-cooks-distan-51] |
+| Outlier | Large residual | Model fit diagnostics | Use residual plots[^write-a-text-book-section-explaining-cooks-distan-52][^write-a-text-book-section-explaining-cooks-distan-53] |
+| Influence | Change in estimate if point removed | True effect on model | Use Cook’s Distance, sensitivity analysis[^write-a-text-book-section-explaining-cooks-distan-54][^write-a-text-book-section-explaining-cooks-distan-55] |
+
+[^write-a-text-book-section-explaining-cooks-distan-50]: <https://www.statology.org/the-concise-guide-to-leverage/>
+
+[^write-a-text-book-section-explaining-cooks-distan-51]: <https://online.stat.psu.edu/stat462/node/171/>
+
+[^write-a-text-book-section-explaining-cooks-distan-52]: <https://www.sjsu.edu/faculty/guangliang.chen/Math261a/Ch6slides-leverage-influence.pdf>
+
+[^write-a-text-book-section-explaining-cooks-distan-53]: [https://stats.libretexts.org/Bookshelves/Advanced_Statistics/Intermediate_Statistics_with_R\_(Greenwood)/06:\_Correlation_and_Simple_Linear_Regression/6.09:\_Outliers\_-\_leverage_and_influence](https://stats.libretexts.org/Bookshelves/Advanced_Statistics/Intermediate_Statistics_with_R_(Greenwood)/06:_Correlation_and_Simple_Linear_Regression/6.09:_Outliers_-_leverage_and_influence){.uri}
+
+[^write-a-text-book-section-explaining-cooks-distan-54]: [https://stats.libretexts.org/Bookshelves/Advanced_Statistics/Intermediate_Statistics_with_R\_(Greenwood)/06:\_Correlation_and_Simple_Linear_Regression/6.09:\_Outliers\_-\_leverage_and_influence](https://stats.libretexts.org/Bookshelves/Advanced_Statistics/Intermediate_Statistics_with_R_(Greenwood)/06:_Correlation_and_Simple_Linear_Regression/6.09:_Outliers_-_leverage_and_influence){.uri}
+
+[^write-a-text-book-section-explaining-cooks-distan-55]: <https://www.sjsu.edu/faculty/guangliang.chen/Math261a/Ch6slides-leverage-influence.pdf>
+
+Leverage is a key tool for understanding the robustness and reliability of multiple regression models, ensuring that unusual data points are recognized before finalizing analytical conclusions
+
+Cook's distance is a diagnostic measure in multiple regression used to assess the influence of individual data points on the regression model's parameter estimates. By quantifying the impact that each observation has, Cook's distance helps to identify influential data points that may disproportionately affect the model’s results.[^write-a-text-book-section-explaining-cooks-distan-56][^write-a-text-book-section-explaining-cooks-distan-57][^write-a-text-book-section-explaining-cooks-distan-58][^write-a-text-book-section-explaining-cooks-distan-59][^write-a-text-book-section-explaining-cooks-distan-60][^write-a-text-book-section-explaining-cooks-distan-61]
+
+[^write-a-text-book-section-explaining-cooks-distan-56]: <https://www.jmp.com/en/statistics-knowledge-portal/what-is-multiple-regression/mlr-residual-analysis-and-outliers>
+
+[^write-a-text-book-section-explaining-cooks-distan-57]: [https://en.wikipedia.org/wiki/Cook's_distance](https://en.wikipedia.org/wiki/Cook's_distance){.uri}
+
+[^write-a-text-book-section-explaining-cooks-distan-58]: <https://towardsdatascience.com/identifying-outliers-in-linear-regression-cooks-distance-9e212e9136a/>
+
+[^write-a-text-book-section-explaining-cooks-distan-59]: <https://www.mathworks.com/help/stats/cooks-distance.html>
+
+[^write-a-text-book-section-explaining-cooks-distan-60]: <https://www.machinelearningplus.com/machine-learning/cooks-distance/>
+
+[^write-a-text-book-section-explaining-cooks-distan-61]: <https://www.tqmp.org/RegularArticles/vol20-2/p096/p096.pdf>
+
+### What is Cook's Distance?
+
+Cook’s distance (often denoted as \$ D_i \$) combines information from both the residual (how far off an observation is from the fitted model) and the leverage (how unusual a data point's predictors are compared to the rest of the dataset). In essence, it measures how much all of the fitted values in a regression model change when a particular observation is deleted. Large values of Cook's distance indicate that deleting the observation would substantially change the model's results, suggesting that the point is influential.[^write-a-text-book-section-explaining-cooks-distan-62][^write-a-text-book-section-explaining-cooks-distan-63][^write-a-text-book-section-explaining-cooks-distan-64][^write-a-text-book-section-explaining-cooks-distan-65]
+
+[^write-a-text-book-section-explaining-cooks-distan-62]: <https://online.stat.psu.edu/stat462/node/173/>
+
+[^write-a-text-book-section-explaining-cooks-distan-63]: <https://www.statology.org/cooks-distance-spss/>
+
+[^write-a-text-book-section-explaining-cooks-distan-64]: <https://www.statisticshowto.com/cooks-distance/>
+
+[^write-a-text-book-section-explaining-cooks-distan-65]: <https://www.mathworks.com/help/stats/cooks-distance.html>
+
+### Mathematical Definition
+
+In multiple regression, the Cook's distance for observation \$ i \$ is typically defined as:
+
+$$
+D_i = \frac{\sum_{j=1}^{n} (\hat{y}_j - \hat{y}_{j(i)})^2}{p s^2}
+$$
+
+where:
+
+-   \$ \hat{y}\_j \$ is the fitted value using all data,[^write-a-text-book-section-explaining-cooks-distan-66][^write-a-text-book-section-explaining-cooks-distan-67]
+-   \$ \hat{y}\_{j(i)} \$ is the fitted value with the ith observation removed,
+-   \$ p \$ is the number of predictors in the model,
+-   \$ s\^2 \$ is the mean squared error of the regression.
+
+[^write-a-text-book-section-explaining-cooks-distan-66]: [https://en.wikipedia.org/wiki/Cook's_distance](https://en.wikipedia.org/wiki/Cook's_distance){.uri}
+
+[^write-a-text-book-section-explaining-cooks-distan-67]: <http://parker.ad.siu.edu/Olive/ch6.pdf>
+
+An equivalent formula using the residual (\$ e_i $) and leverage ($ h\_{ii} \$) is:
+
+$$
+D_i = \frac{e_{i}^2}{p s^2} \left[ \frac{h_{ii}}{(1-h_{ii})^2} \right]
+$$
+
+This highlights that Cook's distance increases for observations that are both outliers (large residuals) and have unusual predictor values (high leverage).[^write-a-text-book-section-explaining-cooks-distan-68][^write-a-text-book-section-explaining-cooks-distan-69]
+
+[^write-a-text-book-section-explaining-cooks-distan-68]: <https://www.statology.org/cooks-distance-spss/>
+
+[^write-a-text-book-section-explaining-cooks-distan-69]: <https://online.stat.psu.edu/stat462/node/173/>
+
+### Interpretation and Thresholds
+
+Cook's distance provides a scaled measure of influence. Several commonly used thresholds help to identify points for further investigation:
+
+-   A rule of thumb is to examine points with \$ D_i \> 4/n \$, where \$ n \$ is the total number of observations.[^write-a-text-book-section-explaining-cooks-distan-70][^write-a-text-book-section-explaining-cooks-distan-71]
+-   Alternatively, a \$ D_i \$ above 1 is often considered indicative of a particularly influential point.[^write-a-text-book-section-explaining-cooks-distan-72][^write-a-text-book-section-explaining-cooks-distan-73]
+-   Ultimately, any value that stands out from most others (“much larger than most”) merits inspection.[^write-a-text-book-section-explaining-cooks-distan-74]
+
+[^write-a-text-book-section-explaining-cooks-distan-70]: <https://www.statisticshowto.com/cooks-distance/>
+
+[^write-a-text-book-section-explaining-cooks-distan-71]: <https://www.statology.org/cooks-distance-spss/>
+
+[^write-a-text-book-section-explaining-cooks-distan-72]: <https://www.youtube.com/watch?v=KZoxzI4PesA>
+
+[^write-a-text-book-section-explaining-cooks-distan-73]: <https://www.statisticshowto.com/cooks-distance/>
+
+[^write-a-text-book-section-explaining-cooks-distan-74]: <https://www.statisticshowto.com/cooks-distance/>
+
+### Practical Usage in Regression Diagnostics
+
+-   Cook’s distance is calculated for each observation after fitting a regression model.
+-   Statistical software, such as SPSS or R, routinely compute Cook’s distance and can display diagnostics or plots to help analysts identify problematic data points.[^write-a-text-book-section-explaining-cooks-distan-75][^write-a-text-book-section-explaining-cooks-distan-76]
+-   It is recommended to investigate data points with large Cook’s D values rather than automatically deleting them, as influential cases may provide important insight into the data-generating process.[^write-a-text-book-section-explaining-cooks-distan-77][^write-a-text-book-section-explaining-cooks-distan-78]
+
+[^write-a-text-book-section-explaining-cooks-distan-75]: <https://www.mathworks.com/help/stats/cooks-distance.html>
+
+[^write-a-text-book-section-explaining-cooks-distan-76]: <https://www.statology.org/cooks-distance-spss/>
+
+[^write-a-text-book-section-explaining-cooks-distan-77]: <https://www.tqmp.org/RegularArticles/vol20-2/p096/p096.pdf>
+
+[^write-a-text-book-section-explaining-cooks-distan-78]: <https://www.statisticshowto.com/cooks-distance/>
+
+### Importance in Multiple Regression
+
+In multiple regression models, the presence of influential data points may distort results, mask true relationships, or artificially inflate the significance of predictors. Using Cook's distance allows researchers to detect and address these issues, improving model validity and robustness.[^write-a-text-book-section-explaining-cooks-distan-79][^write-a-text-book-section-explaining-cooks-distan-80][^write-a-text-book-section-explaining-cooks-distan-81]
+
+[^write-a-text-book-section-explaining-cooks-distan-79]: <https://www.bookdown.org/rwnahhas/RMPH/mlr-influence.html>
+
+[^write-a-text-book-section-explaining-cooks-distan-80]: <https://www.jmp.com/en/statistics-knowledge-portal/what-is-multiple-regression/mlr-residual-analysis-and-outliers>
+
+[^write-a-text-book-section-explaining-cooks-distan-81]: <https://www.tqmp.org/RegularArticles/vol20-2/p096/p096.pdf>
+
+------------------------------------------------------------------------
+
+Cook’s distance is a crucial tool for diagnosing and managing influential observations in multiple regression, aiding in the detection of outliers and improving the overall reliability of statistical modeling.
+
+## DFFits and DFBetas
+
+## USCereal example
+
+There are two outliers with calories\<300. The model looks awful with them, but take them out and things become quite pretty....
+
+```{r}
+#| message: false
+#| warning: false
+library(MASS)
+```
+
+A good first step is to look at the simple pairwise relationships between each $x$ predictor and the outcome $y$. Let's expand beyond our two-$x$ hill race model and look at the `UScereals` data in the `MASS` data. @fig-cereal1 below shows our four predictors: protein, fat, carbohydrates, and sugars each plotted against the dependent variable: calories per serving.
+
+```{r}
+#| label: fig-cereal1
+#| fig-cap: Calories in Cereal
+#| fig-subcap: 
+#| - Protein vs. Calories
+#| - Fat vs. Calories
+#| - Carbohydrates vs. Calories
+#| - Sugars vs. Calories
+#| echo: false
+#| fig-align: center
+#| fig-height: 2.25
+#| fig-width: 3
+#| layout-ncol: 2
+#| layout-nrow: 2
+#| fig-pos: "H"
+
+par(mar=c(3,3,.75,.75), mgp=c(2,.5,0))
+attach(UScereal)
+plot(protein, calories, xlab="Protein", ylab="Calories")
+plot(fat, calories, xlab="Fat", ylab="Calories")
+plot(carbo, calories, xlab="Carbohydrates", ylab="Calories")
+plot(sugars, calories, xlab="Sugars", ylab="Calories")
+```
+
+Each of our four initial plots look fairly linear and appropriate for inclusion in our model. Protein and sugars might introduce some heterskedasticity, and there is one clear outlier in the fat plot and a few on the sugar plot, but these plots all look like a reasonable place to start. So we fit the multiple regression model and then create the fitted vs. residual plot to get a sense of how closely your model is following the data across all dimensions combined.
+
+Confession: In the case of a single predictor you could have been using an $X$ vs. residual plot this whole time, but with multiple regression you need the fitted value to serve as a combination of all independent terms in the model. Therefore, it's not bad to be in the habit of evaluating *fitted* vs. residual plots from the start.
+
+Just as in the simple one-$x$ case, If the fitted vs. residual model has curvature, you have a curvature problem to address. If the fitted vs. residual plot shows a change in residual variance, you have a heteroskedasticity problem to address. Once a problem is identified, you'll follow up with more plots to uncover which of the X are the root cause. It might be one $X$, but it also might be more than one.
+
+```{r}
+#| label: fig-cereal2 
+#| fig-cap: Cereal Calories fitted vs. residuals 
+#| echo: false 
+#| fig-align: center 
+#| fig-height: 3 
+#| fig-width: 4 
+#| fig-pos: "H" 
+
+par(mar=c(4,4,1,1)) 
+
+mod_cereal<-lm(calories~protein+fat+carbo+sugars, data=UScereal) 
+
+plot(mod_cereal$fitted, mod_cereal$resid, xlab="Fitted Calories", ylab="Model Residuals") 
+
+abline(h=0, col=2, lwd=3)
+```
+
+This is where the partial regression plot comes in. To view how each X variable relates to your Y after the impact of the other X's has been considered you can plot $x_i$ vs. the residuals from a model predicting $Y$ using all $x_1....x_p$ except $x_i$. These are the four plots shown in @fig-cereal3.
+
+```{r}
+#| label: fig-cereal3
+#| fig-cap: Cereal Partial Regression Plots
+#| fig-subcap: 
+#| - Protein partial regression plot
+#| - Fat partial regression plot
+#| - Carbo partial regression plot
+#| - Sugars partial regression plot
+#| echo: false
+#| fig-align: center
+#| fig-height: 3
+#| fig-width: 4
+#| layout-ncol: 2
+#| layout-nrow: 2
+
+mod_cereal<-lm(calories~protein+fat+carbo+sugars, data=UScereal)
+par(mar=c(4,4,1,1))
+mpro<-lm(calories~fat+carbo+sugars, data=UScereal)
+mfat<-lm(calories~protein+carbo+sugars, data=UScereal)
+mcarbo<-lm(calories~protein+fat+sugars, data=UScereal)
+msugars<-lm(calories~protein+fat+carbo, data=UScereal)
+
+plot(UScereal$protein, mpro$resid, xlab="Protein", ylab="resid model-protein")
+plot(UScereal$fat, mfat$resid, xlab="Fat", ylab="resid model-fat")
+plot(UScereal$carbo, mcarbo$resid, xlab="Carbohydrates", ylab="resid model-carbo")
+plot(UScereal$sugars, msugars$resid, xlab="Sugars", ylab="resid model-sugars")
+
+```
+
+The encouraging take-away shown in these plots is that every variable is adding something new to our knowledge of calories. This is known by the fact that all plots show a definite relationship between their $x_i$ and the residuals from the model not including $x_i$.
+
+These plots also show us that the only relationship that isn't linear and shows a curve similar to that seen in @fig-cereal2 is the one between protein and the residuals of the model not including protein. So what can be done to make that relationship linear? Transformations. @fig-cereal4 shows the results of the four basic transformations applied to protein and then plotted against the partial residuals from the model without protein. As should have been anticipated given the parabolic shape, the protein-squared model is the most linear.
+
+```{r}
+#| label: fig-cereal4
+#| fig-cap: Transformed Protein Partial Regression Plots
+#| fig-subcap: 
+#| - Inverse Protein partial regression plot
+#| - Protein squared partial regression plot
+#| - SQRT Protein regression plot
+#| - Log Protein partial regression plot
+#| echo: false
+#| fig-align: center
+#| fig-height: 3
+#| fig-width: 4
+#| layout-ncol: 2
+#| layout-nrow: 2
+
+par(mar=c(4,4,1,1))
+mpro<-lm(calories~fat+carbo+sugars, data=UScereal)
+
+plot(1/UScereal$protein, mpro$resid, xlab="Inverse Protein", ylab="resid model-protein")
+plot(UScereal$protein^2, mpro$resid, xlab="Protein-Squared", ylab="resid model-protein")
+plot(sqrt(UScereal$protein), mpro$resid, xlab="Square-root Protein", ylab="resid model-protein")
+plot(log(UScereal$protein), mpro$resid, xlab="Log Protein", ylab="resid model-protein")
+
+```
+
+To picture this a bit better, you can space out the values of protein-squared less than 30 by first adding a constant to protein and then squaring it. This can make the plot more clear, but as demonstrated through the lines below, this doesn't fundamentally change the relationship between Protein and Calories since there's a constant in our model already.
+
+{{< pagebreak >}}
+
+Consider for any constant $c$:
+
+$$
+y=\hat{β_0}+\hat{β_1}(x_1+c)+\hat{β_2}x_2+\hat{β_3}x_3+\hat{β_4}x_4+ε
+$$
+
+$$
+y=\hat{β_0}+\hat{β_1}x_1+\hat{β_1}c+\hat{β_2}x_2+\hat{β_3}x_3+\hat{β_4}x_4+ε
+$$
+
+$$let \:
+\hat{β
+}_{0new}=\hat{β_0}+\hat{β_1}c$$
+
+$$
+y=\hat{β}_{0new}+\hat{β_1}x_1+\hat{β_2}x_2+\hat{β_3}x_3+\hat{β_4}x_4+ε
+$$
+
+```{r}
+#| label: fig-cereal5
+#| fig-cap: Transformed Protein Partial Regression Plots
+#| fig-subcap: 
+#| - Protein Squared
+#| - (Protein+10) Squared
+#| echo: false
+#| fig-align: center
+#| fig-height: 3
+#| fig-width: 4
+#| layout-ncol: 2
+#| layout-nrow: 1
+
+par(mar=c(4,4,1,1))
+mpro<-lm(calories~fat+carbo+sugars, data=UScereal)
+
+plot(UScereal$protein^2, mpro$resid, xlab="Protein-Squared", ylab="resid model-protein")
+plot((UScereal$protein+10)^2, mpro$resid, xlab="(Protein+10)^2", ylab="resid model-protein")
+```
+
+From here, we know that $protein^2$ is a better linear predictor for calories than $protein$ directly so we change our model from
+
+$$
+calories=β_0+β_1protein+β_2fat+β_3carbo+β_4sugars+ε
+$$
+
+to
+
+$$
+calories=β_0+β_1protein^2+β_2fat+β_3carbo+β_4sugars+ε
+$$
+
+```{r}
+#| label: fig-cereal6
+#| fig-cap: Cereal Calories fitted vs. residuals, protein squared
+#| fig-subcap: 
+#| - Original
+#| - Transformed protein
+#| echo: false
+#| fig-align: center
+#| fig-height: 3
+#| fig-width: 4
+#| layout-ncol: 2
+par(mar=c(4,4,1,1))
+mod_cereal2<-lm(calories~I(protein^2)+fat+carbo+sugars, data=UScereal)
+plot(mod_cereal$fitted, mod_cereal$resid, xlab="Fitted Calories", ylab="Model Residuals")
+abline(h=0, col=2, lwd=3)
+plot(mod_cereal2$fitted, mod_cereal2$resid, xlab="Fitted Calories", ylab="Model Residuals")
+abline(h=0, col=2, lwd=3)
+```
+
+All six variables included in the data frame are plotted in @fig-drive1.
+
+```{r}
+#| label: fig-drive1
+#| fig-cap: US Driver Deaths
+#| echo: false
+#| fig-height: 4.5
+
+par(mar=rep(1,4)) 
+plot(road) 
+```
+
+At first glance, the scatterplot matrix in @fig-drive1 makes clear that there is an extreme outlier in our data in the population density domain. With a closer look at the data we can see that while most rows of `road` are US states as explained in the help menu for the data frame, row 9 is actually not a state at all; it is Washington DC. This explains why row 9 has a population density of over 12,000 while the next highest is only 655 (for Massachusetts).
+
+```{r}
+#| echo: true
+road[order(road$popden, decreasing=TRUE)[1:5],] 
+```
+
+To exclude the district from our analysis, step one is to create a new `road2` data frame that omits Washington DC. Then, we'll examine a scatterplot matrix for the new data.
+
+```{r}
+#| label: fig-drive2
+#| fig-cap: US Driver Deaths, without DC
+#| echo: true
+#| fig-height: 4.5
+road2<-road[road$popden<1000,] 
+plot(road2)
+```
+
+From @fig-drive2 we can see that every possible predictor for road deaths has a definite relationship with the deaths column of our data set. Some are stronger than others, but drivers, popden, rural, temp, and fuel all appear to be at least somewhat linearly related to deaths.

@@ -1,0 +1,116 @@
+<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
+
+# write a text book section explaining studentized residuals in multiple regression
+
+Studentized residuals are a fundamental concept in the analysis of multiple regression models, serving as an essential diagnostic tool for identifying outliers and evaluating model assumptions.[^write-a-text-book-section-explaining-studentized-r-1][^write-a-text-book-section-explaining-studentized-r-2][^write-a-text-book-section-explaining-studentized-r-3]
+
+[^write-a-text-book-section-explaining-studentized-r-1]: <https://www.jmp.com/en/statistics-knowledge-portal/what-is-multiple-regression/mlr-residual-analysis-and-outliers>
+
+[^write-a-text-book-section-explaining-studentized-r-2]: <https://online.stat.psu.edu/stat462/node/247/>
+
+[^write-a-text-book-section-explaining-studentized-r-3]: <https://en.wikipedia.org/wiki/Studentized_residual>
+
+### Definition and Purpose
+
+A studentized residual is the value obtained by dividing a raw residual (the difference between an observed and predicted value) by an estimate of its standard deviation. This standard deviation is calculated by refitting the regression model after removing the observation in question, ensuring that the influence of the potential outlier does not distort the error estimate. Because of this, studentized residuals are also called "externally studentized residuals".[^write-a-text-book-section-explaining-studentized-r-4][^write-a-text-book-section-explaining-studentized-r-5][^write-a-text-book-section-explaining-studentized-r-6][^write-a-text-book-section-explaining-studentized-r-7]
+
+[^write-a-text-book-section-explaining-studentized-r-4]: <https://online.stat.psu.edu/stat462/node/247/>
+
+[^write-a-text-book-section-explaining-studentized-r-5]: <https://en.wikipedia.org/wiki/Studentized_residual>
+
+[^write-a-text-book-section-explaining-studentized-r-6]: <https://galton.uchicago.edu/~yibi/teaching/stat224/L10.pdf>
+
+[^write-a-text-book-section-explaining-studentized-r-7]: <https://www.jmp.com/en/statistics-knowledge-portal/what-is-multiple-regression/mlr-residual-analysis-and-outliers>
+
+### Formula
+
+The studentized residual for the $i$th observation is given by:
+
+$$
+t_i = \frac{e_i}{\sqrt{MSE_{(i)}(1-h_{ii})}}
+$$
+
+where:
+
+-   $e_i$ = residual for the $i$th observation
+-   $MSE_{(i)}$ = mean squared error calculated without the $i$th case
+-   $h_{ii}$ = leverage of the $i$th observation[^write-a-text-book-section-explaining-studentized-r-8][^write-a-text-book-section-explaining-studentized-r-9][^write-a-text-book-section-explaining-studentized-r-10]
+
+[^write-a-text-book-section-explaining-studentized-r-8]: <https://en.wikipedia.org/wiki/Studentized_residual>
+
+[^write-a-text-book-section-explaining-studentized-r-9]: <https://galton.uchicago.edu/~yibi/teaching/stat224/L10.pdf>
+
+[^write-a-text-book-section-explaining-studentized-r-10]: <https://online.stat.psu.edu/stat462/node/247/>
+
+Another equivalent formula relates studentized residuals to standardized residuals ($r_i$):
+
+$$
+t_i = r_i \left( \frac{n-k-2}{n-k-1-r_i^2} \right)^{1/2}
+$$
+
+where:
+
+-   $n$ = number of observations
+-   $k$ = number of predictors[^write-a-text-book-section-explaining-studentized-r-11][^write-a-text-book-section-explaining-studentized-r-12]
+
+[^write-a-text-book-section-explaining-studentized-r-11]: <https://galton.uchicago.edu/~yibi/teaching/stat224/L10.pdf>
+
+[^write-a-text-book-section-explaining-studentized-r-12]: <https://online.stat.psu.edu/stat462/node/247/>
+
+### Interpretation and Use
+
+Studentized residuals are valuable because, under the standard assumptions of multiple regression, they follow a $t$-distribution with $n-k-2$ degrees of freedom. Values larger than about 3 (in absolute value) often suggest the presence of an outlier. Compared to standardized residuals, studentized residuals adjust more appropriately for points that may exert excessive influence on the model.[^write-a-text-book-section-explaining-studentized-r-13][^write-a-text-book-section-explaining-studentized-r-14][^write-a-text-book-section-explaining-studentized-r-15]
+
+[^write-a-text-book-section-explaining-studentized-r-13]: <https://real-statistics.com/multiple-regression/residuals/>
+
+[^write-a-text-book-section-explaining-studentized-r-14]: <https://online.stat.psu.edu/stat462/node/247/>
+
+[^write-a-text-book-section-explaining-studentized-r-15]: <https://en.wikipedia.org/wiki/Studentized_residual>
+
+In practice, studentized residuals are plotted against predicted values or individual predictor variables to diagnose:
+
+-   Outliers (unusually large absolute studentized residuals)
+-   Violation of assumptions, such as non-linearity or heteroscedasticity, if patterns emerge in the plots
+
+### Comparison with Standardized Residuals
+
+| Feature | Standardized Residuals | Studentized Residuals |
+|:---|:---|:---|
+| Error estimate | Based on all data | Excludes the target observation |
+| Distribution (large n) | Approx. normal | $t$-distribution, $n-k-2$ d.f. |
+| Outlier detection | Less robust | More effective for influential obs. |
+| Sensitivity to outliers | Can be masked | Less likely to be masked |
+
+### Summary
+
+Studentized residuals offer a refined lens for residual analysis in multiple regression, making them more effective for identifying influential data points and diagnosing model fit than standardized residuals. They are preferable particularly in datasets where individual points may unduly influence overall model behavior.[^write-a-text-book-section-explaining-studentized-r-16][^write-a-text-book-section-explaining-studentized-r-17][^write-a-text-book-section-explaining-studentized-r-18][^write-a-text-book-section-explaining-studentized-r-19] [^write-a-text-book-section-explaining-studentized-r-20][^write-a-text-book-section-explaining-studentized-r-21][^write-a-text-book-section-explaining-studentized-r-22][^write-a-text-book-section-explaining-studentized-r-23][^write-a-text-book-section-explaining-studentized-r-24][^write-a-text-book-section-explaining-studentized-r-25][^write-a-text-book-section-explaining-studentized-r-26][^write-a-text-book-section-explaining-studentized-r-27][^write-a-text-book-section-explaining-studentized-r-28]
+
+[^write-a-text-book-section-explaining-studentized-r-16]: <https://online.stat.psu.edu/stat462/node/247/>
+
+[^write-a-text-book-section-explaining-studentized-r-17]: <https://en.wikipedia.org/wiki/Studentized_residual>
+
+[^write-a-text-book-section-explaining-studentized-r-18]: <https://galton.uchicago.edu/~yibi/teaching/stat224/L10.pdf>
+
+[^write-a-text-book-section-explaining-studentized-r-19]: <https://real-statistics.com/multiple-regression/residuals/>
+
+[^write-a-text-book-section-explaining-studentized-r-20]: [<https://www.qualtrics.com/support/stats-iq/analyses/regression-guides/interpreting-residual-plots-improve-regression/>]{style="display:none"}
+
+[^write-a-text-book-section-explaining-studentized-r-21]: <https://www.bookdown.org/rwnahhas/RMPH/mlr-residuals.html>
+
+[^write-a-text-book-section-explaining-studentized-r-22]: <https://bookdown.org/burak2358/SARP-EN/multiple-linear-regression-a-short-introduction.html>
+
+[^write-a-text-book-section-explaining-studentized-r-23]: <https://statistics.laerd.com/spss-tutorials/multiple-regression-using-spss-statistics.php>
+
+[^write-a-text-book-section-explaining-studentized-r-24]: <https://sadbhavnapublications.org/research-enrichment-material/2-Statistical-Books/Multiple-Regression-and-Beyond-An-Introduction-Multiple-Regression-and-Structural-Equation-Modeling.pdf>
+
+[^write-a-text-book-section-explaining-studentized-r-25]: <http://faculty.cas.usf.edu/mbrannick/regression/Part3/DiagnosticNarrative.html>
+
+[^write-a-text-book-section-explaining-studentized-r-26]: <http://web.vu.lt/mif/a.buteikis/wp-content/uploads/2019/11/MultivariableRegression_6.pdf>
+
+[^write-a-text-book-section-explaining-studentized-r-27]: <https://www.stat.berkeley.edu/~brill/Stat131a/29_multi.pdf>
+
+[^write-a-text-book-section-explaining-studentized-r-28]: <https://www.youtube.com/watch?v=WMoUwezUS5w>
+
+::: {style="text-align: center"}
+⁂
+:::

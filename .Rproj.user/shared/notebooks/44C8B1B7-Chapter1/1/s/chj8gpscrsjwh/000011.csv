@@ -1,0 +1,2 @@
+"0","points(mtcars$wt[c(15,19,25)], mtcars$mpg[c(15,19,25)], "
+"0","       pch=c(15,16,17), cex=1.5)"
