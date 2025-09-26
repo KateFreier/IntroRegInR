@@ -1,3 +1,53 @@
 {
-    "entries": []
+    "entries": [
+        {
+            "file": "Chapter4.qmd",
+            "type": "fig",
+            "id": "cpus",
+            "suffix": "",
+            "title": "CPU Model and Residuals"
+        },
+        {
+            "file": "Chapter4.qmd",
+            "type": "fig",
+            "id": "normhist",
+            "suffix": "",
+            "title": "Cat model and residuals"
+        },
+        {
+            "file": "Chapter4.qmd",
+            "type": "fig",
+            "id": "catqq",
+            "suffix": "",
+            "title": "Cat Model Residuals"
+        },
+        {
+            "file": "Chapter4.qmd",
+            "type": "fig",
+            "id": "boil",
+            "suffix": "",
+            "title": "Barometric pressure and boiling point, fitted"
+        },
+        {
+            "file": "Chapter4.qmd",
+            "type": "fig",
+            "id": "dw",
+            "suffix": "",
+            "title": "Residuals in order"
+        },
+        {
+            "file": "Chapter4.qmd",
+            "type": "fig",
+            "id": "boilplus",
+            "suffix": "",
+            "title": "Boiling model with residuals"
+        },
+        {
+            "file": "Chapter4.qmd",
+            "type": "fig",
+            "id": "qqplot",
+            "suffix": "",
+            "title": "Three QQ-Plot examples"
+        }
+    ]
 }

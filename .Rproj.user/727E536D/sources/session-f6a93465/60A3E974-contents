@@ -9,7 +9,7 @@ Just because an assumption or two isn't met, that doesn't mean you can't use reg
 
 ## Simple Transformations {#sec-simple-transformations}
 
-We know from the work in @sec-chap4 that the relationship between barometric pressure and boiling point is not quite linear. @fig-bprev shows the fitted regression line and the resulting fitted vs. residual plot with clear curvature. So what do we do about plots that aren't linear? We make them linear.
+We know from the work in chapter 4 that the relationship between barometric pressure and boiling point is not quite linear. @fig-bprev shows the fitted regression line and the resulting fitted vs. residual plot with clear curvature. So what do we do about plots that aren't linear? We make them linear.
 
 ```{r}
 #| label: fig-bprev
@@ -447,7 +447,7 @@ Remember this simple transformation should you find yourself with really tiny sl
 
     b.  Create a graph of your model, adding the fitted the curve to a plot of un-transformed concentration and length.
 
-    c.   Is the expected length change with zero calcium chloride concentration greater than 0? Explain.
+    c.  Is the expected length change with zero calcium chloride concentration greater than 0? Explain.
 
 3.  The `mammals` dataset in the `MASS` library contains the brain and body weights of 62 mammals.
 

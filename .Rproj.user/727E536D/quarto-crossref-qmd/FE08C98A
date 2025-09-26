@@ -1,3 +1,102 @@
 {
-    "entries": []
+    "entries": [
+        {
+            "file": "Chapter5.qmd",
+            "type": "fig",
+            "id": "bplog",
+            "suffix": "",
+            "title": "Boiling point log pressure model"
+        },
+        {
+            "file": "Chapter5.qmd",
+            "type": "fig",
+            "id": "bprev",
+            "suffix": "",
+            "title": "Boiling point model and residuals"
+        },
+        {
+            "file": "Chapter5.qmd",
+            "type": "fig",
+            "id": "mamsleepwt",
+            "suffix": "",
+            "title": "Mammal sleep model, Weighted & Unweighted"
+        },
+        {
+            "file": "Chapter5.qmd",
+            "type": "sec",
+            "id": "simple-transformations",
+            "suffix": "",
+            "title": "Simple Transformations"
+        },
+        {
+            "file": "Chapter5.qmd",
+            "type": "fig",
+            "id": "mamsleepvar",
+            "suffix": "",
+            "title": "Mammal Sleeping and Non-Dreaming"
+        },
+        {
+            "file": "Chapter5.qmd",
+            "type": "fig",
+            "id": "cpubad",
+            "suffix": "",
+            "title": "CPU Performance Linear Model"
+        },
+        {
+            "file": "Chapter5.qmd",
+            "type": "fig",
+            "id": "cpubc2",
+            "suffix": "",
+            "title": "Updated CPU Box-Cox, sqrt(x)"
+        },
+        {
+            "file": "Chapter5.qmd",
+            "type": "fig",
+            "id": "babies",
+            "suffix": "",
+            "title": "Crawling Age and Temperature"
+        },
+        {
+            "file": "Chapter5.qmd",
+            "type": "fig",
+            "id": "babies2",
+            "suffix": "",
+            "title": "Crawling Age and Temperature, two models"
+        },
+        {
+            "file": "Chapter5.qmd",
+            "type": "fig",
+            "id": "mamsleep",
+            "suffix": "",
+            "title": "Mammal Sleeping and Non-Dreaming"
+        },
+        {
+            "file": "Chapter5.qmd",
+            "type": "fig",
+            "id": "cpubc3",
+            "suffix": "",
+            "title": "Updated CPU Box-Cox, log(x)"
+        },
+        {
+            "file": "Chapter5.qmd",
+            "type": "fig",
+            "id": "4trans",
+            "suffix": "",
+            "title": "Four Tranformations"
+        },
+        {
+            "file": "Chapter5.qmd",
+            "type": "fig",
+            "id": "mammals",
+            "suffix": "",
+            "title": "Mammal body and brain weight"
+        },
+        {
+            "file": "Chapter5.qmd",
+            "type": "fig",
+            "id": "cpubc1",
+            "suffix": "",
+            "title": "CPU Model with Box-Cox"
+        }
+    ]
 }
