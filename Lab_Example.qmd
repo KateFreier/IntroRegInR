@@ -1,0 +1,30 @@
+---
+title: "Stat 364 Lab 1"
+author: Model Student
+---
+
+## Question 2
+
+*Create a a scatterplot of vehicle weight and horsepower from the mtcars data frame. Overlay your plot with a median-median line in red.*
+
+```{r}
+## this is an example, your code will involve finding the proper
+##    slope and intercept, not just putting in two numbers
+plot(mtcars$wt, mtcars$hp, xlab="Weight", ylab="Horsepower")
+abline(a=0, b=50, col="red", lwd=3)
+```
+
+## Question 3
+
+*Create a scatterplot of vehicle speed and stopping distance from the cars data frame. Overlay your plot with a least-squares regression line in the color of your\
+choice.*
+
+```{r}
+# and now more code here to complete the graphing task
+```
+
+## Question 5
+
+*Fit a least-squares model predicting vehicle hwy_mpg as a function of vehicle weight using the cars04 data frame in the openintro library. Which estimate, d or e, do you feel better about? Why?*
+
+And here you type in your answer to the question...

@@ -113,7 +113,7 @@ $$
 F=\frac{\sigma^2_1}{\sigma^2_2}
 $$ where $\sigma^2_1$ is the variance from group 1, and $\sigma^2_2$ is the variance of the second group. The degrees of freedom for the test are $n_1-1$ and $n_2-1$, where $n_1$ and $n_2$ are the two group sample sizes.
 
-Performing this test on the CPU performance data and splitting the data so group 1 includes fitted values \<50 and group 2 has fitted values \<=50 yields:
+Performing this test on the CPU performance data and splitting the data so group 1 includes fitted values \<50 and group 2 has fitted values $\ge 50$ yields:
 
 $$
 F=\frac{166.859}{3098.414}=0.05385
