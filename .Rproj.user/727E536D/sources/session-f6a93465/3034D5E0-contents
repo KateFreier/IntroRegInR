@@ -92,7 +92,7 @@ $$ {#eq-vartrick}
 Recall one of our big assumptions is that $Var(ε)$ is constant. As part of that, we denote $Var(ε)$ as simply $\sigma^2I$ where $\sigma$ is that constant variance. So now:
 
 $$
-var(\hatβ)=(X^TX)XT^{-1}\sigma^2IX(X^TX)^{-1}
+var(\hatβ)=(X^TX)^{-1}X^T\sigma^2IX(X^TX)^{-1}
 $$
 
 $$
